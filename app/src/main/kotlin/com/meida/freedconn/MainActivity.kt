@@ -16,7 +16,6 @@ import com.netease.nim.avchatkit.AVChatKit
 import com.netease.nimlib.sdk.auth.AuthServiceObserver
 import com.meida.base.BaseActivity
 import com.meida.base.getString
-import com.meida.chatkit.TeamSoundPlayer
 import com.meida.chatkit.getService
 import com.meida.chatkit.observeOnlineStatus
 import com.meida.model.RefreshMessageEvent
@@ -58,6 +57,7 @@ class MainActivity : BaseActivity() {
         /* 在线状态观察者 */
         getService<AuthServiceObserver>().observeOnlineStatus {
             if (it.wontAutoLogin()) {
+                toast(getString(R.string.notify_offline))
                 AVChatKit.getAvChatOptions().logout(baseContext)
             }
         }

@@ -38,7 +38,6 @@ class LoginActivity : BaseActivity() {
 
         if (intent.getBooleanExtra("offLine", false)) {
             clearData()
-            toast(getString(R.string.notify_offline))
             ActivityStack.screenManager.popAllActivityExcept(this@LoginActivity::class.java)
         }
     }
