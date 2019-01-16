@@ -163,7 +163,7 @@ class MainActivity : BaseActivity() {
         )
     }
 
-    /** 注册电话状态监听 **/
+    /** 注册电话状态监听(不可用) **/
     private fun registerPhoneStateListener() {
         val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         tm.listen(object : PhoneStateListener() {
