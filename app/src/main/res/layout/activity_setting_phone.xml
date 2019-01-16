@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_40"
+        android:layout_marginStart="@dimen/dimen_size_30"
+        android:layout_marginTop="@dimen/dimen_size_25"
+        android:layout_marginEnd="@dimen/dimen_size_30"
+        android:background="@mipmap/input01"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_size_40"
+            android:layout_height="@dimen/dimen_size_17"
+            android:src="@mipmap/icon01"
+            tools:ignore="ContentDescription" />
+
+        <EditText
+            android:id="@+id/et_tel"
+            style="@style/Font15_blue_light"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparent"
+            android:hint="@string/setting_phone_noTel"
+            android:inputType="number"
+            android:maxLength="11"
+            android:maxLines="1"
+            android:paddingStart="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_10" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_40"
+        android:layout_marginStart="@dimen/dimen_size_30"
+        android:layout_marginTop="@dimen/dimen_size_20"
+        android:layout_marginEnd="@dimen/dimen_size_30"
+        android:background="@mipmap/input01"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_size_40"
+            android:layout_height="@dimen/dimen_size_15"
+            android:src="@mipmap/icon02"
+            tools:ignore="ContentDescription" />
+
+        <EditText
+            android:id="@+id/et_pwd"
+            style="@style/Font15_blue_light"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparent"
+            android:hint="@string/setting_phone_noPwd"
+            android:inputType="textPassword"
+            android:maxLength="20"
+            android:paddingStart="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_10" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_40"
+        android:layout_marginStart="@dimen/dimen_size_30"
+        android:layout_marginTop="@dimen/dimen_size_25"
+        android:layout_marginEnd="@dimen/dimen_size_30"
+        android:background="@mipmap/input01"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_size_40"
+            android:layout_height="@dimen/dimen_size_17"
+            android:src="@mipmap/icon01"
+            tools:ignore="ContentDescription" />
+
+        <EditText
+            android:id="@+id/et_new"
+            style="@style/Font15_blue_light"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparent"
+            android:hint="@string/setting_phone_noNew"
+            android:inputType="number"
+            android:maxLength="11"
+            android:maxLines="1"
+            android:paddingStart="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_10" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/bt_save"
+        style="@style/Font18_blue_light"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_70"
+        android:layout_marginStart="@dimen/dimen_size_22"
+        android:layout_marginTop="@dimen/dimen_size_30"
+        android:layout_marginEnd="@dimen/dimen_size_22"
+        android:background="@mipmap/btn01"
+        android:onClick="doClick"
+        android:text="@string/setting_phone_save" />
+
+</LinearLayout>

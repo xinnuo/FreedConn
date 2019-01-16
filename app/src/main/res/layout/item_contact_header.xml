@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/item_contact"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_100"
+        android:background="@mipmap/bj01"
+        android:gravity="center_vertical"
+        android:paddingTop="@dimen/dimen_size_5">
+
+        <FrameLayout
+            android:layout_width="@dimen/dimen_size_56"
+            android:layout_height="@dimen/dimen_size_56"
+            android:layout_marginStart="@dimen/dimen_size_25"
+            android:background="#0C365D">
+
+            <ImageView
+                android:layout_width="@dimen/dimen_size_25"
+                android:layout_height="@dimen/dimen_size_25"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/dimen_size_3"
+                android:src="@mipmap/icon19"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/item_contact_num"
+                style="@style/Font13_white"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_size_16"
+                android:layout_gravity="end"
+                android:layout_margin="@dimen/dimen_size_8"
+                android:background="@drawable/rec_ova_bg_orange"
+                android:gravity="center"
+                android:paddingStart="@dimen/dimen_size_3"
+                android:paddingEnd="@dimen/dimen_size_3"
+                android:text="0"
+                android:textSize="@dimen/sp_size_10" />
+
+        </FrameLayout>
+
+        <TextView
+            style="@style/Font15_white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_15"
+            android:layout_marginEnd="@dimen/dimen_size_30"
+            android:ellipsize="end"
+            android:lineSpacingExtra="@dimen/dimen_size_3"
+            android:maxLines="2"
+            android:text="@string/network_msg" />
+
+    </LinearLayout>
+
+</FrameLayout>

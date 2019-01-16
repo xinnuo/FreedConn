@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/dimen_size_50"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/dimen_size_5">
+
+    <LinearLayout
+        android:id="@+id/item_chat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="@dimen/dimen_size_40"
+            android:layout_height="@dimen/dimen_size_40">
+
+            <ImageView
+                android:id="@+id/item_chat_img"
+                android:layout_width="@dimen/dimen_size_35"
+                android:layout_height="@dimen/dimen_size_35"
+                android:layout_gravity="center"
+                android:src="@mipmap/default_logo"
+                tools:ignore="ContentDescription" />
+
+            <ImageView
+                android:id="@+id/item_chat_master"
+                android:layout_width="@dimen/dimen_size_13"
+                android:layout_height="@dimen/dimen_size_13"
+                android:layout_gravity="end"
+                android:src="@mipmap/icon24"
+                tools:ignore="ContentDescription" />
+
+            <ImageView
+                android:id="@+id/item_chat_level"
+                android:layout_width="@dimen/dimen_size_13"
+                android:layout_height="@dimen/dimen_size_13"
+                android:layout_gravity="end"
+                android:src="@mipmap/icon25"
+                tools:ignore="ContentDescription" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/item_chat_name"
+            style="@style/Font11_white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_size_3"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:text="我们我你共" />
+
+    </LinearLayout>
+
+</FrameLayout>

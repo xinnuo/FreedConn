@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_50"
+        android:src="@mipmap/logo02"
+        android:layout_marginTop="@dimen/dimen_size_40"
+        android:layout_marginBottom="@dimen/dimen_size_50"
+        tools:ignore="ContentDescription" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_40"
+        android:layout_marginStart="@dimen/dimen_size_30"
+        android:layout_marginEnd="@dimen/dimen_size_30"
+        android:background="@mipmap/input01"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_size_40"
+            android:layout_height="@dimen/dimen_size_17"
+            android:src="@mipmap/icon01"
+            tools:ignore="ContentDescription" />
+
+        <EditText
+            android:id="@+id/et_tel"
+            style="@style/Font15_blue_light"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparent"
+            android:hint="@string/login_noTel"
+            android:inputType="number"
+            android:maxLength="11"
+            android:maxLines="1"
+            android:paddingStart="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_10" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_40"
+        android:layout_marginStart="@dimen/dimen_size_30"
+        android:layout_marginTop="@dimen/dimen_size_35"
+        android:layout_marginEnd="@dimen/dimen_size_30"
+        android:background="@mipmap/input01"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_size_40"
+            android:layout_height="@dimen/dimen_size_15"
+            android:src="@mipmap/icon02"
+            tools:ignore="ContentDescription" />
+
+        <EditText
+            android:id="@+id/et_pwd"
+            style="@style/Font15_blue_light"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparent"
+            android:hint="@string/login_noPwd"
+            android:inputType="textPassword"
+            android:maxLength="20"
+            android:paddingStart="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_10" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/bt_login"
+        style="@style/Font18_blue_light"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_70"
+        android:layout_marginStart="@dimen/dimen_size_22"
+        android:layout_marginTop="@dimen/dimen_size_35"
+        android:layout_marginEnd="@dimen/dimen_size_22"
+        android:background="@mipmap/btn01"
+        android:onClick="doClick"
+        android:text="@string/login" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_size_30"
+        android:layout_marginEnd="@dimen/dimen_size_30"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tv_forget"
+            style="@style/Font14_blue_dark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="doClick"
+            android:padding="@dimen/dimen_size_10"
+            android:text="@string/login_forget" />
+
+        <TextView
+            android:id="@+id/tv_register"
+            style="@style/Font14_blue_dark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:onClick="doClick"
+            android:padding="@dimen/dimen_size_10"
+            android:text="@string/login_sign" />
+
+    </RelativeLayout>
+
+</LinearLayout>

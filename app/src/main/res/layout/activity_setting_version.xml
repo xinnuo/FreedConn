@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_74"
+        android:layout_marginStart="@dimen/dimen_size_10"
+        android:layout_marginTop="@dimen/dimen_size_25"
+        android:layout_marginEnd="@dimen/dimen_size_10"
+        android:background="@mipmap/bj04"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/Font14_black_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/setting_version_now" />
+
+            <TextView
+                android:id="@+id/version_now"
+                style="@style/Font14_black_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_size_5">
+
+            <TextView
+                style="@style/Font14_blue_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/setting_version_new" />
+
+            <TextView
+                android:id="@+id/version_new"
+                style="@style/Font14_blue_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_size_15"
+        android:layout_marginTop="@dimen/dimen_size_25"
+        android:layout_marginEnd="@dimen/dimen_size_15">
+
+        <Button
+            android:id="@+id/version_update"
+            style="@style/Font15_blue_light"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dimen_size_65"
+            android:layout_marginEnd="@dimen/dimen_size_5"
+            android:layout_weight="1"
+            android:background="@mipmap/btn08"
+            android:onClick="doClick"
+            android:text="@string/setting_version_update" />
+
+        <Button
+            android:id="@+id/version_cancel"
+            style="@style/Font15_black_light"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dimen_size_65"
+            android:layout_marginStart="@dimen/dimen_size_5"
+            android:layout_weight="1"
+            android:background="@mipmap/btn07"
+            android:onClick="doClick"
+            android:text="@string/setting_version_cancel" />
+
+    </LinearLayout>
+
+</LinearLayout>

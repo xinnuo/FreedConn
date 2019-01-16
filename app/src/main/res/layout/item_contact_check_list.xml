@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/item_check"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_100"
+        android:background="@mipmap/bj01"
+        android:gravity="center_vertical"
+        android:paddingTop="@dimen/dimen_size_5">
+
+        <FrameLayout
+            android:layout_width="@dimen/dimen_size_56"
+            android:layout_height="@dimen/dimen_size_56"
+            android:layout_marginStart="@dimen/dimen_size_25"
+            android:background="#0C365D">
+
+            <com.lqr.ninegridimageview.LQRNineGridImageView
+                android:id="@+id/item_check_nine"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/item_check_name"
+            style="@style/Font15_white"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_15"
+            android:layout_marginEnd="@dimen/dimen_size_15"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:lineSpacingExtra="@dimen/dimen_size_3"
+            android:maxLines="2" />
+
+        <TextView
+            android:id="@+id/item_check_add"
+            style="@style/Font11_white"
+            android:layout_width="@dimen/dimen_size_50"
+            android:layout_height="@dimen/dimen_size_50"
+            android:layout_marginEnd="@dimen/dimen_size_30"
+            android:background="@mipmap/icon20"
+            android:gravity="center"
+            android:text="@string/network_check_add" />
+
+    </LinearLayout>
+
+    <net.cachapa.expandablelayout.ExpandableLayout
+        android:id="@+id/item_check_expand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:el_duration="300"
+        app:el_expanded="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_size_40"
+                android:layout_marginStart="@dimen/dimen_size_15"
+                android:layout_marginTop="@dimen/dimen_size_10"
+                android:layout_marginEnd="@dimen/dimen_size_15"
+                android:background="@mipmap/input03">
+
+                <TextView
+                    style="@style/Font14_blue_light"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dimen_size_10"
+                    android:text="@string/network_code"
+                    android:textColor="@color/blue_medium" />
+
+                <EditText
+                    android:id="@+id/item_check_code"
+                    style="@style/Font14_blue_light"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:hint="@string/network_noCode"
+                    android:inputType="number"
+                    android:maxLength="10"
+                    android:paddingStart="@dimen/dimen_size_5"
+                    android:paddingEnd="@dimen/dimen_size_10"
+                    android:singleLine="true"
+                    android:textColorHint="@color/blue_medium_alpha"
+                    tools:ignore="Autofill" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/item_check_join"
+                style="@style/Font15_blue_light"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_size_66"
+                android:layout_marginStart="@dimen/dimen_size_10"
+                android:layout_marginTop="@dimen/dimen_size_15"
+                android:layout_marginEnd="@dimen/dimen_size_10"
+                android:background="@mipmap/btn10"
+                android:gravity="center"
+                android:onClick="doClick"
+                android:text="@string/network_check_join2" />
+
+        </LinearLayout>
+
+    </net.cachapa.expandablelayout.ExpandableLayout>
+
+</LinearLayout>

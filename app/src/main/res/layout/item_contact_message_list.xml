@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dimen_size_100">
+
+    <LinearLayout
+        android:id="@+id/item_msg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/bj01"
+        android:gravity="center_vertical"
+        android:paddingTop="@dimen/dimen_size_5"
+        tools:ignore="UselessParent">
+
+        <FrameLayout
+            android:layout_width="@dimen/dimen_size_56"
+            android:layout_height="@dimen/dimen_size_56"
+            android:layout_marginStart="@dimen/dimen_size_25"
+            android:background="#0C365D">
+
+            <ImageView
+                android:id="@+id/item_msg_img"
+                android:layout_width="@dimen/dimen_size_50"
+                android:layout_height="@dimen/dimen_size_50"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                tools:ignore="ContentDescription" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:layout_marginEnd="@dimen/dimen_size_10"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/item_msg_name"
+                style="@style/Font15_white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/item_msg_hint"
+                style="@style/Font13_white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_size_10"
+                android:text="@string/network_msg_hint"
+                android:textColor="@color/white_alpha" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dimen_size_30">
+
+            <LinearLayout
+                android:id="@+id/item_msg_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/item_msg_agree"
+                    style="@style/Font11_white"
+                    android:layout_width="@dimen/dimen_size_50"
+                    android:layout_height="@dimen/dimen_size_50"
+                    android:layout_marginEnd="@dimen/dimen_size_5"
+                    android:background="@mipmap/icon20"
+                    android:gravity="center"
+                    android:text="@string/network_msg_agree" />
+
+                <TextView
+                    android:id="@+id/item_msg_refuse"
+                    style="@style/Font11_white"
+                    android:layout_width="@dimen/dimen_size_50"
+                    android:layout_height="@dimen/dimen_size_50"
+                    android:background="@mipmap/icon21"
+                    android:gravity="center"
+                    android:text="@string/network_msg_refuse" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/item_msg_hint2"
+                style="@style/Font13_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="@dimen/dimen_size_20"
+                android:text="@string/network_msg_agreed"
+                android:visibility="invisible" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

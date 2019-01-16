@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.ruanmeng.fragment.TalkFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_80"
+        android:background="@mipmap/top01"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_size_45"
+            android:layout_marginTop="@dimen/dimen_size_20"
+            android:background="?attr/colorPrimary">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/dimen_size_60"
+                android:layout_marginEnd="@dimen/dimen_size_60"
+                android:gravity="center"
+                android:text="@string/network_choice"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_size_18" />
+
+            <TextView
+                android:id="@+id/talk_right"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical|end"
+                android:gravity="center"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:text="@string/network_done"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_size_15" />
+
+            <TextView
+                android:id="@+id/talk_left"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:text="@string/network_cancel"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_size_15" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_40"
+        android:layout_marginStart="@dimen/dimen_size_15"
+        android:layout_marginTop="@dimen/dimen_size_15"
+        android:layout_marginEnd="@dimen/dimen_size_15"
+        android:background="@mipmap/input03">
+
+        <TextView
+            style="@style/Font14_blue_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:text="@string/network_name"
+            android:textColor="@color/blue_medium" />
+
+        <EditText
+            android:id="@+id/talk_name"
+            style="@style/Font14_blue_light"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparent"
+            android:hint="@string/network_noName"
+            android:paddingStart="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_10"
+            android:singleLine="true"
+            android:textColorHint="@color/blue_medium_alpha"
+            tools:ignore="Autofill,TextFields" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_40"
+        android:layout_margin="@dimen/dimen_size_15"
+        android:background="@mipmap/input03">
+
+        <TextView
+            style="@style/Font14_blue_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:text="@string/network_code"
+            android:textColor="@color/blue_medium" />
+
+        <EditText
+            android:id="@+id/talk_code"
+            style="@style/Font14_blue_light"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparent"
+            android:hint="@string/network_noCode"
+            android:inputType="number"
+            android:maxLength="6"
+            android:paddingStart="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_10"
+            android:singleLine="true"
+            android:textColorHint="@color/blue_medium_alpha"
+            tools:ignore="Autofill" />
+
+    </LinearLayout>
+
+    <include layout="@layout/layout_list" />
+
+</LinearLayout>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:overScrollMode="never">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/setting_img"
+            android:layout_width="@dimen/dimen_size_80"
+            android:layout_height="@dimen/dimen_size_80"
+            android:layout_marginTop="@dimen/dimen_size_20"
+            android:background="#332589DB"
+            android:onClick="doClick"
+            android:padding="@dimen/dimen_size_6"
+            android:src="@mipmap/default_user"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/setting_name"
+            style="@style/Font15_white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_size_10"
+            android:layout_marginBottom="@dimen/dimen_size_10"
+            android:padding="@dimen/dimen_size_10"
+            android:text="@string/setting_name" />
+
+        <LinearLayout
+            android:id="@+id/setting_tel_ll"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_size_78"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:layout_marginEnd="@dimen/dimen_size_10"
+            android:background="@mipmap/bj03"
+            android:gravity="center_vertical"
+            android:onClick="doClick"
+            android:paddingStart="@dimen/dimen_size_30"
+            android:paddingTop="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_30">
+
+            <TextView
+                style="@style/Font15_white"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/setting_tel" />
+
+            <TextView
+                android:id="@+id/setting_tel"
+                style="@style/Font15_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dimen_size_10"
+                android:layout_marginEnd="@dimen/dimen_size_10" />
+
+            <ImageView
+                android:layout_width="@dimen/dimen_size_12"
+                android:layout_height="@dimen/dimen_size_12"
+                android:src="@mipmap/icon41"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_size_78"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:layout_marginTop="@dimen/dimen_size_10"
+            android:layout_marginEnd="@dimen/dimen_size_10"
+            android:background="@mipmap/bj03"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/dimen_size_30"
+            android:paddingTop="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_30">
+
+            <TextView
+                style="@style/Font15_white"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/setting_code" />
+
+            <TextView
+                android:id="@+id/setting_code"
+                style="@style/Font15_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dimen_size_10"
+                android:layout_marginEnd="@dimen/dimen_size_10" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_size_78"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:layout_marginTop="@dimen/dimen_size_10"
+            android:layout_marginEnd="@dimen/dimen_size_10"
+            android:background="@mipmap/bj03"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/dimen_size_30"
+            android:paddingTop="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_30">
+
+            <TextView
+                style="@style/Font15_white"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/setting_time" />
+
+            <TextView
+                android:id="@+id/setting_time"
+                style="@style/Font15_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dimen_size_10" />
+
+            <TextView
+                style="@style/Font15_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dimen_size_10"
+                android:text="@string/setting_minute" />
+
+            <TextView
+                android:id="@+id/setting_charge"
+                style="@style/Font14_blue_light"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dimen_size_25"
+                android:layout_marginEnd="@dimen/dimen_size_10"
+                android:background="@mipmap/bj17"
+                android:gravity="center"
+                android:onClick="doClick"
+                android:paddingStart="@dimen/dimen_size_10"
+                android:paddingEnd="@dimen/dimen_size_10"
+                android:text="@string/setting_charge" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/setting_pwd"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_size_78"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:layout_marginTop="@dimen/dimen_size_10"
+            android:layout_marginEnd="@dimen/dimen_size_10"
+            android:background="@mipmap/bj03"
+            android:gravity="center_vertical"
+            android:onClick="doClick"
+            android:paddingStart="@dimen/dimen_size_30"
+            android:paddingTop="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_30">
+
+            <TextView
+                style="@style/Font15_white"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/setting_pwd" />
+
+            <ImageView
+                android:layout_width="@dimen/dimen_size_12"
+                android:layout_height="@dimen/dimen_size_12"
+                android:src="@mipmap/icon41"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/setting_version"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_size_78"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:layout_marginTop="@dimen/dimen_size_10"
+            android:layout_marginEnd="@dimen/dimen_size_10"
+            android:background="@mipmap/bj03"
+            android:gravity="center_vertical"
+            android:onClick="doClick"
+            android:paddingStart="@dimen/dimen_size_30"
+            android:paddingTop="@dimen/dimen_size_5"
+            android:paddingEnd="@dimen/dimen_size_30">
+
+            <TextView
+                style="@style/Font15_white"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/setting_version" />
+
+            <ImageView
+                android:layout_width="@dimen/dimen_size_12"
+                android:layout_height="@dimen/dimen_size_12"
+                android:src="@mipmap/icon41"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/setting_quit"
+            style="@style/Font15_black_light"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_size_58"
+            android:layout_marginStart="@dimen/dimen_size_18"
+            android:layout_marginTop="@dimen/dimen_size_20"
+            android:layout_marginEnd="@dimen/dimen_size_18"
+            android:layout_marginBottom="@dimen/dimen_size_30"
+            android:background="@mipmap/btn09"
+            android:onClick="doClick"
+            android:text="@string/setting_quit" />
+
+    </LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>

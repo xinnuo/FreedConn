@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rec_bg_white_r10"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="@dimen/dimen_size_15"
+        android:text="@string/bluetooth_title"
+        android:textColor="@color/black"
+        android:textSize="@dimen/sp_size_16" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_2"
+        android:background="#E5E5E5" />
+
+    <TextView
+        android:id="@+id/dialog_hint"
+        style="@style/Font15_black_light"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_size_20"
+        android:layout_marginTop="@dimen/dimen_size_20"
+        android:layout_marginEnd="@dimen/dimen_size_20"
+        android:lineSpacingExtra="@dimen/dimen_size_5"
+        android:text="@string/bluetooth_hint"
+        android:textColor="@color/black" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_size_20">
+
+        <TextView
+            android:id="@+id/dialog_cancel"
+            style="@style/Font15_blue_light"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dimen_size_40"
+            android:layout_marginEnd="@dimen/dimen_size_10"
+            android:layout_weight="1"
+            android:background="@drawable/rec_bg_ova_f7f7f7_stroke_e5e5e5"
+            android:gravity="center"
+            android:onClick="doClick"
+            android:text="@string/bluetooth_cancel" />
+
+        <TextView
+            android:id="@+id/dialog_sure"
+            style="@style/Font15_blue_light"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dimen_size_40"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:layout_weight="1"
+            android:background="@drawable/rec_bg_ova_f7f7f7_stroke_e5e5e5"
+            android:gravity="center"
+            android:onClick="doClick"
+            android:text="@string/bluetooth_ok" />
+
+    </LinearLayout>
+
+</LinearLayout>

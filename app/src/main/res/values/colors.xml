@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 非纯透明色 6.0报错 -->
+    <color name="colorPrimary">#00000000</color>
+    <color name="colorPrimaryDark">#00000D1E</color>
+    <color name="colorAccent">#258ADC</color>
+    <color name="colorControlNormal">#224E76</color>
+    <color name="background">#FF000D1E</color>
+    <color name="navigationBarColor">@android:color/black</color>
+
+    <color name="divider">#D8D8D8</color>
+    <color name="black">#333333</color>
+    <color name="light">#999999</color>
+    <color name="lighter">#CCCCCC</color>
+    <color name="orange">#FF6600</color>
+    <color name="white">@android:color/white</color>
+    <color name="white_alpha">#80FFFFFF</color>
+    <color name="transparent">@android:color/transparent</color>
+    <color name="blue_light">#51CEFF</color>
+    <color name="blue_medium">#5EA8E6</color>
+    <color name="blue_medium_alpha">#4C5EA8E6</color>
+    <color name="black_light">#A4A4A4</color>
+
+</resources>

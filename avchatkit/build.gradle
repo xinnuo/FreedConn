@@ -1,0 +1,37 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion versions.compileSdkVersion
+    defaultConfig {
+        minSdkVersion versions.minSdkVersion
+        targetSdkVersion versions.targetSdkVersion
+        versionName "5.9.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        //设置支持的SO库架构 CPU
+        //处理.so文件时的重要法则:要么全部支持，要么都不支持
+        ndk { abiFilters "armeabi-v7a", "x86" }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+
+    implementation 'com.android.support:support-v4:' + versions.supportLibraryVersion
+
+    //网易云信
+    api 'com.netease.nimlib:basesdk:' + versions.nimVersion  //云通信SDK基础服务(必需)
+    api 'com.netease.nimlib:nrtc:' + versions.nimVersion     //音视频基础服务
+    api 'com.netease.nimlib:avchat:' + versions.nimVersion   //音视频服务
+    // api 'com.netease.nimlib:chatroom:' + versions.nimVersion //聊天室需要
+    // api 'com.netease.nimlib:rts:' + versions.nimVersion      //实时会话服务需要
+    // api 'com.netease.nimlib:lucene:' + versions.nimVersion   //全文检索服务需要
+}

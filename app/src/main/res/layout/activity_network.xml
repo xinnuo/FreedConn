@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/network_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_size_20"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/network_contact"
+            style="@style/Font13_white"
+            android:layout_width="@dimen/dimen_size_90"
+            android:layout_height="@dimen/dimen_size_90"
+            android:background="@mipmap/icon14"
+            android:drawableTop="@mipmap/icon16"
+            android:gravity="center_horizontal"
+            android:paddingTop="@dimen/dimen_size_15"
+            android:text="@string/network_contact" />
+
+        <LinearLayout
+            android:id="@+id/network_disconnect"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <TextView
+                style="@style/Font13_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@mipmap/icon18"
+                android:drawablePadding="@dimen/dimen_size_3"
+                android:gravity="center_vertical"
+                android:text="@string/network_disconnect" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/network_talk"
+            style="@style/Font13_white"
+            android:layout_width="@dimen/dimen_size_90"
+            android:layout_height="@dimen/dimen_size_90"
+            android:background="@mipmap/icon15"
+            android:drawableTop="@mipmap/icon17"
+            android:gravity="center_horizontal"
+            android:paddingTop="@dimen/dimen_size_15"
+            android:text="@string/network_build" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,184 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">FreedConn</string>
+
+    <!-- 登录 -->
+    <string name="login">登录</string>
+    <string name="login_forget">忘记密码？</string>
+    <string name="login_sign">新用户注册</string>
+    <string name="login_noTel">请输入手机号</string>
+    <string name="login_noPwd">请输入6~20位密码</string>
+    <string name="login_wrongTel">请输入正确的手机号</string>
+    <string name="login_shortPwd">密码长度不少于6位</string>
+    <string name="login_wrongAccoutOrPwd">帐号或密码错误</string>
+    <string name="login_failed">登录失败</string>
+
+    <!-- 注册 -->
+    <string name="register">注册</string>
+    <string name="register_noTel">请输入手机号</string>
+    <string name="register_noCode">请输入注册码</string>
+    <string name="register_noName">请输入昵称</string>
+    <string name="register_noEmail">请输入邮箱</string>
+    <string name="register_noPwd">请设置6~20位数字或字母</string>
+    <string name="register_noConfirm">请重复输入密码</string>
+    <string name="register_hint1">注册即表示同意</string>
+    <string name="register_hint2">《Freedconn用户注册协议》</string>
+    <string name="register_wrongTel">请输入正确的手机号</string>
+    <string name="register_wrongEmail">请输入正确的邮箱</string>
+    <string name="register_shortName">昵称长度不少于4个字符（一个汉字两个字符）</string>
+    <string name="register_shortPwd">密码长度不少于6位</string>
+    <string name="register_unequalPwd">密码输入不一致，请重新输入</string>
+    <string name="register_done">账号注册成功</string>
+
+    <!-- 忘记密码 -->
+    <string name="forget">忘记密码</string>
+    <string name="forget_noTel">请输入手机号</string>
+    <string name="forget_noCode">请输入注册码</string>
+    <string name="forget_noPwd">请输入新密码</string>
+    <string name="forget_submit">提交</string>
+    <string name="forget_wrongTel">请输入正确的手机号</string>
+    <string name="forget_shortPwd">密码长度不少于6位</string>
+
+    <!-- 首页 -->
+    <string name="main_multi">多功能蓝牙</string>
+    <string name="main_remote">遥控器</string>
+    <string name="main_common">普通蓝牙</string>
+    <string name="main_device">设备</string>
+    <string name="main_bluetooth">多功能蓝牙对讲</string>
+    <string name="main_network">网络对讲</string>
+    <string name="main_setting">设置</string>
+
+    <!-- 设备 -->
+    <string name="device">设备</string>
+    <string name="device_remote">遥控器</string>
+    <string name="device_bluetooth">多功能蓝牙耳机</string>
+
+    <!-- 设置 -->
+    <string name="setting">设置</string>
+    <string name="setting_name">昵称</string>
+    <string name="setting_tel">手机号</string>
+    <string name="setting_code">注册码</string>
+    <string name="setting_time">通话时长</string>
+    <string name="setting_minute">分钟</string>
+    <string name="setting_charge">充值</string>
+    <string name="setting_pwd">修改密码</string>
+    <string name="setting_version">检测新版本</string>
+    <string name="setting_quit">退出登录</string>
+
+    <!-- 更换手机号 -->
+    <string name="setting_phone">更换手机号</string>
+    <string name="setting_phone_noTel">请输入手机号</string>
+    <string name="setting_phone_noPwd">请输入密码</string>
+    <string name="setting_phone_noNew">请输入新手机号</string>
+    <string name="setting_phone_save">保存</string>
+
+    <!-- 修改密码 -->
+    <string name="setting_pwd_title">修改密码</string>
+    <string name="setting_pwd_noNow">请输入密码</string>
+    <string name="setting_pwd_noNew">请输入新密码</string>
+    <string name="setting_pwd_noConfirm">请再次输入新密码</string>
+    <string name="setting_pwd_save">保存</string>
+    <string name="setting_pwd_shortPwd">密码长度不少于6位</string>
+    <string name="setting_pwd_unequalPwd">密码输入不一致，请重新输入</string>
+
+    <!-- 检测新版本 -->
+    <string name="setting_version_title">检测新版本</string>
+    <string name="setting_version_now">当前版本：</string>
+    <string name="setting_version_new">最新版本：</string>
+    <string name="setting_version_update">更新</string>
+    <string name="setting_version_cancel">取消</string>
+
+    <!-- 绑定注册码 -->
+    <string name="bind">绑定注册码</string>
+    <string name="bind_noTel">请输入手机号</string>
+    <string name="bind_noCode">请输入注册码</string>
+    <string name="bind_save">保存</string>
+    <string name="bind_wrongTel">请输入正确的手机号</string>
+
+    <!-- 网络对讲联系人 -->
+    <string name="network_contact">通讯录</string>
+    <string name="network_build">创建对讲</string>
+    <string name="network_disconnect">控制设备未连接</string>
+    <string name="network_choice">选择联系人</string>
+    <string name="network_del">删除</string>
+    <string name="network_cancel">取消</string>
+    <string name="network_done">完成</string>
+    <string name="network_msg">验证消息</string>
+    <string name="network_name">对讲名称：</string>
+    <string name="network_code">口令：</string>
+    <string name="network_noName">请输入对讲名称</string>
+    <string name="network_noCode">请输入口令</string>
+    <string name="network_look">查找</string>
+    <string name="network_empty_hint">请输入关键字</string>
+    <string name="network_check_add">添加\n好友</string>
+    <string name="network_check_join">加入\n对讲</string>
+    <string name="network_check_join2">加入对讲</string>
+    <string name="network_level_limit">最多能设置3名优先者</string>
+
+    <!-- 网络消息 -->
+    <string name="network_msg_title">验证消息</string>
+    <string name="network_msg_hint">申请加我为好友</string>
+    <string name="network_msg_agree">同意</string>
+    <string name="network_msg_agreed">已同意</string>
+    <string name="network_msg_refuse">忽略</string>
+    <string name="network_msg_refused">已忽略</string>
+
+    <!-- 网络对讲 -->
+    <string name="network_chat">网络对讲</string>
+    <string name="network_chat_share">分享到微信</string>
+    <string name="network_chat_cancel">取消</string>
+    <string name="network_chat_num">在线人数：</string>
+    <string name="network_chat_code">口令：</string>
+    <string name="network_chat_level">设置优先权</string>
+    <string name="network_chat_single">对讲模式</string>
+    <string name="network_chat_all">群聊模式</string>
+    <string name="network_chat_on">开启对讲</string>
+    <string name="network_chat_off">关闭对讲</string>
+    <string name="network_chat_off_talk">请先关闭对讲模式</string>
+    <string name="network_chat_off_group">请先关闭群聊模式</string>
+    <string name="network_chat_hint1">管理员已开启对讲模式</string>
+    <string name="network_chat_hint2">管理员已开启群聊模式</string>
+    <string name="network_chat_hint3">管理员未开启模式</string>
+    <string name="network_chat_error_create">创建群组失败</string>
+    <string name="network_chat_success_create">创建群组成功</string>
+    <string name="network_chat_error_join">加入群组失败</string>
+    <string name="network_chat_error_code">请输入正确口令</string>
+    <string name="network_chat_push_join">"[网络对讲]"</string>
+    <string name="network_chat_push_jionin">"[加入群聊]"</string>
+    <string name="network_chat_push_quit">"[退出群聊]"</string>
+    <string name="network_chat_push_pull">"[加入群组]"</string>
+    <string name="network_chat_push_kick">"[移出群组]"</string>
+    <string name="network_chat_push_level">"[设置优先权]"</string>
+    <string name="network_chat_push_friend_add">"[加为好友]"</string>
+    <string name="network_chat_push_friend_del">"[删除好友]"</string>
+    <string name="network_chat_push_friend_agree">"[同意好友]"</string>
+    <string name="network_chat_notification">正在网络对讲中，点击继续</string>
+    <string name="network_chat_mic_holding">正在抢麦</string>
+    <string name="network_chat_mic_done">抢麦成功</string>
+
+    <!-- 网络对讲 -->
+    <string name="network_wifi">已连接到wifi网络</string>
+    <string name="network_wap">已连接到移动网络</string>
+    <string name="network_vpn">已连接到vpn网络</string>
+    <string name="network_none">已断开网络连接</string>
+    <string name="network_worse">当前网络连接质量不佳</string>
+
+    <!-- 其他 -->
+    <string name="bluetooth_title">蓝牙</string>
+    <string name="bluetooth_hint">某个应用想要开启蓝牙，是否开启？</string>
+    <string name="bluetooth_disconnect">未连接蓝牙设备，是否连接？</string>
+    <string name="bluetooth_ok">允许</string>
+    <string name="bluetooth_cancel">拒绝</string>
+    <string name="share_wechat">分享至微信</string>
+    <string name="share_cancel">取消</string>
+    <string name="deal">注册协议</string>
+    <string name="notify_offline">当前账户在其他设备登录</string>
+    <string name="loading" tools:ignore="TypographyEllipsis">加载中...</string>
+    <string name="connecting" tools:ignore="TypographyEllipsis">正在连接网络...</string>
+    <string name="empty_hint">该用户或群组不存在</string>
+    <string name="empty_hint_friend">暂无好友信息</string>
+    <string name="empty_hint_member">暂无其他成员信息</string>
+    <string name="empty_hint_msg">暂无好友验证信息</string>
+    <string name="permission_denied">请求权限被拒绝</string>
+    <string name="quit">再按一次退出程序</string>
+
+</resources>

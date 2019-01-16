@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_80"
+        android:background="@mipmap/top01"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_size_45"
+            android:layout_marginTop="@dimen/dimen_size_20"
+            android:paddingStart="@dimen/dimen_size_20"
+            android:paddingEnd="@dimen/dimen_size_20">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dimen_size_1"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:id="@+id/main_check1"
+                style="@style/Font14_blue_light"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:button="@drawable/cb_main_selector"
+                android:clickable="false"
+                android:text="@string/main_multi"
+                android:textColor="@color/cb_main_selector_color" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dimen_size_1"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:id="@+id/main_check2"
+                style="@style/Font14_blue_light"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:button="@drawable/cb_main_selector"
+                android:clickable="false"
+                android:text="@string/main_remote"
+                android:textColor="@color/cb_main_selector_color" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dimen_size_1"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:id="@+id/main_check3"
+                style="@style/Font14_blue_light"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:button="@drawable/cb_main_selector"
+                android:clickable="false"
+                android:text="@string/main_common"
+                android:textColor="@color/cb_main_selector_color" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dimen_size_1"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_50"
+        android:layout_marginTop="@dimen/dimen_size_25"
+        android:layout_marginBottom="@dimen/dimen_size_35"
+        android:src="@mipmap/logo02"
+        tools:ignore="ContentDescription" />
+
+    <LinearLayout
+        android:id="@+id/main_device"
+        android:layout_width="@dimen/dimen_size_180"
+        android:layout_height="@dimen/dimen_size_90"
+        android:layout_marginStart="@dimen/dimen_size_15"
+        android:background="@mipmap/btn02_b"
+        android:gravity="center"
+        android:onClick="doClick">
+
+        <ImageView
+            android:id="@+id/main_device_img"
+            android:layout_width="@dimen/dimen_size_25"
+            android:layout_height="@dimen/dimen_size_25"
+            android:src="@mipmap/icon08_b"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/main_device_hint"
+            style="@style/Font15_blue_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:text="@string/main_device" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="@dimen/dimen_size_1"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:id="@+id/main_bluetooth"
+        android:layout_width="@dimen/dimen_size_205"
+        android:layout_height="@dimen/dimen_size_90"
+        android:layout_marginStart="@dimen/dimen_size_15"
+        android:background="@mipmap/btn03"
+        android:gravity="center"
+        android:onClick="doClick">
+
+        <ImageView
+            android:id="@+id/main_bluetooth_img"
+            android:layout_width="@dimen/dimen_size_25"
+            android:layout_height="@dimen/dimen_size_25"
+            android:src="@mipmap/icon09"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/main_bluetooth_hint"
+            style="@style/Font15_black_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:text="@string/main_bluetooth" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="@dimen/dimen_size_1"
+        android:layout_height="0dp"
+        android:layout_weight="0.9" />
+
+    <LinearLayout
+        android:id="@+id/main_network"
+        android:layout_width="@dimen/dimen_size_240"
+        android:layout_height="@dimen/dimen_size_100"
+        android:layout_marginStart="@dimen/dimen_size_15"
+        android:background="@mipmap/btn04"
+        android:gravity="center"
+        android:onClick="doClick">
+
+        <ImageView
+            android:id="@+id/main_network_img"
+            android:layout_width="@dimen/dimen_size_25"
+            android:layout_height="@dimen/dimen_size_25"
+            android:src="@mipmap/icon10_b"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/main_network_hint"
+            style="@style/Font15_blue_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:text="@string/main_network" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="@dimen/dimen_size_1"
+        android:layout_height="0dp"
+        android:layout_weight="2" />
+
+    <LinearLayout
+        android:id="@+id/main_setting"
+        android:layout_width="@dimen/dimen_size_115"
+        android:layout_height="@dimen/dimen_size_45"
+        android:layout_gravity="end"
+        android:layout_marginEnd="@dimen/dimen_size_15"
+        android:layout_marginBottom="@dimen/dimen_size_15"
+        android:background="@mipmap/btn05"
+        android:gravity="center"
+        android:onClick="doClick">
+
+        <ImageView
+            android:layout_width="@dimen/dimen_size_15"
+            android:layout_height="@dimen/dimen_size_15"
+            android:src="@mipmap/icon11"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            style="@style/Font14_black_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_10"
+            android:text="@string/main_setting" />
+
+    </LinearLayout>
+
+</LinearLayout>
