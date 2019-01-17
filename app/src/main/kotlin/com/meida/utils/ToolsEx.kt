@@ -83,6 +83,28 @@ fun Context.isNetworkConnected() = kotlin.run {
 }
 
 /**
+ * 判断APP是否在前台运行
+ */
+fun Context.isRunningForeground(): Boolean = kotlin.run {
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val appProcessInfos = activityManager.runningAppProcesses
+    appProcessInfos.any {
+        it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+                && it.processName == applicationInfo.processName
+    }
+}
+
+/**
+ * 判断某个服务是否正在运行
+ */
+@Suppress("DEPRECATION")
+fun Context.isServiceWork(serviceName: String): Boolean = kotlin.run {
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val serviceInfos = activityManager.getRunningServices(40)
+    serviceInfos.any { it.service.className == serviceName }
+}
+
+/**
  * 屏幕宽度，单位：px
  */
 fun Context.getScreenWidth() = kotlin.run {
@@ -107,7 +129,7 @@ fun Context.getScreenHeight() = kotlin.run {
 /**
  * 获取32位uuid
  */
-fun get32UUID() = UUID.randomUUID().toString().replace("-".toRegex(), "")
+fun get32UUID() = get36UUID().replace("-".toRegex(), "")
 
 /**
  * 生成唯一号

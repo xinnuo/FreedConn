@@ -63,8 +63,10 @@ object BaseHttp {
     val jion_cluster = "$baseIp/jion_cluster.rm"                   //拉入群组
     val set_priority = "$baseIp/set_priority.rm"                   //设置优先权
     val update_status_cluster = "$baseIp/update_status_cluster.rm" //群组更新
+    val update_residueTime = "$baseIp/update_residueTime.rm"       //通话计时
 
     val userhead_edit = "$baseIp/userhead_edit.rm" //头像上传
     val pollcode_bind = "$baseIp/pollcode_bind.rm" //注册码绑定
+    val system_set = "$baseIp/system_set.rm"       //设置
     val zcxy_center = "$baseIp/zcxy_center.rm"     //注册协议
 }

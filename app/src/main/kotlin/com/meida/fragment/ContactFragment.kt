@@ -28,6 +28,7 @@ import com.meida.model.RefreshMessageEvent
 import com.meida.share.BaseHttp
 import com.meida.utils.KeyboardHelper
 import com.meida.utils.setAdapter
+import com.meida.utils.toNotInt
 import com.meida.utils.trimString
 import kotlinx.android.synthetic.main.fragment_contact.*
 import kotlinx.android.synthetic.main.layout_empty.*
@@ -82,7 +83,15 @@ class ContactFragment : BaseFragment() {
 
             setOnItemClickListener {
                 if (it == 0) startActivity<NetworkMessageActivity>()
-                else AVChatKit.outgoingTeamCall(activity, list[it].clusterId)
+                else {
+                    val timeRemain = getString("residueTime").toNotInt()
+                    if (timeRemain < 1) {
+                        toast(getString(R.string.network_chat_no_time))
+                        return@setOnItemClickListener
+                    }
+
+                    AVChatKit.outgoingTeamCall(activity, list[it].clusterId)
+                }
             }
 
             setOnItemDeleteClickListener { index ->

@@ -29,6 +29,8 @@ class SettingActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
         init_title(getString(R.string.setting))
+
+        getData()
     }
 
     override fun init_title() {
@@ -136,6 +138,23 @@ class SettingActivity : BaseActivity() {
                 }
             }
         }
+    }
+
+    override fun getData() {
+        OkGo.post<String>(BaseHttp.system_set)
+            .tag(this@SettingActivity)
+            .headers("token", getString("token"))
+            .execute(object : StringDialogCallback(baseContext) {
+
+                override fun onSuccessResponse(response: Response<String>, msg: String, msgCode: String) {
+
+                    val obj = JSONObject(response.body()).optJSONObject("object")
+                    val residueTime = obj.optString("residueTime")
+                    setting_time.text = residueTime
+                    putString("residueTime", residueTime)
+                }
+
+            })
     }
 
     private fun getHeadData() {

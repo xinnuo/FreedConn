@@ -2,18 +2,21 @@ package com.meida.freedconn
 
 import android.os.Bundle
 import android.view.View
-import com.meida.base.BaseActivity
-import com.meida.base.invisible
-import com.meida.base.visible
+import com.lzg.extend.StringDialogCallback
+import com.lzy.okgo.OkGo
+import com.lzy.okgo.model.Response
+import com.meida.base.*
 import com.meida.fragment.ContactFragment
 import com.meida.fragment.OnFragmentListener
 import com.meida.fragment.TalkFragment
 import com.meida.model.RefreshMessageEvent
+import com.meida.share.BaseHttp
 import com.meida.utils.BluetoothHelper.isBluetoothConnected
 import kotlinx.android.synthetic.main.activity_network.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.jetbrains.anko.sdk25.listeners.onClick
+import org.json.JSONObject
 
 class NetworkActivity : BaseActivity(), OnFragmentListener {
 
@@ -27,6 +30,11 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
         init_title()
 
         EventBus.getDefault().register(this@NetworkActivity)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getData()
     }
 
     override fun init_title() {
@@ -71,6 +79,21 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
                     .commit()
             }
         }
+    }
+
+    override fun getData() {
+        OkGo.post<String>(BaseHttp.system_set)
+            .tag(this@NetworkActivity)
+            .headers("token", getString("token"))
+            .execute(object : StringDialogCallback(baseContext, false) {
+
+                override fun onSuccessResponse(response: Response<String>, msg: String, msgCode: String) {
+
+                    val obj = JSONObject(response.body()).optJSONObject("object")
+                    putString("residueTime", obj.optString("residueTime"))
+                }
+
+            })
     }
 
     override fun onViewClick(name: String) = onBackPressed()

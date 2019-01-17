@@ -96,6 +96,7 @@ class LoginActivity : BaseActivity() {
                                     putString("userName", obj.optString("userName"))
                                     putString("userHead", obj.optString("userHead"))
                                     putString("pollcode", obj.optString("pollCode"))
+                                    putString("residueTime", obj.optString("residueTime"))
                                     AVChatKit.setAccount(it.account)
 
                                     startActivity<MainActivity>()
@@ -124,6 +125,7 @@ class LoginActivity : BaseActivity() {
         putString("userName", "")
         putString("userHead", "")
         putString("pollcode", "")
+        putString("residueTime", "")
 
         getService<AuthService>().logout()
     }

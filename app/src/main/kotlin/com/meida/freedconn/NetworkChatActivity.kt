@@ -16,6 +16,7 @@ import com.lzg.extend.StringDialogCallback
 import com.lzg.extend.jackson.JacksonDialogCallback
 import com.lzy.okgo.OkGo
 import com.lzy.okgo.model.Response
+import com.lzy.okgo.utils.OkLogger
 import com.meida.base.*
 import com.meida.chatkit.*
 import com.meida.model.ClusterModel
@@ -35,6 +36,7 @@ import com.netease.nimlib.sdk.avchat.model.AVChatParameters
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_network_chat.*
 import net.idik.lib.slimadapter.SlimAdapter
@@ -55,6 +57,7 @@ class NetworkChatActivity : BaseActivity() {
     private var roomName: String = ""          //房间名称
     private var roomMaster: String = ""        //创建者ID
     private lateinit var notifier: TeamAVChatNotification
+    private var mDisposable: Disposable? = null
 
     private var chatMode: String = TeamState.CHAT_NONE //群聊模式
     private var isTalkModeOn: Boolean = false          //是否对讲模式
@@ -207,21 +210,13 @@ class NetworkChatActivity : BaseActivity() {
                         if (holdingMaster == getString("accid")) {
                             setGrabAnimation(false)
                             sendCancelCommand {
-                                if (chatMode == TeamState.CHAT_TALK) {
-                                    setPttVoice(false)
-                                } else {
-                                    chat_ptt.setImageResource(R.mipmap.icon35)
-                                    setVoiceLine(false)
-                                }
+                                if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
+                                else chat_ptt.setImageResource(R.mipmap.icon35)
                             }
                         } else {
                             setGrabAnimation(false)
-                            if (chatMode == TeamState.CHAT_TALK) {
-                                setPttVoice(false)
-                            } else {
-                                chat_ptt.setImageResource(R.mipmap.icon35)
-                                setVoiceLine(false)
-                            }
+                            if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
+                            else chat_ptt.setImageResource(R.mipmap.icon35)
                         }
                     }
                 }
@@ -353,6 +348,8 @@ class NetworkChatActivity : BaseActivity() {
         }
 
         chat_level.setOneClickListener {
+            if (chat_dialog.isVisble()) return@setOneClickListener
+
             startActivity<NetworkHandleActivity>(
                 "type" to "3",
                 "roomId" to roomName,
@@ -361,6 +358,8 @@ class NetworkChatActivity : BaseActivity() {
         }
 
         chat_share.setOneClickListener {
+            if (chat_dialog.isVisble()) return@setOneClickListener
+
             ActionSheetDialog(
                 baseContext,
                 arrayOf(getString(R.string.network_chat_share)),
@@ -460,11 +459,20 @@ class NetworkChatActivity : BaseActivity() {
 
     @SuppressLint("CheckResult")
     private fun updateTiming() {
-        Observable.interval(60, 60, TimeUnit.SECONDS)
+        mDisposable = Observable.interval(60, 60, TimeUnit.SECONDS)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
+                OkGo.post<String>(BaseHttp.update_residueTime)
+                    .tag(this@NetworkChatActivity)
+                    .headers("token", getString("token"))
+                    .execute(object : StringDialogCallback(baseContext, false) {
 
+                        override fun onSuccessResponse(response: Response<String>, msg: String, msgCode: String) {
+                            OkLogger.i(msg)
+                        }
+
+                    })
             }
     }
 
@@ -737,6 +745,8 @@ class NetworkChatActivity : BaseActivity() {
                         AVChatManager.getInstance().muteLocalAudio(false)
                     }
                 }
+
+                updateTiming()
             }
             onFailed {
                 showToast(getString(R.string.network_chat_error_join))
@@ -925,6 +935,7 @@ class NetworkChatActivity : BaseActivity() {
         setChatting(false)
         activeCallingNotifier(false)
 
+        mDisposable?.dispose()
         EventBus.getDefault().unregister(this@NetworkChatActivity)
     }
 
