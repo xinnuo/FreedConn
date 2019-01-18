@@ -69,7 +69,7 @@ inline fun <reified T : JSONObject> T.optStringNotEmpty(name: String, fallback: 
  * 防抖动点击事件，时间单位秒（默认1s）
  */
 @SuppressLint("CheckResult")
-inline fun <reified T : View> T.setOneClickListener(crossinline listener: (View?) -> Unit) {
+inline fun <reified T : View> T.oneClick(crossinline listener: (View?) -> Unit) {
     RxView.clicks(this).throttleFirst(1, TimeUnit.SECONDS)
             .subscribe {
                 listener.invoke(this)
@@ -80,7 +80,7 @@ inline fun <reified T : View> T.setOneClickListener(crossinline listener: (View?
  * 防抖动点击事件，默认时间1s，默认单位秒
  */
 @SuppressLint("CheckResult")
-inline fun <reified T : View> T.setOneClickListener(duration: Long = 1,
+inline fun <reified T : View> T.oneClick(duration: Long = 1,
                                                     unit: TimeUnit = TimeUnit.SECONDS,
                                                     crossinline listener: (View?) -> Unit) {
     RxView.clicks(this).throttleFirst(duration, unit)

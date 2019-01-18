@@ -1,6 +1,8 @@
 package com.meida.utils;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -73,6 +75,60 @@ public class DialogHelper {
         };
 
         dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+    }
+
+    public static void showHintDialog(
+            final Context context,
+            final String title,
+            final String hint,
+            final String cancel,
+            final String sure,
+            final boolean isForced,
+            final ClickCallBack callBack) {
+        BaseDialog dialog = new BaseDialog(context) {
+            @Override
+            public View onCreateView() {
+                widthScale(0.9f);
+                View view = View.inflate(context, R.layout.dialog_bluetooth_hint, null);
+
+                TextView tvTitle = view.findViewById(R.id.dialog_title);
+                TextView tvHint = view.findViewById(R.id.dialog_hint);
+                TextView btCancel = view.findViewById(R.id.dialog_cancel);
+                TextView btSure = view.findViewById(R.id.dialog_sure);
+
+                tvTitle.setText(title);
+                tvHint.setText(hint);
+                btCancel.setText(cancel);
+                btSure.setText(sure);
+
+                btCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dismiss();
+                        callBack.onClick("no");
+                    }
+                });
+                btSure.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dismiss();
+                        callBack.onClick("yes");
+                    }
+                });
+
+                return view;
+            }
+        };
+
+        dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) return isForced;
+                return false;
+            }
+        });
+        dialog.setCanceledOnTouchOutside(!isForced);
         dialog.show();
     }
 

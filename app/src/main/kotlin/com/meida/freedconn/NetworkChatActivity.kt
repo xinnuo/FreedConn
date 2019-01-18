@@ -50,9 +50,10 @@ import java.util.concurrent.TimeUnit
 class NetworkChatActivity : BaseActivity() {
 
     //DATA
-    private val list = ArrayList<CommonData>() //房间全部成员
-    private val listShow = ArrayList<CommonData>() //房间展示成员
-    private var accounts = ArrayList<String>() //房间成员accid
+    private val list = ArrayList<CommonData>()       //房间全部成员
+    private val listShow = ArrayList<CommonData>()   //房间展示成员
+    private var accounts = ArrayList<String>()       //房间成员accid
+    private var accountsOnline = ArrayList<String>() //房间在线成员
     private var chatId: Long = -1              //房间ID
     private var roomName: String = ""          //房间名称
     private var roomMaster: String = ""        //创建者ID
@@ -160,6 +161,14 @@ class NetworkChatActivity : BaseActivity() {
 
     override fun onStop() {
         super.onStop()
+        if (isMicHolding && holdingMaster == getString("accid")) {
+            setGrabAnimation(false)
+            sendCancelCommand {
+                if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
+                else chat_ptt.setImageResource(R.mipmap.icon35)
+            }
+        }
+
         //显示通知栏
         activeCallingNotifier(true)
     }
@@ -187,10 +196,10 @@ class NetworkChatActivity : BaseActivity() {
                 && chatMode != TeamState.CHAT_NONE) {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        if (chatMode == TeamState.CHAT_TALK) {
+                        if (chatMode == TeamState.CHAT_TALK) { //对讲抢麦
                             setGrabAnimation(true)
                             startTalkToGrab()
-                        } else {
+                        } else { //群聊抢麦
                             val accidMine = getString("accid")
                             val priorityMine = list.first { it.mobile == accidMine }.priority
 
@@ -207,13 +216,13 @@ class NetworkChatActivity : BaseActivity() {
                         }
                     }
                     MotionEvent.ACTION_UP -> {
-                        if (holdingMaster == getString("accid")) {
+                        if (holdingMaster == getString("accid")) { //抢麦者松开
                             setGrabAnimation(false)
                             sendCancelCommand {
                                 if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
                                 else chat_ptt.setImageResource(R.mipmap.icon35)
                             }
-                        } else {
+                        } else { //非抢麦者松开
                             setGrabAnimation(false)
                             if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
                             else chat_ptt.setImageResource(R.mipmap.icon35)
@@ -225,12 +234,12 @@ class NetworkChatActivity : BaseActivity() {
             return@onTouch true
         }
 
-        chat_single.setOneClickListener { _ ->
-            if (chat_dialog.isVisble()) return@setOneClickListener
+        chat_single.oneClick { _ ->
+            if (chat_dialog.isVisble()) return@oneClick
 
             if (isGroupModeOn) {
                 showToast(getString(R.string.network_chat_off_group))
-                return@setOneClickListener
+                return@oneClick
             }
 
             getStatusData(if (isTalkModeOn) 0 else 1) {
@@ -262,12 +271,12 @@ class NetworkChatActivity : BaseActivity() {
             }
         }
 
-        chat_all.setOneClickListener { _ ->
-            if (chat_dialog.isVisble()) return@setOneClickListener
+        chat_all.oneClick { _ ->
+            if (chat_dialog.isVisble()) return@oneClick
 
             if (isTalkModeOn) {
                 showToast(getString(R.string.network_chat_off_talk))
-                return@setOneClickListener
+                return@oneClick
             }
 
             getStatusData(if (isGroupModeOn) 0 else 2) {
@@ -301,8 +310,8 @@ class NetworkChatActivity : BaseActivity() {
             }
         }
 
-        chat_mic.setOneClickListener {
-            if (chat_dialog.isVisble()) return@setOneClickListener
+        chat_mic.oneClick {
+            if (chat_dialog.isVisble()) return@oneClick
 
             if (!isLocalAllMute
                 && chatMode != TeamState.CHAT_NONE
@@ -313,8 +322,8 @@ class NetworkChatActivity : BaseActivity() {
             }
         }
 
-        chat_voice.setOneClickListener {
-            if (chat_dialog.isVisble()) return@setOneClickListener
+        chat_voice.oneClick {
+            if (chat_dialog.isVisble()) return@oneClick
 
             if (!isLocalAllMute
                 && chatMode != TeamState.CHAT_NONE
@@ -323,12 +332,12 @@ class NetworkChatActivity : BaseActivity() {
             }
         }
 
-        chat_talk.setOneClickListener {
-            if (chat_dialog.isVisble()) return@setOneClickListener
+        chat_talk.oneClick {
+            if (chat_dialog.isVisble()) return@oneClick
 
             if (chatMode == TeamState.CHAT_NONE) {
                 showToast(getString(R.string.network_chat_hint3))
-                return@setOneClickListener
+                return@oneClick
             }
 
             if (isLocalAllMute) {
@@ -347,8 +356,8 @@ class NetworkChatActivity : BaseActivity() {
             }
         }
 
-        chat_level.setOneClickListener {
-            if (chat_dialog.isVisble()) return@setOneClickListener
+        chat_level.oneClick {
+            if (chat_dialog.isVisble()) return@oneClick
 
             startActivity<NetworkHandleActivity>(
                 "type" to "3",
@@ -357,8 +366,8 @@ class NetworkChatActivity : BaseActivity() {
             )
         }
 
-        chat_share.setOneClickListener {
-            if (chat_dialog.isVisble()) return@setOneClickListener
+        chat_share.oneClick {
+            if (chat_dialog.isVisble()) return@oneClick
 
             ActionSheetDialog(
                 baseContext,
@@ -400,9 +409,10 @@ class NetworkChatActivity : BaseActivity() {
                     accounts.clear()
                     list.mapTo(accounts) { it.mobile }
 
+                    accountsOnline.add(getString("accid"))
                     val data = response.body().`object`.clusters
-                    chat_name.text = data.clusterName
-                    chat_number.text = getString(R.string.network_chat_num) + list.size
+                    chat_name.text = "${data.clusterName}(${list.size}人)"
+                    chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
                     chat_code.text = getString(R.string.network_chat_code) + data.command
                     when (data.clusterStatus) {
                         "0" -> chatMode = TeamState.CHAT_NONE
@@ -881,14 +891,11 @@ class NetworkChatActivity : BaseActivity() {
     /* 音视频状态观察者 */
     private val mStateObserver = object : _AVChatStateObserver() {
 
+        @SuppressLint("SetTextI18n")
         override fun onUserJoined(account: String) {
-            /*if (getString("accid") == roomMaster) {
-                when (chatMode) {
-                    TeamState.CHAT_TALK -> AVChatManager.getInstance().sendControlCommand(chatId, TeamState.NOTIFY_CUSTOM_TALK, null)
-                    TeamState.CHAT_GROUP -> AVChatManager.getInstance().sendControlCommand(chatId, TeamState.NOTIFY_CUSTOM_GROUP, null)
-                    TeamState.CHAT_NONE -> AVChatManager.getInstance().sendControlCommand(chatId, TeamState.NOTIFY_CUSTOM_NONE, null)
-                }
-            }*/
+            if (accountsOnline.none { it == account }) accountsOnline.add(account)
+            chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
+
             if (isMicHolding && holdingMaster == getString("accid")) {
                 AVChatManager.getInstance().sendControlCommand(
                     chatId,
@@ -898,6 +905,12 @@ class NetworkChatActivity : BaseActivity() {
             }
 
             AVChatManager.getInstance().muteAllRemoteAudio(isLocalAudioMute) //是否允许播放远端用户语音
+        }
+
+        @SuppressLint("SetTextI18n")
+        override fun onUserLeave(account: String, event: Int) {
+            if (accountsOnline.any { it == account }) accountsOnline.remove(account)
+            chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
         }
 
         @SuppressLint("CheckResult")
