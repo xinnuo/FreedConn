@@ -867,6 +867,14 @@ class NetworkChatActivity : BaseActivity() {
                     }
                 }
             }
+            TeamState.NOTIFY_GRAB_HOLDING -> {
+                isMicHolding = true
+                holdingMaster = event.account
+
+                if (chatMode == TeamState.CHAT_GROUP) {
+                    AVChatManager.getInstance().muteLocalAudio(true)
+                }
+            }
         }
     }
 
@@ -881,6 +889,13 @@ class NetworkChatActivity : BaseActivity() {
                     TeamState.CHAT_NONE -> AVChatManager.getInstance().sendControlCommand(chatId, TeamState.NOTIFY_CUSTOM_NONE, null)
                 }
             }*/
+            if (isMicHolding && holdingMaster == getString("accid")) {
+                AVChatManager.getInstance().sendControlCommand(
+                    chatId,
+                    TeamState.NOTIFY_GRAB_HOLDING,
+                    null
+                )
+            }
 
             AVChatManager.getInstance().muteAllRemoteAudio(isLocalAudioMute) //是否允许播放远端用户语音
         }
@@ -888,6 +903,7 @@ class NetworkChatActivity : BaseActivity() {
         @SuppressLint("CheckResult")
         override fun onNetworkQuality(account: String, quality: Int, stats: AVChatNetworkStats) {
             if (account == getString("accid") && quality > 2) {
+                OkLogger.i("用户：$account， 网络质量：$quality")
                 showToast(getString(R.string.network_worse))
             }
         }
