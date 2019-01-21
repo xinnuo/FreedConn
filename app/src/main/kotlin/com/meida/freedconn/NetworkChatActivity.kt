@@ -979,6 +979,7 @@ class NetworkChatActivity : BaseActivity() {
         activeCallingNotifier(false)
 
         mCompositeDisposable.clear()
+        TeamSoundPlayer.instance().stop()
         EventBus.getDefault().unregister(this@NetworkChatActivity)
     }
 

@@ -57,7 +57,7 @@ public class TeamSoundPlayer {
     private void initSoundPool() {
         stop();
         if (soundPool == null) {
-            soundPool = new SoundPool(1, AudioManager.STREAM_NOTIFICATION, 0);
+            soundPool = new SoundPool(1, AudioManager.STREAM_VOICE_CALL, 0);
             soundPool.setOnLoadCompleteListener(onLoadCompleteListener);
         }
     }
@@ -68,7 +68,7 @@ public class TeamSoundPlayer {
             if (soundId != 0 && status == 0) {
                 AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                 if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
-                    int curVolume = audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
+                    int curVolume = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
                     streamId = soundPool.play(soundId, curVolume, curVolume, 1, 0, 1f);
                 }
             }
