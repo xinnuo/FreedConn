@@ -65,15 +65,16 @@ class NetworkChatActivity : BaseActivity() {
 
     private var chatMode: String = TeamState.CHAT_NONE //群聊模式
     private var isTalkModeOn: Boolean = false          //是否对讲模式
-    private var isGroupModeOn: Boolean = false         //是否群聊模式
+    private var isGroupModeOn: Boolean = false         //是否群聊模式r
     private var isLocalMute: Boolean = false           //是否禁用麦克风
     private var isLocalAudioMute: Boolean = false      //是否禁用外部语音
     private var isLocalAllMute: Boolean = false        //是否禁用所用对讲
 
-    private var isMicHolding: Boolean = false //是否有人抢麦中
-    private var holdingMaster: String = ""    //当前抢麦人
+    private var isMicHolding: Boolean = false   //是否有人抢麦中
+    private var holdingMaster: String = ""      //当前抢麦人
+    private val mDisposables by lazy { CompositeDisposable() } //抢麦订阅池
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dismissKeyguard()
         setContentView(R.layout.activity_network_chat)
@@ -209,37 +210,51 @@ class NetworkChatActivity : BaseActivity() {
                 && chatMode != TeamState.CHAT_NONE) {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        if (chatMode == TeamState.CHAT_TALK) { //对讲抢麦
-                            setGrabAnimation(true)
-                            startTalkToGrab()
-                        } else { //群聊抢麦
-                            val accidMine = getString("accid")
-                            val priorityMine = list.first { it.mobile == accidMine }.priority
+                        mDisposables.add(
+                            Completable.timer(500, TimeUnit.MILLISECONDS)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe {
+                                    if (chatMode == TeamState.CHAT_TALK) { //对讲抢麦
+                                        setGrabAnimation(true)
+                                        startTalkToGrab()
+                                    } else { //群聊抢麦
+                                        val accidMine = getString("accid")
+                                        val priorityMine = list.first { it.mobile == accidMine }.priority
 
-                            val authorMine = when {
-                                roomMaster == accidMine -> TeamState.MASTER
-                                priorityMine == "0" -> TeamState.PRIORITY
-                                else -> TeamState.COMMON
-                            }
+                                        val authorMine = when {
+                                            roomMaster == accidMine -> TeamState.MASTER
+                                            priorityMine == "0" -> TeamState.PRIORITY
+                                            else -> TeamState.COMMON
+                                        }
 
-                            if (authorMine > TeamState.COMMON) {
-                                setGrabAnimation(true)
-                                startGroupToGrab()
-                            }
-                        }
+                                        if (authorMine > TeamState.COMMON) {
+                                            setGrabAnimation(true)
+                                            startGroupToGrab()
+                                        }
+                                    }
+                                }
+                        )
                     }
                     MotionEvent.ACTION_UP -> {
-                        if (holdingMaster == getString("accid")) { //抢麦者松开
-                            setGrabAnimation(false)
-                            sendCancelCommand {
-                                if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
-                                else chat_ptt.setImageResource(R.mipmap.icon35)
+                        mDisposables.clear() //取消订阅
+
+                        Completable.timer(500, TimeUnit.MILLISECONDS)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe {
+                                if (holdingMaster == getString("accid")) { //抢麦者松开
+                                    setGrabAnimation(false)
+                                    sendCancelCommand {
+                                        if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
+                                        else chat_ptt.setImageResource(R.mipmap.icon35)
+                                    }
+                                } else { //非抢麦者松开
+                                    setGrabAnimation(false)
+                                    if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
+                                    else chat_ptt.setImageResource(R.mipmap.icon35)
+                                }
                             }
-                        } else { //非抢麦者松开
-                            setGrabAnimation(false)
-                            if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
-                            else chat_ptt.setImageResource(R.mipmap.icon35)
-                        }
                     }
                 }
             }
@@ -482,22 +497,23 @@ class NetworkChatActivity : BaseActivity() {
 
     @SuppressLint("CheckResult")
     private fun updateTiming() {
-        val mDisposable = Observable.interval(60, 60, TimeUnit.SECONDS)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                OkGo.post<String>(BaseHttp.update_residueTime)
-                    .tag(this@NetworkChatActivity)
-                    .headers("token", getString("token"))
-                    .execute(object : StringDialogCallback(baseContext, false) {
+        mCompositeDisposable.add(
+            Observable.interval(60, 60, TimeUnit.SECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    OkGo.post<String>(BaseHttp.update_residueTime)
+                        .tag(this@NetworkChatActivity)
+                        .headers("token", getString("token"))
+                        .execute(object : StringDialogCallback(baseContext, false) {
 
-                        override fun onSuccessResponse(response: Response<String>, msg: String, msgCode: String) {
-                            OkLogger.i(msg)
-                        }
+                            override fun onSuccessResponse(response: Response<String>, msg: String, msgCode: String) {
+                                OkLogger.i(msg)
+                            }
 
-                    })
-            }
-        mCompositeDisposable.add(mDisposable)
+                        })
+                }
+        )
     }
 
     /* 开始对讲抢麦 */
@@ -507,22 +523,26 @@ class NetworkChatActivity : BaseActivity() {
         when {
             accid == roomMaster -> sendSuccessCommand()
             priority == "0" -> {
-                Completable.timer(500, TimeUnit.MILLISECONDS)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        if (!isMicHolding) sendSuccessCommand()
-                        else checkMineAuthor()
-                    }
+                mDisposables.add(
+                    Completable.timer(500, TimeUnit.MILLISECONDS)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            if (!isMicHolding) sendSuccessCommand()
+                            else checkMineAuthor()
+                        }
+                )
             }
             else -> {
-                Completable.timer(1000, TimeUnit.MILLISECONDS)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        if (!isMicHolding) sendSuccessCommand()
-                        else checkMineAuthor()
-                    }
+                mDisposables.add(
+                    Completable.timer(1000, TimeUnit.MILLISECONDS)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            if (!isMicHolding) sendSuccessCommand()
+                            else checkMineAuthor()
+                        }
+                )
             }
         }
     }
@@ -532,13 +552,15 @@ class NetworkChatActivity : BaseActivity() {
     private fun startGroupToGrab() {
         if (roomMaster == getString("accid")) sendSuccessCommand()
         else {
-            Completable.timer(500, TimeUnit.MILLISECONDS)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (!isMicHolding) sendSuccessCommand()
-                    else checkMineAuthor()
-                }
+            mDisposables.add(
+                Completable.timer(500, TimeUnit.MILLISECONDS)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        if (!isMicHolding) sendSuccessCommand()
+                        else checkMineAuthor()
+                    }
+            )
         }
     }
 
@@ -579,6 +601,7 @@ class NetworkChatActivity : BaseActivity() {
 
     /* 发送对讲抢麦成功控制指令 */
     private fun sendSuccessCommand() {
+        OkLogger.i("成功")
         sendControlCommand(chatId, TeamState.NOTIFY_GRAB_SUCCESSS) {
             onSuccess {
                 isMicHolding = true
@@ -593,6 +616,7 @@ class NetworkChatActivity : BaseActivity() {
 
     /* 发送取消抢麦控制指令 */
     private fun sendCancelCommand(event: (() -> Unit)) {
+        OkLogger.i("取消")
         sendControlCommand(chatId, TeamState.NOTIFY_GRAB_CANCEL) {
             onSuccess {
                 isMicHolding = false
@@ -833,6 +857,7 @@ class NetworkChatActivity : BaseActivity() {
                     holdingMaster = event.account
 
                     if (!isLocalMute && chatMode == TeamState.CHAT_GROUP) {
+                        setVoiceLine(false)
                         AVChatManager.getInstance().muteLocalAudio(true)
                     }
                 } else {
@@ -887,6 +912,7 @@ class NetworkChatActivity : BaseActivity() {
                     holdingMaster = ""
 
                     if (!isLocalMute && chatMode == TeamState.CHAT_GROUP) {
+                        setVoiceLine(true)
                         AVChatManager.getInstance().muteLocalAudio(false)
                     }
                 }
@@ -1041,7 +1067,11 @@ class NetworkChatActivity : BaseActivity() {
                     }
                 }
             }
-            "蓝牙连接" -> AVChatManager.getInstance().setSpeaker(false)
+            "蓝牙连接" -> {
+                AVChatManager.getInstance().setSpeaker(false)
+
+                switchVoiceAfterPhone()
+            }
             "蓝牙断开" -> AVChatManager.getInstance().setSpeaker(true)
             "电话接听" -> {
                 AVChatManager.getInstance().muteAllRemoteAudio(true)
