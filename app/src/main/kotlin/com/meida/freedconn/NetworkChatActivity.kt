@@ -36,8 +36,9 @@ import com.netease.nimlib.sdk.avchat.model.AVChatParameters
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_network_chat.*
 import net.idik.lib.slimadapter.SlimAdapter
 import org.greenrobot.eventbus.EventBus
@@ -57,8 +58,10 @@ class NetworkChatActivity : BaseActivity() {
     private var chatId: Long = -1              //房间ID
     private var roomName: String = ""          //房间名称
     private var roomMaster: String = ""        //创建者ID
+
+    private val mCompositeDisposable by lazy { CompositeDisposable() }
+    private val mPublishSubject by lazy { PublishSubject.create<Int>() }
     private lateinit var notifier: TeamAVChatNotification
-    private var mDisposable: Disposable? = null
 
     private var chatMode: String = TeamState.CHAT_NONE //群聊模式
     private var isTalkModeOn: Boolean = false          //是否对讲模式
@@ -142,6 +145,16 @@ class NetworkChatActivity : BaseActivity() {
                 .attachTo(this)
             adapter = mAdapter
         }
+
+        mCompositeDisposable.add(
+            mPublishSubject.buffer(6, TimeUnit.SECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    OkLogger.i("网络质量回调：${it.size}")
+                    if (it.size > 2) showToast(getString(R.string.network_worse))
+                }
+        )
     }
 
     override fun onResume() {
@@ -469,7 +482,7 @@ class NetworkChatActivity : BaseActivity() {
 
     @SuppressLint("CheckResult")
     private fun updateTiming() {
-        mDisposable = Observable.interval(60, 60, TimeUnit.SECONDS)
+        val mDisposable = Observable.interval(60, 60, TimeUnit.SECONDS)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
@@ -484,6 +497,7 @@ class NetworkChatActivity : BaseActivity() {
 
                     })
             }
+        mCompositeDisposable.add(mDisposable)
     }
 
     /* 开始对讲抢麦 */
@@ -917,7 +931,7 @@ class NetworkChatActivity : BaseActivity() {
         override fun onNetworkQuality(account: String, quality: Int, stats: AVChatNetworkStats) {
             if (account == getString("accid") && quality > 2) {
                 OkLogger.i("用户：$account， 网络质量：$quality")
-                showToast(getString(R.string.network_worse))
+                mPublishSubject.onNext(quality)
             }
         }
 
@@ -964,7 +978,7 @@ class NetworkChatActivity : BaseActivity() {
         setChatting(false)
         activeCallingNotifier(false)
 
-        mDisposable?.dispose()
+        mCompositeDisposable.clear()
         EventBus.getDefault().unregister(this@NetworkChatActivity)
     }
 
