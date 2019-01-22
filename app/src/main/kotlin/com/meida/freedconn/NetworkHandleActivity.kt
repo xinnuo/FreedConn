@@ -52,7 +52,12 @@ class NetworkHandleActivity : BaseActivity() {
         val items = intent.getSerializableExtra("list") as ArrayList<CommonData>
         when (type) {
             "1" -> {
-                list.addAll(items.filter { it.accountInfoId != getString("token") })
+                val priorityMine = items.first { it.mobile == getString("accid") }.priority
+
+                list.addAll(items.filter {
+                    if (priorityMine == "0") it.master != "0" && it.priority != "0"
+                    else it.master != "0"
+                })
                 mAdapter.updateData(list)
 
                 empty_hint.text = getString(R.string.empty_hint_member)
@@ -96,7 +101,8 @@ class NetworkHandleActivity : BaseActivity() {
                     .clicked(R.id.item_talk) { _ ->
                         if (list.filter { it.isChecked }.size > 2
                             && !data.isChecked
-                            && type == "3") {
+                            && type == "3"
+                        ) {
                             toast(getString(R.string.network_level_limit))
                             return@clicked
                         }

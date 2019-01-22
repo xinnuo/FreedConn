@@ -71,17 +71,17 @@
             android:name=".NetworkHandleActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".WebActivity"
+            android:name=".NetworkNameActivity"
             android:screenOrientation="portrait" />
-
-        <!-- 本地电话状态（通话状态）的广播接收器 -->
+        <activity
+            android:name=".WebActivity"
+            android:screenOrientation="portrait" /> <!-- 本地电话状态（通话状态）的广播接收器 -->
         <!-- 网络通话与本地电话的互斥处理 -->
         <receiver android:name="com.meida.receiver.IncomingCallReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

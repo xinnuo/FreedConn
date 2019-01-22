@@ -125,6 +125,7 @@
     <!-- 网络对讲 -->
     <string name="network_chat">网络对讲</string>
     <string name="network_chat_share">分享到微信</string>
+    <string name="network_chat_name_modify">修改名称</string>
     <string name="network_chat_cancel">取消</string>
     <string name="network_chat_num">在线人数：</string>
     <string name="network_chat_code">口令：</string>
@@ -137,7 +138,6 @@
     <string name="network_chat_off_group">请先关闭群聊模式</string>
     <string name="network_chat_hint1">管理员已开启对讲模式</string>
     <string name="network_chat_hint2">管理员已开启群聊模式</string>
-    <string name="network_chat_hint3">管理员未开启模式</string>
     <string name="network_chat_error_create">创建群组失败</string>
     <string name="network_chat_success_create">创建群组成功</string>
     <string name="network_chat_error_join">加入群组失败</string>
@@ -147,6 +147,7 @@
     <string name="network_chat_push_quit">"[退出群聊]"</string>
     <string name="network_chat_push_pull">"[加入群组]"</string>
     <string name="network_chat_push_kick">"[移出群组]"</string>
+    <string name="network_chat_push_modify">"[修改群名称]"</string>
     <string name="network_chat_push_level">"[设置优先权]"</string>
     <string name="network_chat_push_friend_add">"[加为好友]"</string>
     <string name="network_chat_push_friend_del">"[删除好友]"</string>

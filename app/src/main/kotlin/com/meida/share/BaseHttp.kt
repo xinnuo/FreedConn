@@ -64,6 +64,7 @@ object BaseHttp {
     val set_priority = "$baseIp/set_priority.rm"                   //设置优先权
     val update_status_cluster = "$baseIp/update_status_cluster.rm" //群组更新
     val update_residueTime = "$baseIp/update_residueTime.rm"       //通话计时
+    val update_name_cluster = "$baseIp/update_name_cluster.rm"     //修改名称
 
     val userhead_edit = "$baseIp/userhead_edit.rm" //头像上传
     val pollcode_bind = "$baseIp/pollcode_bind.rm" //注册码绑定

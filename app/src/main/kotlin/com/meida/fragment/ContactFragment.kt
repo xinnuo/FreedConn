@@ -405,7 +405,7 @@ class ContactFragment : BaseFragment() {
             "同意添加", "创建群组", "踢出群组", "拉入群组",
             "踢出群组通知", "拉入群组通知", "删好友通知",
             "好友同意通知", "创建群组通知", "加入群组通知",
-            "退出群组通知" -> {
+            "退出群组通知", "修改群名" -> {
                 swipe_refresh.isRefreshing = true
                 if (keyWord.isEmpty()) getData() else getSearchData()
             }

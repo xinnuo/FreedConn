@@ -56,7 +56,8 @@ class NetworkChatActivity : BaseActivity() {
     private var accounts = ArrayList<String>()       //房间成员accid
     private var accountsOnline = ArrayList<String>() //房间在线成员
     private var chatId: Long = -1              //房间ID
-    private var roomName: String = ""          //房间名称
+    private var roomName: String = ""          //房间名称ID
+    private var clusterName: String = ""       //房间名称
     private var roomMaster: String = ""        //创建者ID
 
     private val mCompositeDisposable by lazy { CompositeDisposable() }
@@ -128,13 +129,11 @@ class NetworkChatActivity : BaseActivity() {
                         }
                         .clicked(R.id.item_chat) {
                             when (data.imgFlag) {
-                                "0" -> if (getString("accid") == roomMaster) {
-                                    startActivity<NetworkHandleActivity>(
+                                "0" -> startActivity<NetworkHandleActivity>(
                                         "type" to "1",
                                         "roomId" to roomName,
                                         "list" to list
-                                    )
-                                }
+                                )
                                 "1" -> startActivity<NetworkHandleActivity>(
                                     "type" to "2",
                                     "roomId" to roomName,
@@ -363,18 +362,18 @@ class NetworkChatActivity : BaseActivity() {
         chat_talk.oneClick {
             if (chat_dialog.isVisble()) return@oneClick
 
-            if (chatMode == TeamState.CHAT_NONE) {
-                showToast(getString(R.string.network_chat_hint3))
-                return@oneClick
-            }
-
             if (isLocalAllMute) {
                 setMuteAll(false)
                 setLocalMicMute(false)
                 setLocalAudioMute(false)
                 setVoiceLine(isGroupModeOn)
-                if (chatMode != TeamState.CHAT_NONE)
+                if (chatMode != TeamState.CHAT_NONE) {
                     chat_ptt.setImageResource(R.mipmap.icon35)
+                } else {
+                    chat_mic.setImageResource(R.mipmap.icon28)
+                    chat_voice.setImageResource(R.mipmap.icon29)
+                    chat_ptt.setImageResource(R.mipmap.icon34)
+                }
             } else {
                 setMuteAll(true)
                 setLocalMicMute(true)
@@ -418,6 +417,17 @@ class NetworkChatActivity : BaseActivity() {
                 }
             }
         }
+
+        chat_name.oneClick {
+            if (chat_dialog.isVisble()
+                || roomName.isEmpty()
+                || roomMaster != getString("accid")) return@oneClick
+
+            startActivity<NetworkNameActivity>(
+                "clusterId" to roomName,
+                "name" to clusterName
+            )
+        }
     }
 
     private fun getInfoData(event: (() -> Unit)? = null) {
@@ -437,16 +447,16 @@ class NetworkChatActivity : BaseActivity() {
                     accounts.clear()
                     list.mapTo(accounts) { it.mobile }
 
-                    accountsOnline.add(getString("accid"))
                     val data = response.body().`object`.clusters
-                    chat_name.text = "${data.clusterName}(${list.size}人)"
-                    chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
+                    clusterName = data.clusterName
+                    chat_name.text = "$clusterName(${list.size}人)"
                     chat_code.text = getString(R.string.network_chat_code) + data.command
                     when (data.clusterStatus) {
                         "0" -> chatMode = TeamState.CHAT_NONE
                         "1" -> chatMode = TeamState.CHAT_TALK
                         "2" -> chatMode = TeamState.CHAT_GROUP
                     }
+                    chat_level.visibility = if (getString("accid") == roomMaster) View.VISIBLE else View.GONE
 
                     val imgs = list.map { BaseHttp.baseImg + it.userHead }
                     chat_nine.setImagesData(imgs)
@@ -455,16 +465,18 @@ class NetworkChatActivity : BaseActivity() {
                     listShow.addAll(list.filter { it.master == "0" })
                     listShow.addAll(list.filter { it.priority == "0" })
 
+                    val accidMine = getString("accid")
+                    val priorityMine = list.first { it.mobile == accidMine }.priority
                     val listNoun = ArrayList<CommonData>()
-                    val itemCount =
-                        if (roomMaster == getString("accid")) (10 - listShow.size) else (11 - listShow.size)
+                    val itemCount = if (roomMaster == accidMine || priorityMine == "0") (10 - listShow.size) else (11 - listShow.size)
+
                     list.filter { it.master != "0" && it.priority != "0" }
                         .forEachWithIndex { index, item ->
                             if (index < itemCount) listNoun.add(item)
                         }
                     listShow.addAll(listNoun)
 
-                    if (roomMaster == getString("accid"))
+                    if (roomMaster == accidMine || priorityMine == "0")
                         listShow.add(CommonData().apply { imgFlag = "0" })
                     listShow.add(CommonData().apply { imgFlag = "1" })
 
@@ -727,6 +739,7 @@ class NetworkChatActivity : BaseActivity() {
     }
 
     /* 音视频配置 */
+    @SuppressLint("SetTextI18n")
     private fun startRtc() {
         AVChatManager.getInstance().enableRtc()      //激活音视频通话底层引擎
         AVChatManager.getInstance().disableVideo()   //关闭视频模块
@@ -757,6 +770,9 @@ class NetworkChatActivity : BaseActivity() {
                 chat_admin.visibility = if (isFirst) View.VISIBLE else View.GONE
                 chat_user.visibility = if (isFirst) View.GONE else View.VISIBLE
                 chat_level.visibility = if (accid == roomMaster) View.VISIBLE else View.GONE
+
+                accountsOnline.add(getString("accid"))
+                chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
 
                 when (chatMode) {
                     TeamState.CHAT_NONE -> {
@@ -839,9 +855,9 @@ class NetworkChatActivity : BaseActivity() {
                 AVChatManager.getInstance().muteLocalAudio(true)
             }
             TeamState.NOTIFY_CUSTOM_GROUP -> {
-                setTalkMode(false) //关闭对讲模式
-                setGroupMode(true) //开启群聊模式
-                setVoiceLine(true) //开启波浪线
+                setTalkMode(false)         //关闭对讲模式
+                setGroupMode(true)         //开启群聊模式
+                setVoiceLine(!isLocalMute) //开启波浪线
                 chatMode = TeamState.CHAT_GROUP
                 chat_hint.text = getString(R.string.network_chat_hint2)
                 if (!isLocalAllMute) chat_ptt.setImageResource(R.mipmap.icon35)
@@ -933,6 +949,7 @@ class NetworkChatActivity : BaseActivity() {
 
         @SuppressLint("SetTextI18n")
         override fun onUserJoined(account: String) {
+            OkLogger.i("用户：${account}加入房间")
             if (accountsOnline.none { it == account }) accountsOnline.add(account)
             chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
 
@@ -949,6 +966,7 @@ class NetworkChatActivity : BaseActivity() {
 
         @SuppressLint("SetTextI18n")
         override fun onUserLeave(account: String, event: Int) {
+            OkLogger.i("用户：${account}离开房间")
             if (accountsOnline.any { it == account }) accountsOnline.remove(account)
             chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
         }
@@ -1009,9 +1027,22 @@ class NetworkChatActivity : BaseActivity() {
         EventBus.getDefault().unregister(this@NetworkChatActivity)
     }
 
+    @SuppressLint("SetTextI18n")
     @Subscribe
     fun onMessageEvent(event: RefreshMessageEvent) {
         when (event.type) {
+            "修改群名" -> {
+                if (event.id == roomName) {
+                    clusterName = event.name
+                    chat_name.text = "$clusterName(${list.size}人)"
+                }
+
+                TeamAVChatEx.onModifyRoomSuccess(
+                    baseContext,
+                    roomName,
+                    clusterName,
+                    accountsOnline.filter { it != getString("accid") })
+            }
             "优先权" -> {
                 TeamAVChatEx.onSetLevelSuccess(
                     baseContext,
@@ -1042,6 +1073,10 @@ class NetworkChatActivity : BaseActivity() {
             }
             "加入群组通知", "退出群组通知" -> if (event.id == roomName) {
                 getInfoData()
+            }
+            "修改群名通知" -> if (event.id == roomName) {
+                clusterName = event.name
+                chat_name.text = "$clusterName(${list.size}人)"
             }
             "优先权通知" -> if (event.id == roomName) {
                 getInfoData {

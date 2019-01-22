@@ -20,9 +20,16 @@ public class TeamAVChatProfile {
 
     private static final String KEY_TYPE = "type";
     private static final String KEY_RNAME = "room";
+    private static final String KEY_MODIFY = "modify";
 
     private boolean isTeamAVChatting = false;
     private boolean isSyncComplete = true; //未开始也算同步完成，可能存在不启动同步的情况
+
+    public String buildContent(String roomMode) {
+        JSONObject json = new JSONObject();
+        json.put(KEY_TYPE, roomMode);
+        return json.toString();
+    }
 
     public String buildContent(String roomName, String roomMode) {
         JSONObject json = new JSONObject();
@@ -31,8 +38,10 @@ public class TeamAVChatProfile {
         return json.toString();
     }
 
-    public String buildContent(String roomMode) {
+    public String buildContent(String roomName, String newName, String roomMode) {
         JSONObject json = new JSONObject();
+        json.put(KEY_RNAME, roomName);
+        json.put(KEY_MODIFY, newName);
         json.put(KEY_TYPE, roomMode);
         return json.toString();
     }
@@ -110,6 +119,15 @@ public class TeamAVChatProfile {
                         levelData.setType("优先权通知");
                         levelData.setId(levelId);
                         EventBus.getDefault().post(levelData);
+                        break;
+                    case TeamState.CHAT_MODIFY: //修改房间名通知
+                        final String modifyId = jsonObject.getString(KEY_RNAME);
+                        final String modifyName = jsonObject.getString(KEY_MODIFY);
+                        RefreshMessageEvent modifyData = new RefreshMessageEvent();
+                        modifyData.setType("修改群名通知");
+                        modifyData.setId(modifyId);
+                        modifyData.setName(modifyName);
+                        EventBus.getDefault().post(modifyData);
                         break;
                     case TeamState.CHAT_FRIEND_ADD: //加好友通知
                         RefreshMessageEvent addData = new RefreshMessageEvent();

@@ -10,6 +10,7 @@ object TeamState {
     const val CHAT_PULL = "pull"     //拉入房间
     const val CHAT_KICK = "kick"     //踢出房间
     const val CHAT_LEVEL = "level"   //房间权限
+    const val CHAT_MODIFY = "modify" //修改群名
     const val CHAT_TALK = "Intercom" //对讲模式
     const val CHAT_GROUP = "group"   //群聊模式
     const val CHAT_NONE = "none"     //静音模式

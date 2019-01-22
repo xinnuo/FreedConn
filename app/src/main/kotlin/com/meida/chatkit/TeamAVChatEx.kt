@@ -188,6 +188,31 @@ object TeamAVChatEx {
     }
 
     /**
+     * 发送点对点修改房间名的自定义通知
+     */
+    fun onModifyRoomSuccess(context: Context, roomName: String, newName: String, accounts: List<String>) {
+        val mContent = com.meida.chatkit.TeamAVChatProfile.sharedInstance()
+            .buildContent(roomName, newName, TeamState.CHAT_MODIFY)
+        val mConfig = CustomNotificationConfig().apply {
+            enablePush = true
+            enablePushNick = false
+            enableUnreadCount = true
+        }
+
+        accounts.forEach {
+            getService<MsgService>().sendCustomNotification(CustomNotification().apply {
+                sessionId = it
+                sessionType = SessionTypeEnum.P2P
+                config = mConfig
+                content = mContent
+                apnsText = context.getString("userName") +
+                        context.getString(R.string.network_chat_push_modify)
+                isSendToOnlineUserOnly = false
+            })
+        }
+    }
+
+    /**
      * 发送点对点加好友的自定义通知
      */
     fun onAddFriendSuccess(context: Context, account: String) {
