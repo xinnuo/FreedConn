@@ -166,10 +166,6 @@ class NetworkChatActivity : BaseActivity() {
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
         )
-
-        if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
-            switchVoiceAfterPhone()
-        }
     }
 
     override fun onStop() {
@@ -528,6 +524,29 @@ class NetworkChatActivity : BaseActivity() {
         )
     }
 
+    /* 声音强制切换到耳机或外放 */
+    private fun forceVoiceToBluetooth() {
+        mCompositeDisposable.add(
+            Observable.interval(2, 2, TimeUnit.SECONDS)
+                .map { return@map BluetoothHelper.isBluetoothConnected() }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+                    if (it) {
+                        am.isBluetoothScoOn = true
+                        am.isSpeakerphoneOn = false
+                        am.startBluetoothSco()
+                    } else {
+                        am.isBluetoothScoOn = false
+                        am.isSpeakerphoneOn = true
+                        am.stopBluetoothSco()
+                    }
+                }
+        )
+    }
+
     /* 开始对讲抢麦 */
     private fun startTalkToGrab() {
         val accid = getString("accid")
@@ -648,28 +667,6 @@ class NetworkChatActivity : BaseActivity() {
             if (animationDrawable.isRunning)
                 animationDrawable.stop()
         }
-    }
-
-    /* 声音切换到耳机或外放 */
-    @SuppressLint("CheckResult")
-    private fun switchVoiceAfterPhone() {
-        Observable.timer(1, TimeUnit.SECONDS)
-            .map { return@map BluetoothHelper.isBluetoothConnected() }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-                if (it) {
-                    am.isBluetoothScoOn = true
-                    am.isSpeakerphoneOn = false
-                    am.startBluetoothSco()
-                } else {
-                    am.isBluetoothScoOn = false
-                    am.isSpeakerphoneOn = true
-                    am.stopBluetoothSco()
-                }
-            }
     }
 
     /* 设置是否禁用对讲功能 */
@@ -811,6 +808,7 @@ class NetworkChatActivity : BaseActivity() {
                 }
 
                 updateTiming()
+                forceVoiceToBluetooth()
             }
             onFailed {
                 showToast(getString(R.string.network_chat_error_join))
@@ -1102,11 +1100,7 @@ class NetworkChatActivity : BaseActivity() {
                     }
                 }
             }
-            "蓝牙连接" -> {
-                AVChatManager.getInstance().setSpeaker(false)
-
-                switchVoiceAfterPhone()
-            }
+            "蓝牙连接" -> AVChatManager.getInstance().setSpeaker(false)
             "蓝牙断开" -> AVChatManager.getInstance().setSpeaker(true)
             "电话接听" -> {
                 AVChatManager.getInstance().muteAllRemoteAudio(true)
@@ -1119,8 +1113,6 @@ class NetworkChatActivity : BaseActivity() {
                 if (!isLocalMute) AVChatManager.getInstance().muteLocalAudio(false)
                 if (!BluetoothHelper.isBluetoothConnected())
                     AVChatManager.getInstance().setSpeaker(true)
-
-                switchVoiceAfterPhone()
             }
         }
     }
