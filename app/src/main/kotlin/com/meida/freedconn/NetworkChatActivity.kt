@@ -166,6 +166,8 @@ class NetworkChatActivity : BaseActivity() {
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
         )
+
+        if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) switchVoiceAfterPhone()
     }
 
     override fun onStop() {
@@ -545,6 +547,27 @@ class NetworkChatActivity : BaseActivity() {
                     }
                 }
         )
+    }
+
+    /* 声音切换到耳机或外放 */
+    private fun switchVoiceAfterPhone() {
+        Observable.timer(1000, TimeUnit.MILLISECONDS)
+            .map { return@map BluetoothHelper.isBluetoothConnected() }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+                if (it) {
+                    am.isBluetoothScoOn = true
+                    am.isSpeakerphoneOn = false
+                    am.startBluetoothSco()
+                } else {
+                    am.isBluetoothScoOn = false
+                    am.isSpeakerphoneOn = true
+                    am.stopBluetoothSco()
+                }
+            }
     }
 
     /* 开始对讲抢麦 */
@@ -1113,6 +1136,8 @@ class NetworkChatActivity : BaseActivity() {
                 if (!isLocalMute) AVChatManager.getInstance().muteLocalAudio(false)
                 if (!BluetoothHelper.isBluetoothConnected())
                     AVChatManager.getInstance().setSpeaker(true)
+
+                switchVoiceAfterPhone()
             }
         }
     }
