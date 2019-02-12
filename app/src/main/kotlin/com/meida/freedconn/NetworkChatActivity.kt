@@ -75,7 +75,7 @@ class NetworkChatActivity : BaseActivity() {
     private var holdingMaster: String = ""      //当前抢麦人
     private val mDisposables by lazy { CompositeDisposable() } //抢麦订阅池
 
-        override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dismissKeyguard()
         setContentView(R.layout.activity_network_chat)
@@ -130,9 +130,9 @@ class NetworkChatActivity : BaseActivity() {
                         .clicked(R.id.item_chat) {
                             when (data.imgFlag) {
                                 "0" -> startActivity<NetworkHandleActivity>(
-                                        "type" to "1",
-                                        "roomId" to roomName,
-                                        "list" to list
+                                    "type" to "1",
+                                    "roomId" to roomName,
+                                    "list" to list
                                 )
                                 "1" -> startActivity<NetworkHandleActivity>(
                                     "type" to "2",
@@ -204,7 +204,8 @@ class NetworkChatActivity : BaseActivity() {
     private fun initListeners() {
         chat_ptt.onTouch { _, event ->
             if (!isLocalMute
-                && chatMode != TeamState.CHAT_NONE) {
+                && chatMode != TeamState.CHAT_NONE
+            ) {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         mDisposables.add(
@@ -217,7 +218,8 @@ class NetworkChatActivity : BaseActivity() {
                                         startTalkToGrab()
                                     } else { //群聊抢麦
                                         val accidMine = getString("accid")
-                                        val priorityMine = list.first { it.mobile == accidMine }.priority
+                                        val priorityMine =
+                                            list.first { it.mobile == accidMine }.priority
 
                                         val authorMine = when {
                                             roomMaster == accidMine -> TeamState.MASTER
@@ -340,7 +342,8 @@ class NetworkChatActivity : BaseActivity() {
 
             if (!isLocalAllMute
                 && chatMode != TeamState.CHAT_NONE
-                && TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                && TeamAVChatProfile.sharedInstance().isTeamAVChatting
+            ) {
                 setLocalMicMute(!isLocalMute)
                 if (isLocalMute) setVoiceLine(false)
                 else setVoiceLine(isGroupModeOn)
@@ -352,7 +355,8 @@ class NetworkChatActivity : BaseActivity() {
 
             if (!isLocalAllMute
                 && chatMode != TeamState.CHAT_NONE
-                && TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                && TeamAVChatProfile.sharedInstance().isTeamAVChatting
+            ) {
                 setLocalAudioMute(!isLocalAudioMute)
             }
         }
@@ -419,7 +423,8 @@ class NetworkChatActivity : BaseActivity() {
         chat_name.oneClick {
             if (chat_dialog.isVisble()
                 || roomName.isEmpty()
-                || roomMaster != getString("accid")) return@oneClick
+                || roomMaster != getString("accid")
+            ) return@oneClick
 
             startActivity<NetworkNameActivity>(
                 "clusterId" to roomName,
@@ -454,7 +459,8 @@ class NetworkChatActivity : BaseActivity() {
                         "1" -> chatMode = TeamState.CHAT_TALK
                         "2" -> chatMode = TeamState.CHAT_GROUP
                     }
-                    chat_level.visibility = if (getString("accid") == roomMaster) View.VISIBLE else View.GONE
+                    chat_level.visibility =
+                        if (getString("accid") == roomMaster) View.VISIBLE else View.GONE
 
                     val imgs = list.map { BaseHttp.baseImg + it.userHead }
                     chat_nine.setImagesData(imgs)
@@ -466,7 +472,8 @@ class NetworkChatActivity : BaseActivity() {
                     val accidMine = getString("accid")
                     val priorityMine = list.first { it.mobile == accidMine }.priority
                     val listNoun = ArrayList<CommonData>()
-                    val itemCount = if (roomMaster == accidMine || priorityMine == "0") (10 - listShow.size) else (11 - listShow.size)
+                    val itemCount =
+                        if (roomMaster == accidMine || priorityMine == "0") (10 - listShow.size) else (11 - listShow.size)
 
                     list.filter { it.master != "0" && it.priority != "0" }
                         .forEachWithIndex { index, item ->
@@ -517,7 +524,11 @@ class NetworkChatActivity : BaseActivity() {
                         .headers("token", getString("token"))
                         .execute(object : StringDialogCallback(baseContext, false) {
 
-                            override fun onSuccessResponse(response: Response<String>, msg: String, msgCode: String) {
+                            override fun onSuccessResponse(
+                                response: Response<String>,
+                                msg: String,
+                                msgCode: String
+                            ) {
                                 OkLogger.i(msg)
                             }
 
@@ -550,6 +561,7 @@ class NetworkChatActivity : BaseActivity() {
     }
 
     /* 声音切换到耳机或外放 */
+    @SuppressLint("CheckResult")
     private fun switchVoiceAfterPhone() {
         Observable.timer(1000, TimeUnit.MILLISECONDS)
             .map { return@map BluetoothHelper.isBluetoothConnected() }
@@ -698,7 +710,8 @@ class NetworkChatActivity : BaseActivity() {
         chat_talk.setBackgroundResource(if (isEnable) R.mipmap.btn07 else R.mipmap.btn08)
         @Suppress("DEPRECATION")
         chat_talk.setTextColor(resources.getColor(if (isEnable) R.color.light else R.color.blue_light))
-        chat_talk.text = getString(if (isEnable) R.string.network_chat_on else R.string.network_chat_off)
+        chat_talk.text =
+            getString(if (isEnable) R.string.network_chat_on else R.string.network_chat_off)
     }
 
     /* 设置是否开启对讲模式 */
