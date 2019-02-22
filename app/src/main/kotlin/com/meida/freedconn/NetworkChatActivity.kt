@@ -563,7 +563,7 @@ class NetworkChatActivity : BaseActivity() {
     /* 声音切换到耳机或外放 */
     @SuppressLint("CheckResult")
     private fun switchVoiceAfterPhone() {
-        Observable.timer(1000, TimeUnit.MILLISECONDS)
+        Observable.timer(2000, TimeUnit.MILLISECONDS)
             .map { return@map BluetoothHelper.isBluetoothConnected() }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
