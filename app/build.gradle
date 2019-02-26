@@ -122,13 +122,13 @@ dependencies {
         exclude group: 'com.github.bumptech.glide', module: 'glide'
     }
 
+    implementation 'com.carlos.voiceline:mylibrary:1.0.6'
     implementation 'com.clj.fastble:FastBleLib:2.3.2'
     implementation "com.daimajia.swipelayout:library:1.2.0@aar"
-    implementation 'com.github.Q42:AndroidScrollingImageView:1.3.3'
     implementation 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.1.1'
     implementation 'com.lqr.ninegridimageview:library:1.0.0'
     implementation 'com.yanzhenjie:permission:1.1.2'
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
     implementation 'net.idik:slimadapter:2.1.2'
-    implementation 'org.greenrobot:eventbus:3.0.0'
+    implementation 'org.greenrobot:eventbus:3.1.1'
 }

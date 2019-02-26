@@ -55,16 +55,17 @@ object BaseHttp {
     val del_friend = "$baseIp/del_friend.rm"                   //删除好友
     val friend_list = "$baseIp/friend_list.rm"                 //好友列表
 
-    val create_cluster = "$baseIp/create_cluster.rm"               //创建群组
-    val cluster_member = "$baseIp/cluster_member.rm"               //群组信息
-    val quit_cluster = "$baseIp/quit_cluster.rm"                   //退出群组
-    val out_cluster = "$baseIp/out_cluster.rm"                     //踢出群组
-    val add_cluster = "$baseIp/add_cluster.rm"                     //拉入群组
-    val jion_cluster = "$baseIp/jion_cluster.rm"                   //拉入群组
-    val set_priority = "$baseIp/set_priority.rm"                   //设置优先权
-    val update_status_cluster = "$baseIp/update_status_cluster.rm" //群组更新
-    val update_residueTime = "$baseIp/update_residueTime.rm"       //通话计时
-    val update_name_cluster = "$baseIp/update_name_cluster.rm"     //修改名称
+    val create_cluster = "$baseIp/create_cluster.rm"                 //创建群组
+    val cluster_member = "$baseIp/cluster_member.rm"                 //群组信息
+    val quit_cluster = "$baseIp/quit_cluster.rm"                     //退出群组
+    val out_cluster = "$baseIp/out_cluster.rm"                       //踢出群组
+    val add_cluster = "$baseIp/add_cluster.rm"                       //拉入群组
+    val jion_cluster = "$baseIp/jion_cluster.rm"                     //拉入群组
+    val set_priority = "$baseIp/set_priority.rm"                     //设置优先权
+    val update_status_cluster = "$baseIp/update_status_cluster.rm"   //群组更新
+    val update_residueTime = "$baseIp/update_residueTime.rm"         //通话计时
+    val update_name_cluster = "$baseIp/update_name_cluster.rm"       //修改名称
+    val update_talkback_status = "$baseIp/update_talkback_status.rm" //修改对讲状态（1关闭  0开启）
 
     val userhead_edit = "$baseIp/userhead_edit.rm" //头像上传
     val pollcode_bind = "$baseIp/pollcode_bind.rm" //注册码绑定

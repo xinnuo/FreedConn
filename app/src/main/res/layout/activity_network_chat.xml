@@ -186,15 +186,20 @@
                     android:layout_marginEnd="@dimen/dimen_size_40"
                     android:background="@mipmap/bj20" />
 
-                <com.q42.android.scrollingimageview.ScrollingImageView
+                <com.carlos.voiceline.mylibrary.VoiceLineView
                     android:id="@+id/chat_curve"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/dimen_size_10"
-                    android:layout_marginEnd="@dimen/dimen_size_10"
-                    app:speed="3dp"
-                    app:src="@mipmap/line01" />
+                    android:layout_height="@dimen/dimen_size_75"
+                    android:layout_marginStart="@dimen/dimen_size_58"
+                    android:layout_marginEnd="@dimen/dimen_size_58"
+                    app:fineness="three"
+                    app:lineSpeed="90"
+                    app:maxVolume="20"
+                    app:middleLine="@color/colorAccent"
+                    app:middleLineHeight="@dimen/dimen_size_1"
+                    app:sensibility="one"
+                    app:viewMode="line"
+                    app:voiceLine="@color/colorAccent" />
 
                 <ImageView
                     android:id="@+id/chat_mic"

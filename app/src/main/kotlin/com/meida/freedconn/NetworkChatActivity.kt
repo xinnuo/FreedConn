@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.AnimationDrawable
+import android.media.AudioDeviceInfo
 import android.media.AudioManager
+import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
@@ -364,25 +366,28 @@ class NetworkChatActivity : BaseActivity() {
         chat_talk.oneClick {
             if (chat_dialog.isVisble()) return@oneClick
 
-            if (isLocalAllMute) {
-                setMuteAll(false)
-                setLocalMicMute(false)
-                setLocalAudioMute(false)
-                setVoiceLine(isGroupModeOn)
-                if (chatMode != TeamState.CHAT_NONE) {
-                    chat_ptt.setImageResource(R.mipmap.icon35)
+            getAllStatusData(if (isLocalAllMute) "0" else "1") {
+                if (isLocalAllMute) {
+                    setMuteAll(false)
+                    setLocalMicMute(false)
+                    setLocalAudioMute(false)
+                    setVoiceLine(isGroupModeOn)
+                    if (chatMode != TeamState.CHAT_NONE) {
+                        chat_ptt.setImageResource(R.mipmap.icon35)
+                    } else {
+                        chat_mic.setImageResource(R.mipmap.icon28)
+                        chat_voice.setImageResource(R.mipmap.icon29)
+                        chat_ptt.setImageResource(R.mipmap.icon34)
+                    }
                 } else {
-                    chat_mic.setImageResource(R.mipmap.icon28)
-                    chat_voice.setImageResource(R.mipmap.icon29)
+                    setMuteAll(true)
+                    setLocalMicMute(true)
+                    setLocalAudioMute(true)
+                    setVoiceLine(false)
                     chat_ptt.setImageResource(R.mipmap.icon34)
                 }
-            } else {
-                setMuteAll(true)
-                setLocalMicMute(true)
-                setLocalAudioMute(true)
-                setVoiceLine(false)
-                chat_ptt.setImageResource(R.mipmap.icon34)
             }
+
         }
 
         chat_level.oneClick {
@@ -436,6 +441,7 @@ class NetworkChatActivity : BaseActivity() {
     private fun getInfoData(event: (() -> Unit)? = null) {
         OkGo.post<BaseResponse<ClusterModel>>(BaseHttp.cluster_member)
             .tag(this@NetworkChatActivity)
+            .headers("token", getString("token"))
             .params("clusterId", roomName)
             .execute(object : JacksonDialogCallback<BaseResponse<ClusterModel>>(baseContext, true) {
 
@@ -470,7 +476,7 @@ class NetworkChatActivity : BaseActivity() {
                     listShow.addAll(list.filter { it.priority == "0" })
 
                     val accidMine = getString("accid")
-                    val priorityMine = list.first { it.mobile == accidMine }.priority
+                    val priorityMine = list.firstOrNull { it.mobile == accidMine }?.priority ?: ""
                     val listNoun = ArrayList<CommonData>()
                     val itemCount =
                         if (roomMaster == accidMine || priorityMine == "0") (10 - listShow.size) else (11 - listShow.size)
@@ -499,6 +505,25 @@ class NetworkChatActivity : BaseActivity() {
             .headers("token", getString("token"))
             .params("clusterId", roomName)
             .params("clusterStatus", status)
+            .execute(object : StringDialogCallback(baseContext) {
+
+                override fun onSuccessResponse(
+                    response: Response<String>,
+                    msg: String,
+                    msgCode: String
+                ) {
+                    event(status)
+                }
+
+            })
+    }
+
+    private fun getAllStatusData(status: String, event: (String) -> Unit) {
+        OkGo.post<String>(BaseHttp.update_talkback_status)
+            .tag(this@NetworkChatActivity)
+            .headers("token", getString("token"))
+            .params("clusterId", roomName)
+            .params("talkbackStatus", status)
             .execute(object : StringDialogCallback(baseContext) {
 
                 override fun onSuccessResponse(
@@ -544,18 +569,74 @@ class NetworkChatActivity : BaseActivity() {
                 .map { return@map BluetoothHelper.isBluetoothConnected() }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribe { isBlue ->
                     val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
-                    if (it) {
-                        am.isBluetoothScoOn = true
-                        am.isSpeakerphoneOn = false
-                        am.startBluetoothSco()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        val devices = am.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
+
+                        when {
+                            devices.any {
+                                it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO
+                                        || it.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP
+                            } -> {
+                                am.isBluetoothScoOn = true
+                                am.isSpeakerphoneOn = false
+                                am.startBluetoothSco()
+                            }
+                            devices.any {
+                                it.type == AudioDeviceInfo.TYPE_WIRED_HEADSET
+                                        || it.type == AudioDeviceInfo.TYPE_WIRED_HEADPHONES
+                            } -> {
+                                am.isBluetoothScoOn = false
+                                am.isSpeakerphoneOn = false
+                                am.stopBluetoothSco()
+                            }
+                            else -> {
+                                am.isBluetoothScoOn = false
+                                am.isSpeakerphoneOn = true
+                                am.stopBluetoothSco()
+                            }
+                        }
                     } else {
-                        am.isBluetoothScoOn = false
-                        am.isSpeakerphoneOn = true
-                        am.stopBluetoothSco()
+                        if (isBlue) {
+                            am.isBluetoothScoOn = true
+                            am.isSpeakerphoneOn = false
+                            am.startBluetoothSco()
+                        } else {
+                            @Suppress("DEPRECATION")
+                            if (am.isWiredHeadsetOn) {
+                                am.isBluetoothScoOn = false
+                                am.isSpeakerphoneOn = false
+                                am.stopBluetoothSco()
+                            } else {
+                                am.isBluetoothScoOn = false
+                                am.isSpeakerphoneOn = true
+                                am.stopBluetoothSco()
+                            }
+                        }
+
+                        when {
+                            isBlue -> {
+                                am.isBluetoothScoOn = true
+                                am.isSpeakerphoneOn = false
+                                am.startBluetoothSco()
+                            }
+                            @Suppress("DEPRECATION")
+                            am.isWiredHeadsetOn -> {
+                                am.isBluetoothScoOn = false
+                                am.isSpeakerphoneOn = false
+                                am.stopBluetoothSco()
+                            }
+                            else -> {
+                                am.isBluetoothScoOn = false
+                                am.isSpeakerphoneOn = true
+                                am.stopBluetoothSco()
+                            }
+                        }
                     }
+
+                    am.mode = AudioManager.MODE_NORMAL
                 }
         )
     }
@@ -567,18 +648,74 @@ class NetworkChatActivity : BaseActivity() {
             .map { return@map BluetoothHelper.isBluetoothConnected() }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribe { isBlue ->
                 val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
-                if (it) {
-                    am.isBluetoothScoOn = true
-                    am.isSpeakerphoneOn = false
-                    am.startBluetoothSco()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    val devices = am.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
+
+                    when {
+                        devices.any {
+                            it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO
+                                    || it.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP
+                        } -> {
+                            am.isBluetoothScoOn = true
+                            am.isSpeakerphoneOn = false
+                            am.startBluetoothSco()
+                        }
+                        devices.any {
+                            it.type == AudioDeviceInfo.TYPE_WIRED_HEADSET
+                                    || it.type == AudioDeviceInfo.TYPE_WIRED_HEADPHONES
+                        } -> {
+                            am.isBluetoothScoOn = false
+                            am.isSpeakerphoneOn = false
+                            am.stopBluetoothSco()
+                        }
+                        else -> {
+                            am.isBluetoothScoOn = false
+                            am.isSpeakerphoneOn = true
+                            am.stopBluetoothSco()
+                        }
+                    }
                 } else {
-                    am.isBluetoothScoOn = false
-                    am.isSpeakerphoneOn = true
-                    am.stopBluetoothSco()
+                    if (isBlue) {
+                        am.isBluetoothScoOn = true
+                        am.isSpeakerphoneOn = false
+                        am.startBluetoothSco()
+                    } else {
+                        @Suppress("DEPRECATION")
+                        if (am.isWiredHeadsetOn) {
+                            am.isBluetoothScoOn = false
+                            am.isSpeakerphoneOn = false
+                            am.stopBluetoothSco()
+                        } else {
+                            am.isBluetoothScoOn = false
+                            am.isSpeakerphoneOn = true
+                            am.stopBluetoothSco()
+                        }
+                    }
+
+                    when {
+                        isBlue -> {
+                            am.isBluetoothScoOn = true
+                            am.isSpeakerphoneOn = false
+                            am.startBluetoothSco()
+                        }
+                        @Suppress("DEPRECATION")
+                        am.isWiredHeadsetOn -> {
+                            am.isBluetoothScoOn = false
+                            am.isSpeakerphoneOn = false
+                            am.stopBluetoothSco()
+                        }
+                        else -> {
+                            am.isBluetoothScoOn = false
+                            am.isSpeakerphoneOn = true
+                            am.stopBluetoothSco()
+                        }
+                    }
                 }
+
+                am.mode = AudioManager.MODE_NORMAL
             }
     }
 
@@ -798,7 +935,7 @@ class NetworkChatActivity : BaseActivity() {
                 AVChatManager.getInstance().muteAllRemoteAudio(false) //是否允许播放远端用户语音
 
                 val accid = getString("accid")
-                val priority = list.first { it.mobile == accid }.priority
+                val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
                 val isFirst = accid == roomMaster || priority == "0"
                 chat_admin.visibility = if (isFirst) View.VISIBLE else View.GONE
                 chat_user.visibility = if (isFirst) View.GONE else View.VISIBLE
@@ -840,6 +977,30 @@ class NetworkChatActivity : BaseActivity() {
                         chat_voice.setImageResource(R.mipmap.icon31)
 
                         AVChatManager.getInstance().muteLocalAudio(false)
+                    }
+                }
+
+                if (!isFirst) {
+                    val talkStatus = list.firstOrNull { it.mobile == accid }?.talkbackStatus ?: ""
+
+                    if (talkStatus == "1") {
+                        setMuteAll(true)
+                        setLocalMicMute(true)
+                        setLocalAudioMute(true)
+                        setVoiceLine(false)
+                        chat_ptt.setImageResource(R.mipmap.icon34)
+                    } else {
+                        setMuteAll(false)
+                        setLocalMicMute(false)
+                        setLocalAudioMute(false)
+                        setVoiceLine(isGroupModeOn)
+                        if (chatMode != TeamState.CHAT_NONE) {
+                            chat_ptt.setImageResource(R.mipmap.icon35)
+                        } else {
+                            chat_mic.setImageResource(R.mipmap.icon28)
+                            chat_voice.setImageResource(R.mipmap.icon29)
+                            chat_ptt.setImageResource(R.mipmap.icon34)
+                        }
                     }
                 }
 
@@ -1035,7 +1196,13 @@ class NetworkChatActivity : BaseActivity() {
         }
 
         override fun onReportSpeaker(speakers: MutableMap<String, Int>, mixedEnergy: Int) {
-            // speakers.forEach { OkLogger.i("onReportSpeaker:${it.key}, ${it.value}") }
+            speakers.forEach {
+                OkLogger.i("onReportSpeaker:${it.key}, ${it.value}")
+
+                if (it.key == getString("accid")) {
+                    chat_curve.setVolume(it.value / 300)
+                }
+            }
         }
     }
 

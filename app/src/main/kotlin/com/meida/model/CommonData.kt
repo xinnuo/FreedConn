@@ -52,6 +52,7 @@ data class CommonData(
     var priority: String = "",
     var imgFlag: String = "",
     var mobile: String = "",
+    var talkbackStatus: String = "",
     var clusterMembers: List<CommonData>? = ArrayList(),
 
     //搜索好友
