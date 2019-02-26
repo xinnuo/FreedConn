@@ -511,9 +511,7 @@ class NetworkChatActivity : BaseActivity() {
                     response: Response<String>,
                     msg: String,
                     msgCode: String
-                ) {
-                    event(status)
-                }
+                ) { event(status) }
 
             })
     }
@@ -530,9 +528,7 @@ class NetworkChatActivity : BaseActivity() {
                     response: Response<String>,
                     msg: String,
                     msgCode: String
-                ) {
-                    event(status)
-                }
+                ) { event(status) }
 
             })
     }
@@ -553,9 +549,7 @@ class NetworkChatActivity : BaseActivity() {
                                 response: Response<String>,
                                 msg: String,
                                 msgCode: String
-                            ) {
-                                OkLogger.i(msg)
-                            }
+                            ) { OkLogger.i(msg) }
 
                         })
                 }
@@ -599,23 +593,6 @@ class NetworkChatActivity : BaseActivity() {
                             }
                         }
                     } else {
-                        if (isBlue) {
-                            am.isBluetoothScoOn = true
-                            am.isSpeakerphoneOn = false
-                            am.startBluetoothSco()
-                        } else {
-                            @Suppress("DEPRECATION")
-                            if (am.isWiredHeadsetOn) {
-                                am.isBluetoothScoOn = false
-                                am.isSpeakerphoneOn = false
-                                am.stopBluetoothSco()
-                            } else {
-                                am.isBluetoothScoOn = false
-                                am.isSpeakerphoneOn = true
-                                am.stopBluetoothSco()
-                            }
-                        }
-
                         when {
                             isBlue -> {
                                 am.isBluetoothScoOn = true
@@ -678,23 +655,6 @@ class NetworkChatActivity : BaseActivity() {
                         }
                     }
                 } else {
-                    if (isBlue) {
-                        am.isBluetoothScoOn = true
-                        am.isSpeakerphoneOn = false
-                        am.startBluetoothSco()
-                    } else {
-                        @Suppress("DEPRECATION")
-                        if (am.isWiredHeadsetOn) {
-                            am.isBluetoothScoOn = false
-                            am.isSpeakerphoneOn = false
-                            am.stopBluetoothSco()
-                        } else {
-                            am.isBluetoothScoOn = false
-                            am.isSpeakerphoneOn = true
-                            am.stopBluetoothSco()
-                        }
-                    }
-
                     when {
                         isBlue -> {
                             am.isBluetoothScoOn = true
@@ -722,7 +682,7 @@ class NetworkChatActivity : BaseActivity() {
     /* 开始对讲抢麦 */
     private fun startTalkToGrab() {
         val accid = getString("accid")
-        val priority = list.first { it.mobile == accid }.priority
+        val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
         when {
             accid == roomMaster -> sendSuccessCommand()
             priority == "0" -> {
@@ -804,7 +764,7 @@ class NetworkChatActivity : BaseActivity() {
 
     /* 发送对讲抢麦成功控制指令 */
     private fun sendSuccessCommand() {
-        OkLogger.i("成功")
+        OkLogger.i("抢麦成功")
         sendControlCommand(chatId, TeamState.NOTIFY_GRAB_SUCCESSS) {
             onSuccess {
                 isMicHolding = true
@@ -819,7 +779,7 @@ class NetworkChatActivity : BaseActivity() {
 
     /* 发送取消抢麦控制指令 */
     private fun sendCancelCommand(event: (() -> Unit)) {
-        OkLogger.i("取消")
+        OkLogger.i("取消抢麦")
         sendControlCommand(chatId, TeamState.NOTIFY_GRAB_CANCEL) {
             onSuccess {
                 isMicHolding = false
@@ -980,6 +940,7 @@ class NetworkChatActivity : BaseActivity() {
                     }
                 }
 
+                //是否开启对讲模式
                 if (!isFirst) {
                     val talkStatus = list.firstOrNull { it.mobile == accid }?.talkbackStatus ?: ""
 
@@ -1197,10 +1158,10 @@ class NetworkChatActivity : BaseActivity() {
 
         override fun onReportSpeaker(speakers: MutableMap<String, Int>, mixedEnergy: Int) {
             speakers.forEach {
-                OkLogger.i("onReportSpeaker:${it.key}, ${it.value}")
+                OkLogger.i("onReportSpeaker：用户：${it.key}， 声音强度：${it.value}")
 
                 if (it.key == getString("accid")) {
-                    chat_curve.setVolume(it.value / 300)
+                    chat_curve.setVolume(it.value / 350)
                 }
             }
         }
@@ -1314,8 +1275,7 @@ class NetworkChatActivity : BaseActivity() {
             "电话挂断" -> {
                 if (!isLocalAudioMute) AVChatManager.getInstance().muteAllRemoteAudio(false)
                 if (!isLocalMute) AVChatManager.getInstance().muteLocalAudio(false)
-                if (!BluetoothHelper.isBluetoothConnected())
-                    AVChatManager.getInstance().setSpeaker(true)
+                AVChatManager.getInstance().setSpeaker(!BluetoothHelper.isBluetoothConnected())
 
                 switchVoiceAfterPhone()
             }
