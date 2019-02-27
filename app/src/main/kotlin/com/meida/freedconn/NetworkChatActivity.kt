@@ -30,7 +30,6 @@ import com.meida.utils.FullyGridLayoutManager
 import com.meida.utils.setAdapter
 import com.netease.nimlib.sdk.Observer
 import com.netease.nimlib.sdk.avchat.AVChatManager
-import com.netease.nimlib.sdk.avchat.constant.AVChatOSCategory
 import com.netease.nimlib.sdk.avchat.constant.AVChatUserRole
 import com.netease.nimlib.sdk.avchat.model.AVChatControlEvent
 import com.netease.nimlib.sdk.avchat.model.AVChatNetworkStats
@@ -885,8 +884,6 @@ class NetworkChatActivity : BaseActivity() {
 
         AVChatManager.getInstance().setParameter(AVChatParameters.KEY_SESSION_MULTI_MODE_USER_ROLE, AVChatUserRole.NORMAL) //角色模式
         AVChatManager.getInstance().setParameter(AVChatParameters.KEY_AUDIO_REPORT_SPEAKER, true)                          //声音强度汇报
-        AVChatManager.getInstance().setParameter(AVChatParameters.KEY_OS_CATEGORY, AVChatOSCategory.DEFAULT)               //设备类型
-        AVChatManager.getInstance().setParameter(AVChatParameters.KEY_AUDIO_DTX_ENABLE, true)                              //语音DTX
         joinRoom(roomName) {
             //加入房间
             onSuccess { data ->
@@ -1272,10 +1269,17 @@ class NetworkChatActivity : BaseActivity() {
                 if (AVChatManager.getInstance().speakerEnabled())
                     AVChatManager.getInstance().setSpeaker(false)
             }
+            "来电响铃" -> {
+                /*val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                am.mode = AudioManager.MODE_NORMAL*/
+            }
             "电话挂断" -> {
                 if (!isLocalAudioMute) AVChatManager.getInstance().muteAllRemoteAudio(false)
                 if (!isLocalMute) AVChatManager.getInstance().muteLocalAudio(false)
                 AVChatManager.getInstance().setSpeaker(!BluetoothHelper.isBluetoothConnected())
+
+               /* val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                am.mode = AudioManager.MODE_IN_COMMUNICATION*/
 
                 switchVoiceAfterPhone()
             }

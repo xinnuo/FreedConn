@@ -14,7 +14,7 @@ ext.versions = [
         ankoVersion: '0.10.7',
 
         /*网易云信*/
-        nimVersion: '5.9.0',
+        nimVersion: '6.1.2',
 
         /*友盟分享和登录*/
         umengSocialVersion: '6.9.1',

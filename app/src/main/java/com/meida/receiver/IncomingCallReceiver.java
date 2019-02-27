@@ -23,6 +23,9 @@ public class IncomingCallReceiver extends BroadcastReceiver {
             switch (state) {
                 //响铃
                 case "RINGING":
+                    RefreshMessageEvent ringData = new RefreshMessageEvent();
+                    ringData.setType("来电响铃");
+                    EventBus.getDefault().post(ringData);
                     break;
                 //挂断
                 case "IDLE":
