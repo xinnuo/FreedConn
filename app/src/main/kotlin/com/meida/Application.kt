@@ -52,6 +52,7 @@ import com.meida.freedconn.BuildConfig
 import com.meida.freedconn.LoginActivity
 import com.meida.freedconn.NetworkChatActivity
 import com.meida.freedconn.R
+import com.meida.utils.ActivityStack
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.startActivity
 import java.util.concurrent.TimeUnit
@@ -129,7 +130,8 @@ class Application : MultiDexApplication() {
     private fun initAVChatKit() {
         val avChatOptions = object : AVChatOptions() {
             override fun logout(context: Context) {
-                startActivity<LoginActivity>("offLine" to true)
+                val isRunning = ActivityStack.screenManager.isContainsActivity(LoginActivity::class.java)
+                if (!isRunning) startActivity<LoginActivity>("offLine" to true)
             }
         }
         avChatOptions.entranceActivity = NetworkChatActivity::class.java

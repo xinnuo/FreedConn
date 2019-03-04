@@ -53,7 +53,7 @@ object BaseHttp {
     val add_friend = "$baseIp/add_friend.rm"                   //同意
     val lose_request = "$baseIp/lose_request.rm"               //忽略
     val del_friend = "$baseIp/del_friend.rm"                   //删除好友
-    val friend_list = "$baseIp/friend_list.rm"                 //好友列表
+    val friend_list = "$baseIp/friend_list1.rm"                //好友列表
 
     val create_cluster = "$baseIp/create_cluster.rm"                 //创建群组
     val cluster_member = "$baseIp/cluster_member.rm"                 //群组信息

@@ -194,7 +194,7 @@
                     android:layout_marginEnd="@dimen/dimen_size_58"
                     app:fineness="three"
                     app:lineSpeed="90"
-                    app:maxVolume="20"
+                    app:maxVolume="30"
                     app:middleLine="@color/colorAccent"
                     app:middleLineHeight="@dimen/dimen_size_1"
                     app:sensibility="one"
@@ -267,7 +267,7 @@
                     android:id="@+id/chat_dialog_img"
                     android:layout_width="@dimen/dimen_size_65"
                     android:layout_height="@dimen/dimen_size_65"
-                    android:src="@drawable/animlist_holding_mic"
+                    android:src="@mipmap/icon36"
                     tools:ignore="ContentDescription" />
 
                 <TextView

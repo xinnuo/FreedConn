@@ -76,9 +76,13 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dimen_size_50"
         android:layout_marginTop="@dimen/dimen_size_25"
-        android:layout_marginBottom="@dimen/dimen_size_35"
         android:src="@mipmap/logo02"
         tools:ignore="ContentDescription" />
+
+    <View
+        android:layout_width="@dimen/dimen_size_1"
+        android:layout_height="0dp"
+        android:layout_weight="0.3" />
 
     <LinearLayout
         android:id="@+id/main_device"
@@ -109,7 +113,7 @@
     <View
         android:layout_width="@dimen/dimen_size_1"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="0.3" />
 
     <LinearLayout
         android:id="@+id/main_bluetooth"
@@ -140,7 +144,7 @@
     <View
         android:layout_width="@dimen/dimen_size_1"
         android:layout_height="0dp"
-        android:layout_weight="0.9" />
+        android:layout_weight="0.3" />
 
     <LinearLayout
         android:id="@+id/main_network"
@@ -171,7 +175,7 @@
     <View
         android:layout_width="@dimen/dimen_size_1"
         android:layout_height="0dp"
-        android:layout_weight="2" />
+        android:layout_weight="0.4" />
 
     <LinearLayout
         android:id="@+id/main_setting"

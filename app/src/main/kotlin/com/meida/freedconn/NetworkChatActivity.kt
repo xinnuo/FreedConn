@@ -3,7 +3,8 @@ package com.meida.freedconn
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.AnimationDrawable
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Build
@@ -125,7 +126,15 @@ class NetworkChatActivity : BaseActivity() {
                             when (data.imgFlag) {
                                 "0" -> it.setImageResource(R.mipmap.icon26)
                                 "1" -> it.setImageResource(R.mipmap.icon27)
-                                else -> it.setImageURL(BaseHttp.baseImg + data.userHead)
+                                else -> {
+                                    it.setImageURL(BaseHttp.baseImg + data.userHead)
+
+                                    it.colorFilter = ColorMatrixColorFilter(
+                                        ColorMatrix().apply {
+                                            setSaturation(if (data.isOnline) 1f else 0f)
+                                        }
+                                    )
+                                }
                             }
                         }
                         .clicked(R.id.item_chat) {
@@ -177,7 +186,10 @@ class NetworkChatActivity : BaseActivity() {
             setGrabAnimation(false)
             sendCancelCommand {
                 if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
-                else chat_ptt.setImageResource(R.mipmap.icon35)
+                else {
+                    chat_ptt.setImageResource(R.mipmap.icon35)
+                    setVoiceLine(true)
+                }
             }
         }
 
@@ -247,12 +259,18 @@ class NetworkChatActivity : BaseActivity() {
                                     setGrabAnimation(false)
                                     sendCancelCommand {
                                         if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
-                                        else chat_ptt.setImageResource(R.mipmap.icon35)
+                                        else {
+                                            chat_ptt.setImageResource(R.mipmap.icon35)
+                                            setVoiceLine(true)
+                                        }
                                     }
                                 } else { //非抢麦者松开
                                     setGrabAnimation(false)
                                     if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
-                                    else chat_ptt.setImageResource(R.mipmap.icon35)
+                                    else {
+                                        chat_ptt.setImageResource(R.mipmap.icon35)
+                                        setVoiceLine(true)
+                                    }
                                 }
                             }
                     }
@@ -363,7 +381,8 @@ class NetworkChatActivity : BaseActivity() {
         }
 
         chat_talk.oneClick {
-            if (chat_dialog.isVisble()) return@oneClick
+            if (chat_dialog.isVisble()
+                || chatMode == TeamState.CHAT_NONE) return@oneClick
 
             getAllStatusData(if (isLocalAllMute) "0" else "1") {
                 if (isLocalAllMute) {
@@ -490,6 +509,9 @@ class NetworkChatActivity : BaseActivity() {
                         listShow.add(CommonData().apply { imgFlag = "0" })
                     listShow.add(CommonData().apply { imgFlag = "1" })
 
+                    listShow.forEach { inner ->
+                        inner.isOnline = accountsOnline.any { it == inner.mobile }
+                    }
                     mAdapter.updateData(listShow)
 
                     if (event != null) event()
@@ -770,6 +792,7 @@ class NetworkChatActivity : BaseActivity() {
                 holdingMaster = getString("accid")
                 chat_dialog_hint.text = getString(R.string.network_chat_mic_done)
                 setPttVoice(true)
+                setVoiceLine(false)
             }
             onFailed { failedToGrab() }
             onException { failedToGrab() }
@@ -788,16 +811,11 @@ class NetworkChatActivity : BaseActivity() {
         }
     }
 
-    /* 设置抢麦动画 */
+    /* 设置抢麦弹框是否显示 */
     private fun setGrabAnimation(isBegan: Boolean) {
         chat_dialog.visibility = if (isBegan) View.VISIBLE else View.GONE
         chat_dialog_hint.text = getString(R.string.network_chat_mic_holding)
-        val animationDrawable = chat_dialog_img.drawable as AnimationDrawable
-        if (isBegan) animationDrawable.start()
-        else {
-            if (animationDrawable.isRunning)
-                animationDrawable.stop()
-        }
+        chat_dialog_img.setImageResource(R.mipmap.icon36)
     }
 
     /* 设置是否禁用对讲功能 */
@@ -829,8 +847,6 @@ class NetworkChatActivity : BaseActivity() {
     /* 设置是否开启PTT语音 */
     private fun setPttVoice(isDown: Boolean) {
         chat_ptt.setImageResource(if (isDown) R.mipmap.icon34 else R.mipmap.icon35)
-        setVoiceLine(isDown)
-
         AVChatManager.getInstance().muteLocalAudio(!isDown)
     }
 
@@ -867,6 +883,15 @@ class NetworkChatActivity : BaseActivity() {
         notifier.activeCallingNotification(if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) active else false)
     }
 
+    /* 更新在线头像状态 */
+    private fun updateOnlineStatus() {
+        listShow.forEach { inner ->
+            inner.isOnline = accountsOnline.any { it == inner.mobile }
+        }
+
+        mAdapter.notifyDataSetChanged()
+    }
+
     /* 音视频配置 */
     @SuppressLint("SetTextI18n")
     private fun startRtc() {
@@ -900,6 +925,7 @@ class NetworkChatActivity : BaseActivity() {
 
                 accountsOnline.add(getString("accid"))
                 chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
+                updateOnlineStatus()
 
                 when (chatMode) {
                     TeamState.CHAT_NONE -> {
@@ -937,7 +963,7 @@ class NetworkChatActivity : BaseActivity() {
                     }
                 }
 
-                //是否开启对讲模式
+                //普通成员是否开启对讲模式按钮
                 if (!isFirst) {
                     val talkStatus = list.firstOrNull { it.mobile == accid }?.talkbackStatus ?: ""
 
@@ -958,6 +984,10 @@ class NetworkChatActivity : BaseActivity() {
                             chat_mic.setImageResource(R.mipmap.icon28)
                             chat_voice.setImageResource(R.mipmap.icon29)
                             chat_ptt.setImageResource(R.mipmap.icon34)
+
+                            chat_talk.setBackgroundResource(R.mipmap.btn07)
+                            @Suppress("DEPRECATION")
+                            chat_talk.setTextColor(resources.getColor(R.color.light))
                         }
                     }
                 }
@@ -973,6 +1003,7 @@ class NetworkChatActivity : BaseActivity() {
     }
 
     /* 通话控制指令观察者 */
+    @Suppress("DEPRECATION")
     private val mControlEventObserver = Observer<AVChatControlEvent> { event ->
         when (event.controlCommand) {
             TeamState.NOTIFY_CUSTOM_NONE -> {
@@ -988,10 +1019,14 @@ class NetworkChatActivity : BaseActivity() {
                 setGroupMode(false) //关闭群聊模式
                 setVoiceLine(false) //关闭波浪线
                 chatMode = TeamState.CHAT_NONE
-                chat_hint.text = " "
+
                 chat_ptt.setImageResource(R.mipmap.icon34)
                 chat_mic.setImageResource(R.mipmap.icon28)
                 chat_voice.setImageResource(R.mipmap.icon29)
+
+                chat_hint.text = " "
+                chat_talk.setBackgroundResource(R.mipmap.btn07)
+                chat_talk.setTextColor(resources.getColor(R.color.light))
 
                 AVChatManager.getInstance().muteLocalAudio(true)
             }
@@ -1001,7 +1036,12 @@ class NetworkChatActivity : BaseActivity() {
                 setVoiceLine(false) //关闭波浪线
                 chatMode = TeamState.CHAT_TALK
                 chat_hint.text = getString(R.string.network_chat_hint1)
-                if (!isLocalAllMute) chat_ptt.setImageResource(R.mipmap.icon35)
+                if (!isLocalAllMute) {
+                    chat_ptt.setImageResource(R.mipmap.icon35)
+
+                    chat_talk.setBackgroundResource(R.mipmap.btn08)
+                    chat_talk.setTextColor(resources.getColor(R.color.blue_light))
+                }
                 if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
                 if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
 
@@ -1013,7 +1053,12 @@ class NetworkChatActivity : BaseActivity() {
                 setVoiceLine(!isLocalMute) //开启波浪线
                 chatMode = TeamState.CHAT_GROUP
                 chat_hint.text = getString(R.string.network_chat_hint2)
-                if (!isLocalAllMute) chat_ptt.setImageResource(R.mipmap.icon35)
+                if (!isLocalAllMute) {
+                    chat_ptt.setImageResource(R.mipmap.icon35)
+
+                    chat_talk.setBackgroundResource(R.mipmap.btn08)
+                    chat_talk.setTextColor(resources.getColor(R.color.blue_light))
+                }
                 if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
                 if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
 
@@ -1105,6 +1150,7 @@ class NetworkChatActivity : BaseActivity() {
             OkLogger.i("用户：${account}加入房间")
             if (accountsOnline.none { it == account }) accountsOnline.add(account)
             chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
+            updateOnlineStatus()
 
             if (isMicHolding && holdingMaster == getString("accid")) {
                 AVChatManager.getInstance().sendControlCommand(
@@ -1122,6 +1168,7 @@ class NetworkChatActivity : BaseActivity() {
             OkLogger.i("用户：${account}离开房间")
             if (accountsOnline.any { it == account }) accountsOnline.remove(account)
             chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
+            updateOnlineStatus()
         }
 
         @SuppressLint("CheckResult")
@@ -1158,7 +1205,18 @@ class NetworkChatActivity : BaseActivity() {
                 OkLogger.i("onReportSpeaker：用户：${it.key}， 声音强度：${it.value}")
 
                 if (it.key == getString("accid")) {
-                    chat_curve.setVolume(it.value / 350)
+                    val value = (it.value / 150f + 0.5).toInt()
+
+                    chat_curve.setVolume(value)
+
+                    if (isMicHolding) {
+                        when (value) {
+                            in 0..5 -> chat_dialog_img.setImageResource(R.mipmap.icon36)
+                            in 6..10 -> chat_dialog_img.setImageResource(R.mipmap.icon37)
+                            in 11..15 -> chat_dialog_img.setImageResource(R.mipmap.icon38)
+                            in 16..20 -> chat_dialog_img.setImageResource(R.mipmap.icon42)
+                        }
+                    }
                 }
             }
         }

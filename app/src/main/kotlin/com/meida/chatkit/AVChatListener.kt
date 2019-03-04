@@ -48,7 +48,6 @@ import com.netease.nimlib.sdk.avchat.model.*
 import com.netease.nimlib.sdk.msg.MsgServiceObserve
 import com.netease.nimlib.sdk.msg.model.CustomNotification
 import com.netease.nimlib.sdk.uinfo.model.UserInfo
-import java.util.*
 
 inline fun <reified T : Any> getService(): T = NIMClient.getService(T::class.java)
 

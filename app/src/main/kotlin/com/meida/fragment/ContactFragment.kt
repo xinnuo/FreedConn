@@ -20,16 +20,14 @@ import com.meida.adapter.ContactAdapter
 import com.meida.base.BaseFragment
 import com.meida.base.*
 import com.meida.chatkit.TeamAVChatEx
+import com.meida.freedconn.NetworkHandleActivity
 import com.meida.freedconn.NetworkMessageActivity
 import com.meida.freedconn.R
 import com.meida.model.CommonData
 import com.meida.model.CommonModel
 import com.meida.model.RefreshMessageEvent
 import com.meida.share.BaseHttp
-import com.meida.utils.KeyboardHelper
-import com.meida.utils.setAdapter
-import com.meida.utils.toNotInt
-import com.meida.utils.trimString
+import com.meida.utils.*
 import kotlinx.android.synthetic.main.fragment_contact.*
 import kotlinx.android.synthetic.main.layout_empty.*
 import kotlinx.android.synthetic.main.layout_list.*
@@ -115,25 +113,42 @@ class ContactFragment : BaseFragment() {
 
                         })
                 } else {
-                    OkGo.post<String>(BaseHttp.quit_cluster)
-                        .tag(this@ContactFragment)
-                        .headers("token", getString("token"))
-                        .params("clusterId", list[index].clusterId)
-                        .execute(object : StringDialogCallback(activity) {
+                    val datas = ArrayList<CommonData>()
+                    datas.addItems(list[index].clusterMembers)
 
-                            override fun onSuccessResponse(response: Response<String>, msg: String, msgCode: String) {
-                                toast(msg)
-                                val items = ArrayList<CommonData>()
-                                val accounts = ArrayList<String>()
-                                val inner = list.removeAt(index)
-                                items.addItems(inner.clusterMembers)
-                                items.filter { it.accountInfoId != getString("token") }.mapTo(accounts) { it.mobile }
-                                TeamAVChatEx.onQuitRoomSuccess(activity!!, inner.clusterId, accounts)
+                    when(datas.size) {
+                        0 -> {
+                            list.removeAt(index)
+                            mListAdapter.updateData(list)
+                        }
+                        1 -> getQuitData(index)
+                        else -> {
+                            if (datas.any { it.master == "0" }) {
+                                val item = datas.first { it.master == "0" }
+                                if (getString("token") == item.accountInfoId) {
+                                    DialogHelper.showHintDialog(
+                                        activity,
+                                        "退出群聊",
+                                        "确定要退出并转让群主吗？",
+                                        "取消",
+                                        "确定",
+                                        false
+                                    ) {
+                                        if (it == "yes") {
+                                            startActivity<NetworkHandleActivity>(
+                                                "type" to "4",
+                                                "position" to index.toString(),
+                                                "list" to datas
+                                            )
+                                        }
+                                    }
+                                } else getQuitData(index)
 
-                                this@apply.updateData(list)
+                            } else {
+                                getQuitData(index)
                             }
-
-                        })
+                        }
+                    }
                 }
             }
         }
@@ -232,7 +247,11 @@ class ContactFragment : BaseFragment() {
                                     val accounts = ArrayList<String>()
                                     items.addItems(data.clusterMembers)
                                     items.mapTo(accounts) { it.mobile }
-                                    TeamAVChatEx.onJoinRoomSuccess(activity!!, data.clusterId, accounts)
+                                    TeamAVChatEx.onJoinRoomSuccess(
+                                        activity!!,
+                                        data.clusterId,
+                                        accounts
+                                    )
                                     contact_close.performClick()
                                 }
 
@@ -312,6 +331,38 @@ class ContactFragment : BaseFragment() {
                     swipe_refresh.isRefreshing = false
 
                     empty_view.apply { if (list.isEmpty()) visible() else gone() }
+                }
+
+            })
+    }
+
+    private fun getQuitData(index: Int, userId: String = "") {
+        OkGo.post<String>(BaseHttp.quit_cluster)
+            .tag(this@ContactFragment)
+            .headers("token", getString("token"))
+            .params("clusterId", list[index].clusterId)
+            .params("accountInfoId", userId)
+            .execute(object : StringDialogCallback(activity) {
+
+                override fun onSuccessResponse(
+                    response: Response<String>,
+                    msg: String,
+                    msgCode: String
+                ) {
+                    toast(msg)
+                    val items = ArrayList<CommonData>()
+                    val accounts = ArrayList<String>()
+                    val inner = list.removeAt(index)
+                    items.addItems(inner.clusterMembers)
+                    items.filter { it.accountInfoId != getString("token") }
+                        .mapTo(accounts) { it.mobile }
+                    TeamAVChatEx.onQuitRoomSuccess(
+                        activity!!,
+                        inner.clusterId,
+                        accounts
+                    )
+
+                    mListAdapter.updateData(list)
                 }
 
             })
@@ -410,6 +461,7 @@ class ContactFragment : BaseFragment() {
                 if (keyWord.isEmpty()) getData() else getSearchData()
             }
             "加好友通知" -> getMessageCount()
+            "指定群主" -> getQuitData(event.id.toInt(), event.name)
         }
     }
 

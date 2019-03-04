@@ -66,6 +66,7 @@ data class CommonData(
     var friendId: String = "",
     var status: String = "",
 
+    var isOnline: Boolean = false,
     var isExpanded: Boolean = false,
     var isChecked: Boolean = false
 ) : Serializable

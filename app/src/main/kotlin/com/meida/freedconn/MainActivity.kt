@@ -1,7 +1,7 @@
 package com.meida.freedconn
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothA2dp
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -73,12 +73,15 @@ class MainActivity : BaseActivity() {
                             || deviceMac.startsWith(Const.MAC_HEADER_2)
                             || deviceMac.startsWith(Const.MAC_HEADER_3)
                         ) {
-                            main_check1.isChecked = false
-                            main_check2.isChecked = false
+                            main_check1.isChecked = true
+                            main_check2.isChecked = true
+                            main_check3.isChecked = false
                             setDeviceEnable(false)
                             setMultiEnable(false)
                         } else {
-                            main_check3.isChecked = false
+                            main_check1.isChecked = false
+                            main_check2.isChecked = false
+                            main_check3.isChecked = true
                             setDeviceEnable(false)
                             setMultiEnable(false)
                         }
@@ -186,8 +189,9 @@ class MainActivity : BaseActivity() {
 
     /** 注册广播 **/
     private fun registerReceiver() {
-        val filter = IntentFilter(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED)
-        registerReceiver(mReceiver, filter)
+        registerReceiver(mReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
+        registerReceiver(mReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED))
+        registerReceiver(mReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
     }
 
     /** 退出 **/
@@ -214,8 +218,8 @@ class MainActivity : BaseActivity() {
     /** 广播 BroadcastReceiver **/
     private val mReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            when (intent.getIntExtra(BluetoothA2dp.EXTRA_STATE, -1)) {
-                BluetoothA2dp.STATE_CONNECTED -> {
+            when (intent.action) {
+                BluetoothDevice.ACTION_ACL_CONNECTED -> {
                     val device =
                         intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
                     val deviceMac = device.address
@@ -223,19 +227,22 @@ class MainActivity : BaseActivity() {
                         || deviceMac.startsWith(Const.MAC_HEADER_2)
                         || deviceMac.startsWith(Const.MAC_HEADER_3)
                     ) {
-                        main_check1.isChecked = false
-                        main_check2.isChecked = false
+                        main_check1.isChecked = true
+                        main_check2.isChecked = true
+                        main_check3.isChecked = false
                         setDeviceEnable(false)
                         setMultiEnable(false)
                     } else {
-                        main_check3.isChecked = false
+                        main_check1.isChecked = false
+                        main_check2.isChecked = false
+                        main_check3.isChecked = true
                         setDeviceEnable(false)
                         setMultiEnable(false)
                     }
 
                     EventBus.getDefault().post(RefreshMessageEvent("蓝牙连接"))
                 }
-                BluetoothA2dp.STATE_DISCONNECTING -> {
+                BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                     main_check1.isChecked = false
                     main_check2.isChecked = false
                     main_check3.isChecked = false
@@ -243,6 +250,21 @@ class MainActivity : BaseActivity() {
                     setMultiEnable(false)
 
                     EventBus.getDefault().post(RefreshMessageEvent("蓝牙断开"))
+                }
+                BluetoothAdapter.ACTION_STATE_CHANGED -> {
+                    val blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0)
+                    when (blueState) {
+                        BluetoothAdapter.STATE_OFF -> {
+                            main_check1.isChecked = false
+                            main_check2.isChecked = false
+                            main_check3.isChecked = false
+                            setDeviceEnable(false)
+                            setMultiEnable(false)
+
+                            EventBus.getDefault().post(RefreshMessageEvent("蓝牙断开"))
+                        }
+                        BluetoothAdapter.STATE_ON -> { }
+                    }
                 }
             }
         }

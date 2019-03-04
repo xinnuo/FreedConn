@@ -80,8 +80,8 @@ class TalkFragment : BaseFragment() {
             }
 
             list.filter { it.isChecked }.forEach {
-                accountIds.add(it.accountInfoId)
-                accounts.add(it.telephone)
+                accountIds.add(it.friendId)
+                accounts.add(it.mobile)
             }
 
             OkGo.post<String>(BaseHttp.create_cluster)

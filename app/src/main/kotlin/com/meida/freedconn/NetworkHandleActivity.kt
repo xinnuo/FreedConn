@@ -42,7 +42,7 @@ class NetworkHandleActivity : BaseActivity() {
                 tvRight.text = getString(R.string.network_del)
                 tvRight.setTextColor(Color.parseColor("#66FFFFFF"))
             }
-            "2" -> {
+            "2", "4" -> {
                 tvRight.text = getString(R.string.network_done)
                 tvRight.setTextColor(Color.parseColor("#66FFFFFF"))
             }
@@ -78,6 +78,10 @@ class NetworkHandleActivity : BaseActivity() {
                 empty_hint.text = getString(R.string.empty_hint_member)
                 empty_view.apply { if (list.isEmpty()) visible() else gone() }
             }
+            "4" -> {
+                list.addAll(items.filter { it.accountInfoId != getString("token") })
+                mAdapter.updateData(list)
+            }
         }
     }
 
@@ -107,8 +111,14 @@ class NetworkHandleActivity : BaseActivity() {
                             return@clicked
                         }
 
-                        data.isChecked = !data.isChecked
-                        mAdapter.notifyItemChanged(index)
+                        if (type == "4") {
+                            list.filter { it.isChecked }.forEach { it.isChecked = false }
+                            data.isChecked = true
+                            mAdapter.notifyDataSetChanged()
+                        } else {
+                            data.isChecked = !data.isChecked
+                            mAdapter.notifyItemChanged(index)
+                        }
 
                         if (list.none { it.isChecked }) {
                             when (type) {
@@ -116,7 +126,7 @@ class NetworkHandleActivity : BaseActivity() {
                                     tvRight.text = getString(R.string.network_del)
                                     tvRight.setTextColor(Color.parseColor("#66FFFFFF"))
                                 }
-                                "2" -> {
+                                "2", "4" -> {
                                     tvRight.text = getString(R.string.network_done)
                                     tvRight.setTextColor(Color.parseColor("#66FFFFFF"))
                                 }
@@ -130,7 +140,7 @@ class NetworkHandleActivity : BaseActivity() {
                                             "(${list.filter { it.isChecked }.size})"
                                     tvRight.setTextColor(Color.parseColor("#FFFFFF"))
                                 }
-                                "2" -> {
+                                "2", "4" -> {
                                     tvRight.text = getString(R.string.network_done) +
                                             "(${list.filter { it.isChecked }.size})"
                                     tvRight.setTextColor(Color.parseColor("#FFFFFF"))
@@ -149,7 +159,10 @@ class NetworkHandleActivity : BaseActivity() {
             }
 
             val accountIds = ArrayList<String>()
-            list.filter { it.isChecked }.forEach { accountIds.add(it.accountInfoId) }
+            list.filter { it.isChecked }.forEach {
+                if (type == "2") accountIds.add(it.friendId)
+                else accountIds.add(it.accountInfoId)
+            }
 
             when (type) {
                 "1" -> {
@@ -211,6 +224,16 @@ class NetworkHandleActivity : BaseActivity() {
 
                         })
                 }
+                "4" -> {
+                    EventBus.getDefault().post(
+                        RefreshMessageEvent(
+                            "指定群主",
+                            intent.getStringExtra("position"),
+                            accountIds[0])
+                    )
+
+                    ActivityStack.screenManager.popActivities(this@NetworkHandleActivity::class.java)
+                }
             }
         }
     }
@@ -230,7 +253,7 @@ class NetworkHandleActivity : BaseActivity() {
                     list.clear()
                     list.addAll(items.filter {
                         listHave.none { inner ->
-                            inner.accountInfoId == it.accountInfoId
+                            inner.accountInfoId == it.friendId
                         }
                     })
 
