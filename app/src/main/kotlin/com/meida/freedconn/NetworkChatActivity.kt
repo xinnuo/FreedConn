@@ -311,9 +311,12 @@ class NetworkChatActivity : BaseActivity() {
                         }
 
                         AVChatManager.getInstance().muteLocalAudio(true)
+
+                        getAllStatusData(if (isTalkModeOn) "0" else "1") //对讲模式状态
                     }
 
                 }
+
             }
         }
 
@@ -350,6 +353,8 @@ class NetworkChatActivity : BaseActivity() {
                             chat_voice.setImageResource(R.mipmap.icon29)
 
                             AVChatManager.getInstance().muteLocalAudio(true)
+
+                            getAllStatusData(if (isGroupModeOn) "0" else "1") //对讲模式状态
                         }
                     }
                 }
@@ -456,12 +461,12 @@ class NetworkChatActivity : BaseActivity() {
         }
     }
 
-    private fun getInfoData(event: (() -> Unit)? = null) {
+    private fun getInfoData(isLoading: Boolean = true, event: (() -> Unit)? = null) {
         OkGo.post<BaseResponse<ClusterModel>>(BaseHttp.cluster_member)
             .tag(this@NetworkChatActivity)
             .headers("token", getString("token"))
             .params("clusterId", roomName)
-            .execute(object : JacksonDialogCallback<BaseResponse<ClusterModel>>(baseContext, true) {
+            .execute(object : JacksonDialogCallback<BaseResponse<ClusterModel>>(baseContext, isLoading) {
 
                 @SuppressLint("SetTextI18n")
                 override fun onSuccess(response: Response<BaseResponse<ClusterModel>>) {
@@ -510,8 +515,10 @@ class NetworkChatActivity : BaseActivity() {
                     listShow.add(CommonData().apply { imgFlag = "1" })
 
                     listShow.forEach { inner ->
-                        inner.isOnline = accountsOnline.any { it == inner.mobile }
+                        inner.isOnline = accountsOnline.any { it == inner.mobile } && inner.talkbackStatus == "0"
                     }
+
+                    chat_number.text = getString(R.string.network_chat_num) + "${listShow.filter { it.isOnline }.size}人"
                     mAdapter.updateData(listShow)
 
                     if (event != null) event()
@@ -537,7 +544,7 @@ class NetworkChatActivity : BaseActivity() {
             })
     }
 
-    private fun getAllStatusData(status: String, event: (String) -> Unit) {
+    private fun getAllStatusData(status: String, event: ((String) -> Unit) ?= null) {
         OkGo.post<String>(BaseHttp.update_talkback_status)
             .tag(this@NetworkChatActivity)
             .headers("token", getString("token"))
@@ -549,11 +556,14 @@ class NetworkChatActivity : BaseActivity() {
                     response: Response<String>,
                     msg: String,
                     msgCode: String
-                ) { event(status) }
+                ) {
+                   if (event != null) event(status)
+                }
 
             })
     }
 
+    /* 更新时长 */
     @SuppressLint("CheckResult")
     private fun updateTiming() {
         mCompositeDisposable.add(
@@ -574,6 +584,16 @@ class NetworkChatActivity : BaseActivity() {
 
                         })
                 }
+        )
+    }
+
+    /* 更新用户在线状态 */
+    @SuppressLint("CheckResult", "SetTextI18n")
+    private fun updateOnlineData() {
+        mCompositeDisposable.add(
+            Observable.interval(5, 5, TimeUnit.SECONDS)
+                .subscribeOn(Schedulers.io())
+                .subscribe { getInfoData(false) }
         )
     }
 
@@ -883,15 +903,6 @@ class NetworkChatActivity : BaseActivity() {
         notifier.activeCallingNotification(if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) active else false)
     }
 
-    /* 更新在线头像状态 */
-    private fun updateOnlineStatus() {
-        listShow.forEach { inner ->
-            inner.isOnline = accountsOnline.any { it == inner.mobile }
-        }
-
-        mAdapter.notifyDataSetChanged()
-    }
-
     /* 音视频配置 */
     @SuppressLint("SetTextI18n")
     private fun startRtc() {
@@ -914,6 +925,7 @@ class NetworkChatActivity : BaseActivity() {
             onSuccess { data ->
                 chatId = data!!.chatId
                 setChatting(true)
+                accountsOnline.add(getString("accid"))
                 AVChatManager.getInstance().muteAllRemoteAudio(false) //是否允许播放远端用户语音
 
                 val accid = getString("accid")
@@ -923,9 +935,7 @@ class NetworkChatActivity : BaseActivity() {
                 chat_user.visibility = if (isFirst) View.GONE else View.VISIBLE
                 chat_level.visibility = if (accid == roomMaster) View.VISIBLE else View.GONE
 
-                accountsOnline.add(getString("accid"))
-                chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
-                updateOnlineStatus()
+                val talkStatus = list.firstOrNull { it.mobile == accid }?.talkbackStatus ?: ""
 
                 when (chatMode) {
                     TeamState.CHAT_NONE -> {
@@ -938,6 +948,8 @@ class NetworkChatActivity : BaseActivity() {
                         chat_voice.setImageResource(R.mipmap.icon29)
 
                         AVChatManager.getInstance().muteLocalAudio(true)
+
+                        getAllStatusData("1") //对讲模式关闭
                     }
                     TeamState.CHAT_TALK -> {
                         setTalkMode(true)   //开启对讲模式
@@ -949,6 +961,8 @@ class NetworkChatActivity : BaseActivity() {
                         chat_voice.setImageResource(R.mipmap.icon31)
 
                         AVChatManager.getInstance().muteLocalAudio(true)
+
+                        getAllStatusData("0") //对讲模式开启
                     }
                     TeamState.CHAT_GROUP -> {
                         setTalkMode(false) //关闭对讲模式
@@ -960,40 +974,50 @@ class NetworkChatActivity : BaseActivity() {
                         chat_voice.setImageResource(R.mipmap.icon31)
 
                         AVChatManager.getInstance().muteLocalAudio(false)
+
+                        getAllStatusData("0") //对讲模式开启
                     }
                 }
 
                 //普通成员是否开启对讲模式按钮
                 if (!isFirst) {
-                    val talkStatus = list.firstOrNull { it.mobile == accid }?.talkbackStatus ?: ""
-
-                    if (talkStatus == "1") {
+                    if (chatMode == TeamState.CHAT_NONE) {
                         setMuteAll(true)
                         setLocalMicMute(true)
                         setLocalAudioMute(true)
                         setVoiceLine(false)
                         chat_ptt.setImageResource(R.mipmap.icon34)
+                        getAllStatusData("1")
                     } else {
-                        setMuteAll(false)
-                        setLocalMicMute(false)
-                        setLocalAudioMute(false)
-                        setVoiceLine(isGroupModeOn)
-                        if (chatMode != TeamState.CHAT_NONE) {
-                            chat_ptt.setImageResource(R.mipmap.icon35)
-                        } else {
-                            chat_mic.setImageResource(R.mipmap.icon28)
-                            chat_voice.setImageResource(R.mipmap.icon29)
+                        if (talkStatus == "1") {
+                            setMuteAll(true)
+                            setLocalMicMute(true)
+                            setLocalAudioMute(true)
+                            setVoiceLine(false)
                             chat_ptt.setImageResource(R.mipmap.icon34)
+                        } else {
+                            setMuteAll(false)
+                            setLocalMicMute(false)
+                            setLocalAudioMute(false)
+                            setVoiceLine(isGroupModeOn)
+                            if (chatMode != TeamState.CHAT_NONE) {
+                                chat_ptt.setImageResource(R.mipmap.icon35)
+                            } else {
+                                chat_mic.setImageResource(R.mipmap.icon28)
+                                chat_voice.setImageResource(R.mipmap.icon29)
+                                chat_ptt.setImageResource(R.mipmap.icon34)
 
-                            chat_talk.setBackgroundResource(R.mipmap.btn07)
-                            @Suppress("DEPRECATION")
-                            chat_talk.setTextColor(resources.getColor(R.color.light))
+                                chat_talk.setBackgroundResource(R.mipmap.btn07)
+                                @Suppress("DEPRECATION")
+                                chat_talk.setTextColor(resources.getColor(R.color.light))
+                            }
                         }
                     }
                 }
 
                 updateTiming()
                 forceVoiceToBluetooth()
+                updateOnlineData()
             }
             onFailed {
                 showToast(getString(R.string.network_chat_error_join))
@@ -1029,6 +1053,14 @@ class NetworkChatActivity : BaseActivity() {
                 chat_talk.setTextColor(resources.getColor(R.color.light))
 
                 AVChatManager.getInstance().muteLocalAudio(true)
+
+                /* 普通用户关闭对讲 */
+                setMuteAll(true)
+                setLocalMicMute(true)
+                setLocalAudioMute(true)
+                setVoiceLine(false)
+                chat_ptt.setImageResource(R.mipmap.icon34)
+                getAllStatusData("1")
             }
             TeamState.NOTIFY_CUSTOM_TALK -> {
                 setTalkMode(true)   //开启对讲模式
@@ -1046,6 +1078,12 @@ class NetworkChatActivity : BaseActivity() {
                 if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
 
                 AVChatManager.getInstance().muteLocalAudio(true)
+
+                /* 开启对讲模式状态 */
+                val accid = getString("accid")
+                val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
+                val isFirst = accid == roomMaster || priority == "0"
+                if (isFirst) getAllStatusData("0")
             }
             TeamState.NOTIFY_CUSTOM_GROUP -> {
                 setTalkMode(false)         //关闭对讲模式
@@ -1063,6 +1101,12 @@ class NetworkChatActivity : BaseActivity() {
                 if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
 
                 AVChatManager.getInstance().muteLocalAudio(isLocalMute)
+
+                /* 开启对讲模式状态 */
+                val accid = getString("accid")
+                val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
+                val isFirst = accid == roomMaster || priority == "0"
+                if (isFirst) getAllStatusData("0")
             }
             TeamState.NOTIFY_GRAB_SUCCESSS -> {
                 if (!isMicHolding) {
@@ -1149,8 +1193,6 @@ class NetworkChatActivity : BaseActivity() {
         override fun onUserJoined(account: String) {
             OkLogger.i("用户：${account}加入房间")
             if (accountsOnline.none { it == account }) accountsOnline.add(account)
-            chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
-            updateOnlineStatus()
 
             if (isMicHolding && holdingMaster == getString("accid")) {
                 AVChatManager.getInstance().sendControlCommand(
@@ -1167,8 +1209,6 @@ class NetworkChatActivity : BaseActivity() {
         override fun onUserLeave(account: String, event: Int) {
             OkLogger.i("用户：${account}离开房间")
             if (accountsOnline.any { it == account }) accountsOnline.remove(account)
-            chat_number.text = getString(R.string.network_chat_num) + "${accountsOnline.size}人"
-            updateOnlineStatus()
         }
 
         @SuppressLint("CheckResult")
