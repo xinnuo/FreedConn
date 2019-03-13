@@ -9,11 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.provider.Settings
-import android.telephony.PhoneStateListener
-import android.telephony.TelephonyManager
 import android.view.View
-import com.netease.nim.avchatkit.AVChatKit
-import com.netease.nimlib.sdk.auth.AuthServiceObserver
 import com.meida.base.BaseActivity
 import com.meida.base.getString
 import com.meida.chatkit.getService
@@ -26,6 +22,8 @@ import com.meida.utils.BluetoothHelper.isBluetoothConnected
 import com.meida.utils.BluetoothHelper.isBluetoothEnable
 import com.meida.utils.DialogHelper
 import com.meida.utils.getProfileProxy
+import com.netease.nim.avchatkit.AVChatKit
+import com.netease.nimlib.sdk.auth.AuthServiceObserver
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -73,15 +71,15 @@ class MainActivity : BaseActivity() {
                             || deviceMac.startsWith(Const.MAC_HEADER_2)
                             || deviceMac.startsWith(Const.MAC_HEADER_3)
                         ) {
-                            main_check1.isChecked = true
-                            main_check2.isChecked = true
-                            main_check3.isChecked = false
+                            main_check1.isChecked = false
+                            main_check2.isChecked = false
+                            main_check3.isChecked = true
                             setDeviceEnable(false)
                             setMultiEnable(false)
                         } else {
                             main_check1.isChecked = false
                             main_check2.isChecked = false
-                            main_check3.isChecked = true
+                            main_check3.isChecked = false
                             setDeviceEnable(false)
                             setMultiEnable(false)
                         }
@@ -166,27 +164,6 @@ class MainActivity : BaseActivity() {
         )
     }
 
-    /** 注册电话状态监听(不可用) **/
-    private fun registerPhoneStateListener() {
-        val tm = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        tm.listen(object : PhoneStateListener() {
-            override fun onCallStateChanged(state: Int, phoneNumber: String?) {
-                super.onCallStateChanged(state, phoneNumber)
-                when (state) {
-                    //挂断
-                    TelephonyManager.CALL_STATE_IDLE ->
-                        EventBus.getDefault().post(RefreshMessageEvent("电话挂断"))
-                    //接听(来电或去电)
-                    TelephonyManager.CALL_STATE_OFFHOOK ->
-                        EventBus.getDefault().post(RefreshMessageEvent("电话接听"))
-                    //响铃
-                    TelephonyManager.CALL_STATE_RINGING -> {
-                    }
-                }
-            }
-        }, PhoneStateListener.LISTEN_CALL_STATE)
-    }
-
     /** 注册广播 **/
     private fun registerReceiver() {
         registerReceiver(mReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
@@ -227,15 +204,15 @@ class MainActivity : BaseActivity() {
                         || deviceMac.startsWith(Const.MAC_HEADER_2)
                         || deviceMac.startsWith(Const.MAC_HEADER_3)
                     ) {
-                        main_check1.isChecked = true
-                        main_check2.isChecked = true
-                        main_check3.isChecked = false
+                        main_check1.isChecked = false
+                        main_check2.isChecked = false
+                        main_check3.isChecked = true
                         setDeviceEnable(false)
                         setMultiEnable(false)
                     } else {
                         main_check1.isChecked = false
                         main_check2.isChecked = false
-                        main_check3.isChecked = true
+                        main_check3.isChecked = false
                         setDeviceEnable(false)
                         setMultiEnable(false)
                     }

@@ -28,6 +28,7 @@
 package com.meida
 
 import android.content.Context
+import android.content.Intent
 import android.support.multidex.MultiDexApplication
 import com.clj.fastble.BleManager
 import com.lzy.okgo.OkGo
@@ -38,6 +39,17 @@ import com.lzy.okgo.cookie.store.DBCookieStore
 import com.lzy.okgo.https.HttpsUtils
 import com.lzy.okgo.interceptor.HttpLoggingInterceptor
 import com.lzy.okgo.utils.OkLogger
+import com.meida.base.getBoolean
+import com.meida.base.getString
+import com.meida.base.putBoolean
+import com.meida.chatkit.createRoom
+import com.meida.chatkit.setTeamDataProvider
+import com.meida.chatkit.setUserInfoProvider
+import com.meida.chatkit.setiCallUtil
+import com.meida.freedconn.BuildConfig
+import com.meida.freedconn.LoginActivity
+import com.meida.freedconn.NetworkChatActivity
+import com.meida.freedconn.R
 import com.netease.nim.avchatkit.AVChatKit
 import com.netease.nim.avchatkit.common.log.LogHelper
 import com.netease.nim.avchatkit.config.AVChatOptions
@@ -45,16 +57,7 @@ import com.netease.nimlib.sdk.NIMClient
 import com.netease.nimlib.sdk.auth.LoginInfo
 import com.netease.nimlib.sdk.avchat.constant.AVChatResCode
 import com.netease.nimlib.sdk.util.NIMUtil
-import com.meida.base.getBoolean
-import com.meida.base.getString
-import com.meida.chatkit.*
-import com.meida.freedconn.BuildConfig
-import com.meida.freedconn.LoginActivity
-import com.meida.freedconn.NetworkChatActivity
-import com.meida.freedconn.R
-import com.meida.utils.ActivityStack
 import okhttp3.OkHttpClient
-import org.jetbrains.anko.startActivity
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
@@ -130,8 +133,16 @@ class Application : MultiDexApplication() {
     private fun initAVChatKit() {
         val avChatOptions = object : AVChatOptions() {
             override fun logout(context: Context) {
-                val isRunning = ActivityStack.screenManager.isContainsActivity(LoginActivity::class.java)
-                if (!isRunning) startActivity<LoginActivity>("offLine" to true)
+                if (getBoolean("isLogin")) {
+                    startActivity(
+                        Intent(context, LoginActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            putExtra("offLine", true)
+                        }
+                    )
+
+                    putBoolean("isLogin", false)
+                }
             }
         }
         avChatOptions.entranceActivity = NetworkChatActivity::class.java

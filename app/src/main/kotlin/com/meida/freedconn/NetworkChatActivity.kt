@@ -353,9 +353,9 @@ class NetworkChatActivity : BaseActivity() {
                             chat_voice.setImageResource(R.mipmap.icon29)
 
                             AVChatManager.getInstance().muteLocalAudio(true)
-
-                            getAllStatusData(if (isGroupModeOn) "0" else "1") //对讲模式状态
                         }
+
+                        getAllStatusData(if (isGroupModeOn) "0" else "1") //对讲模式状态
                     }
                 }
             }
@@ -935,8 +935,6 @@ class NetworkChatActivity : BaseActivity() {
                 chat_user.visibility = if (isFirst) View.GONE else View.VISIBLE
                 chat_level.visibility = if (accid == roomMaster) View.VISIBLE else View.GONE
 
-                val talkStatus = list.firstOrNull { it.mobile == accid }?.talkbackStatus ?: ""
-
                 when (chatMode) {
                     TeamState.CHAT_NONE -> {
                         setTalkMode(false)  //关闭对讲模式
@@ -979,40 +977,14 @@ class NetworkChatActivity : BaseActivity() {
                     }
                 }
 
-                //普通成员是否开启对讲模式按钮
+                //普通成员不开启对讲模式按钮
                 if (!isFirst) {
-                    if (chatMode == TeamState.CHAT_NONE) {
-                        setMuteAll(true)
-                        setLocalMicMute(true)
-                        setLocalAudioMute(true)
-                        setVoiceLine(false)
-                        chat_ptt.setImageResource(R.mipmap.icon34)
-                        getAllStatusData("1")
-                    } else {
-                        if (talkStatus == "1") {
-                            setMuteAll(true)
-                            setLocalMicMute(true)
-                            setLocalAudioMute(true)
-                            setVoiceLine(false)
-                            chat_ptt.setImageResource(R.mipmap.icon34)
-                        } else {
-                            setMuteAll(false)
-                            setLocalMicMute(false)
-                            setLocalAudioMute(false)
-                            setVoiceLine(isGroupModeOn)
-                            if (chatMode != TeamState.CHAT_NONE) {
-                                chat_ptt.setImageResource(R.mipmap.icon35)
-                            } else {
-                                chat_mic.setImageResource(R.mipmap.icon28)
-                                chat_voice.setImageResource(R.mipmap.icon29)
-                                chat_ptt.setImageResource(R.mipmap.icon34)
-
-                                chat_talk.setBackgroundResource(R.mipmap.btn07)
-                                @Suppress("DEPRECATION")
-                                chat_talk.setTextColor(resources.getColor(R.color.light))
-                            }
-                        }
-                    }
+                    setMuteAll(true)
+                    setLocalMicMute(true)
+                    setLocalAudioMute(true)
+                    setVoiceLine(false)
+                    chat_ptt.setImageResource(R.mipmap.icon34)
+                    getAllStatusData("1")
                 }
 
                 updateTiming()
@@ -1270,6 +1242,19 @@ class NetworkChatActivity : BaseActivity() {
         AVChatManager.getInstance().muteAllRemoteAudio(false)
         AVChatManager.getInstance().observeAVChatState(mStateObserver, false)
         AVChatManager.getInstance().observeControlNotification(mControlEventObserver, false)
+    }
+
+    override fun onBackPressed() {
+        if (getString("accid") == roomMaster
+            && (isTalkModeOn || isGroupModeOn)) {
+            getStatusData(0) {
+
+                sendControlCommand(
+                    chatId,
+                    TeamState.NOTIFY_CUSTOM_NONE
+                ) { super.onBackPressed() }
+            }
+        } else super.onBackPressed()
     }
 
     /* 退出 */
