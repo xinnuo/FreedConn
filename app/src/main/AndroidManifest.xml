@@ -20,14 +20,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,UnusedAttribute">
-        <activity android:name=".ChongZhiActivity"></activity>
         <activity android:name=".ChargeActivity" />
         <activity
             android:name=".GuideActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -79,18 +77,24 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".WebActivity"
-            android:screenOrientation="portrait" /> <!-- 本地电话状态（通话状态）的广播接收器 -->
+            android:screenOrientation="portrait" />
+
+        <!-- 本地电话状态（通话状态）的广播接收器 -->
         <!-- 网络通话与本地电话的互斥处理 -->
         <receiver android:name="com.meida.receiver.IncomingCallReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
-        </receiver> <!-- 微信分享 start -->
+        </receiver>
+
+        <!-- 微信分享 start -->
         <activity
             android:name=".wxapi.WXEntryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" /> <!-- 微信分享 end -->
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <!-- 微信分享 end -->
+
         <!-- 支付宝 start -->
         <activity
             android:name="com.alipay.sdk.app.H5PayActivity"
@@ -103,7 +107,9 @@
             android:configChanges="orientation|keyboardHidden|navigation"
             android:exported="false"
             android:screenOrientation="behind"
-            android:windowSoftInputMode="adjustResize|stateHidden" /> <!-- 支付宝 end -->
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <!-- 支付宝 end -->
+
         <!-- 微信支付 start -->
         <meta-data
             android:name="WX_APPID"
@@ -114,6 +120,8 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
+        <!-- 微信支付 end -->
+
     </application>
 
 </manifest>
