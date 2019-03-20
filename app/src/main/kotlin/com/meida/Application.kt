@@ -57,6 +57,9 @@ import com.netease.nimlib.sdk.NIMClient
 import com.netease.nimlib.sdk.auth.LoginInfo
 import com.netease.nimlib.sdk.avchat.constant.AVChatResCode
 import com.netease.nimlib.sdk.util.NIMUtil
+import com.umeng.commonsdk.UMConfigure
+import com.umeng.socialize.Config
+import com.umeng.socialize.PlatformConfig
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -78,6 +81,12 @@ class Application : MultiDexApplication() {
             .enableLog(BuildConfig.LOG_DEBUG)
             .setReConnectCount(1, 5000)
             .operateTimeout = 5000
+
+        //友盟分享
+        UMConfigure.init(this@Application, "5c8b860e2036579222000546", "umeng", UMConfigure.DEVICE_TYPE_PHONE, "")
+        PlatformConfig.setWeixin("wxdf549666adf94872", "c28fb66080a11b67399eb50e3e910c86")
+        Config.isJumptoAppStore = true
+        UMConfigure.setLogEnabled(BuildConfig.LOG_DEBUG)
 
         NIMClient.init(this@Application, loginInfo(), null)
         if (NIMUtil.isMainProcess(this@Application)) {

@@ -12,6 +12,7 @@ import android.provider.Settings
 import android.view.View
 import com.meida.base.BaseActivity
 import com.meida.base.getString
+import com.meida.chatkit.TeamAVChatProfile
 import com.meida.chatkit.getService
 import com.meida.chatkit.observeOnlineStatus
 import com.meida.model.RefreshMessageEvent
@@ -47,6 +48,17 @@ class MainActivity : BaseActivity() {
         setDeviceEnable(false)
 
         registerReceiver()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        TeamAVChatProfile.sharedInstance().apply {
+            isTeamAVChatting = false
+            teamAVChatId = ""
+            teamAVChatName = ""
+            chatModel = "none"
+        }
     }
 
     override fun init_title() {

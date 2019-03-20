@@ -11,6 +11,7 @@ import com.meida.fragment.OnFragmentListener
 import com.meida.fragment.TalkFragment
 import com.meida.model.RefreshMessageEvent
 import com.meida.share.BaseHttp
+import com.meida.utils.ActivityStack
 import com.meida.utils.BluetoothHelper.isBluetoothConnected
 import kotlinx.android.synthetic.main.activity_network.*
 import org.greenrobot.eventbus.EventBus
@@ -97,6 +98,14 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
     }
 
     override fun onViewClick(name: String) = onBackPressed()
+
+    override fun onBackPressed() {
+        val isActive = ActivityStack.screenManager.isContainsActivity(NetworkChatActivity::class.java)
+        if (isActive) {
+            ActivityStack.screenManager.popAllActivityExceptOne(MainActivity::class.java)
+        }
+        super.onBackPressed()
+    }
 
     override fun finish() {
         super.finish()

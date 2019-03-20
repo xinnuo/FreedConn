@@ -66,6 +66,7 @@ object BaseHttp {
     val update_residueTime = "$baseIp/update_residueTime.rm"         //通话计时
     val update_name_cluster = "$baseIp/update_name_cluster.rm"       //修改名称
     val update_talkback_status = "$baseIp/update_talkback_status.rm" //修改对讲状态（1关闭  0开启）
+    val off_talkback_status = "$baseIp/off_talkback_status.rm"       //清空对讲状态
 
     val userhead_edit = "$baseIp/userhead_edit.rm" //头像上传
     val pollcode_bind = "$baseIp/pollcode_bind.rm" //注册码绑定

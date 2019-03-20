@@ -51,6 +51,7 @@ class SettingActivity : BaseActivity() {
             R.id.setting_tel_ll -> startActivity<SettingPhoneActivity>()
             R.id.setting_pwd -> startActivity<SettingPasswordActivity>()
             R.id.setting_version -> startActivity<SettingVersionActivity>()
+            R.id.setting_charge -> {  }
             R.id.setting_quit -> startActivity<LoginActivity>("offLine" to true)
             R.id.setting_img -> {
                 PictureSelector.create(this@SettingActivity)

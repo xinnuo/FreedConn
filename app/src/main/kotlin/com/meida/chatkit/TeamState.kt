@@ -29,5 +29,6 @@ object TeamState {
     const val NOTIFY_GRAB_SUCCESSS = (NOTIFY_CUSTOM_BASE + 4).toByte() //抢麦成功
     const val NOTIFY_GRAB_CANCEL = (NOTIFY_CUSTOM_BASE + 5).toByte()   //抢麦取消
     const val NOTIFY_GRAB_HOLDING = (NOTIFY_CUSTOM_BASE + 6).toByte()  //抢麦中
+    const val NOTIFY_GRAB_ADMIN = (NOTIFY_CUSTOM_BASE + 7).toByte()    //管理员
 
 }

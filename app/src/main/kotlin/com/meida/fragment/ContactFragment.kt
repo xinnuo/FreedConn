@@ -20,14 +20,15 @@ import com.meida.adapter.ContactAdapter
 import com.meida.base.BaseFragment
 import com.meida.base.*
 import com.meida.chatkit.TeamAVChatEx
-import com.meida.freedconn.NetworkHandleActivity
-import com.meida.freedconn.NetworkMessageActivity
-import com.meida.freedconn.R
+import com.meida.chatkit.TeamAVChatProfile
+import com.meida.freedconn.*
 import com.meida.model.CommonData
 import com.meida.model.CommonModel
 import com.meida.model.RefreshMessageEvent
 import com.meida.share.BaseHttp
 import com.meida.utils.*
+import io.reactivex.Completable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_contact.*
 import kotlinx.android.synthetic.main.layout_empty.*
 import kotlinx.android.synthetic.main.layout_list.*
@@ -38,6 +39,7 @@ import org.greenrobot.eventbus.Subscribe
 import org.jetbrains.anko.sdk25.listeners.onClick
 import org.jetbrains.anko.support.v4.startActivity
 import org.jetbrains.anko.support.v4.toast
+import java.util.concurrent.TimeUnit
 
 class ContactFragment : BaseFragment() {
 
@@ -88,7 +90,41 @@ class ContactFragment : BaseFragment() {
                         return@setOnItemClickListener
                     }
 
-                    AVChatKit.outgoingTeamCall(activity, list[it].clusterId)
+                    if (list[it].clusterId.isNotEmpty()) {
+
+                        if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                            val chatId = TeamAVChatProfile.sharedInstance().teamAVChatId
+                            val chatName = TeamAVChatProfile.sharedInstance().teamAVChatName
+                            if (chatId == list[it].clusterId) {
+                                AVChatKit.outgoingTeamCall(activity, list[it].clusterId)
+                            } else {
+                                DialogHelper.showHintDialog(
+                                    activity,
+                                    "加入群聊",
+                                    "${chatName}群正在对讲中，是否结束该的对讲",
+                                    "取消",
+                                    "确定",
+                                    false
+                                ) { hint ->
+                                    if (hint == "yes") {
+                                        ActivityStack.screenManager.popActivities(NetworkChatActivity::class.java)
+
+                                        Completable.timer(500, TimeUnit.MILLISECONDS)
+                                            .subscribeOn(Schedulers.io())
+                                            .subscribe {
+                                                if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                                                    AVChatKit.outgoingTeamCall(
+                                                        activity,
+                                                        list[it].clusterId
+                                                    )
+                                                }
+                                            }
+                                    }
+                                }
+                            }
+                        } else
+                            AVChatKit.outgoingTeamCall(activity, list[it].clusterId)
+                    }
                 }
             }
 
@@ -113,8 +149,17 @@ class ContactFragment : BaseFragment() {
 
                         })
                 } else {
+                    if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                        val chatId = TeamAVChatProfile.sharedInstance().teamAVChatId
+                        if (chatId == list[index].clusterId) {
+                            toast("正在网络对讲，无法操作")
+                            return@setOnItemDeleteClickListener
+                        }
+                    }
+
                     val datas = ArrayList<CommonData>()
                     datas.addItems(list[index].clusterMembers)
+
 
                     when(datas.size) {
                         0 -> {
@@ -291,6 +336,17 @@ class ContactFragment : BaseFragment() {
                         add(msgData)
                         addItems(response.body().`object`.clusters)
                         addItems(response.body().`object`.friends)
+                    }
+
+                    if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                        val teamId = TeamAVChatProfile.sharedInstance().teamAVChatId
+                        val index = list.indexOfFirst { it.clusterId == teamId }
+                        if (index > 0) {
+                            val item = list[index]
+                            item.isTalking = true
+                            list.removeAt(index)
+                            list.add(1, item)
+                        }
                     }
 
                     mListAdapter.updateData(list)

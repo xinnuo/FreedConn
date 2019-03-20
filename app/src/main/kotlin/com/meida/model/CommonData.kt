@@ -66,6 +66,7 @@ data class CommonData(
     var friendId: String = "",
     var status: String = "",
 
+    var isTalking: Boolean = false,
     var isOnline: Boolean = false,
     var isExpanded: Boolean = false,
     var isChecked: Boolean = false

@@ -16,6 +16,8 @@ import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
 import com.lqr.ninegridimageview.LQRNineGridImageView;
 import com.lqr.ninegridimageview.LQRNineGridImageViewAdapter;
+import com.meida.chatkit.TeamAVChatProfile;
+import com.meida.chatkit.TeamState;
 import com.meida.freedconn.R;
 import com.meida.model.CommonData;
 import com.meida.share.BaseHttp;
@@ -77,7 +79,7 @@ public class ContactAdapter extends RecyclerSwipeAdapter<RecyclerView.ViewHolder
         if (holder instanceof ItemSwipeViewHolder) {
             final ItemSwipeViewHolder swipeHolder = (ItemSwipeViewHolder) holder;
             swipeHolder.swipe.setShowMode(SwipeLayout.ShowMode.PullOut);
-            swipeHolder.bind(mDatas.get(position));
+            swipeHolder.bind(mDatas.get(position), position - 1);
             swipeHolder.mContent.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -128,6 +130,7 @@ public class ContactAdapter extends RecyclerSwipeAdapter<RecyclerView.ViewHolder
         SwipeLayout swipe;
         LQRNineGridImageView nineImg;
         TextView tvName;
+        ImageView ivMic;
         TextView tvDel;
         View mContent;
 
@@ -136,13 +139,23 @@ public class ContactAdapter extends RecyclerSwipeAdapter<RecyclerView.ViewHolder
             swipe = itemView.findViewById(R.id.item_contact_swipe);
             nineImg = itemView.findViewById(R.id.item_contact_nine);
             tvName = itemView.findViewById(R.id.item_contact_name);
+            ivMic = itemView.findViewById(R.id.item_contact_mic);
             tvDel = itemView.findViewById(R.id.item_contact_del);
             mContent = itemView.findViewById(R.id.item_contact);
         }
 
-        public void bind(CommonData data) {
-            if (TextUtils.isEmpty(data.getClusterId())) tvName.setText(data.getUserName());
-            else tvName.setText(data.getClusterName());
+        public void bind(CommonData data, int position) {
+            tvName.setText(TextUtils.isEmpty(data.getClusterId()) ? data.getUserName() : data.getClusterName());
+
+            if (data.isTalking()) {
+                String mode = TeamAVChatProfile.sharedInstance().getChatModel();
+                if (mode.equals(TeamState.CHAT_TALK)
+                        || mode.equals(TeamState.CHAT_GROUP)) {
+                    ivMic.setVisibility(View.VISIBLE);
+                } else ivMic.setVisibility(View.INVISIBLE);
+            } else {
+                ivMic.setVisibility(View.INVISIBLE);
+            }
 
             nineImg.setAdapter(new LQRNineGridImageViewAdapter<String>() {
                 @Override
@@ -163,7 +176,7 @@ public class ContactAdapter extends RecyclerSwipeAdapter<RecyclerView.ViewHolder
             } else {
                 List<CommonData> items = data.getClusterMembers();
                 if (items != null)
-                    for (CommonData item: items)
+                    for (CommonData item : items)
                         if (item != null)
                             list.add(BaseHttp.INSTANCE.getBaseImg() + item.getUserHead());
             }

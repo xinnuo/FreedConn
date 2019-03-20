@@ -44,6 +44,7 @@ class SettingVersionActivity : BaseActivity() {
                 override fun onSuccess(response: Response<String>) {
                     val obj = JSONObject(response.body()).optJSONObject("data")
                     val buildVersion = obj.optString("buildVersion")
+                    version_now.text = "v$buildVersion"
                     version_new.text = "v$buildVersion"
                 }
 

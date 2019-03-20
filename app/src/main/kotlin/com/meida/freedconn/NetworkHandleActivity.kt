@@ -16,6 +16,10 @@ import com.meida.model.CommonData
 import com.meida.model.RefreshMessageEvent
 import com.meida.share.BaseHttp
 import com.meida.utils.ActivityStack
+import io.reactivex.Completable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.layout_empty.*
 import kotlinx.android.synthetic.main.layout_list.*
 import net.idik.lib.slimadapter.SlimAdapter
@@ -23,12 +27,14 @@ import org.greenrobot.eventbus.EventBus
 import org.jetbrains.anko.include
 import org.jetbrains.anko.sdk25.listeners.onClick
 import org.jetbrains.anko.toast
+import java.util.concurrent.TimeUnit
 
 class NetworkHandleActivity : BaseActivity() {
 
     private val list = ArrayList<CommonData>()
     private val listHave = ArrayList<CommonData>()
     private var type = ""
+    private val mDisposable by lazy { CompositeDisposable() }
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,7 +95,20 @@ class NetworkHandleActivity : BaseActivity() {
     override fun init_title() {
         super.init_title()
         empty_hint.text = getString(R.string.empty_hint_friend)
-        swipe_refresh.refresh { getData() }
+        swipe_refresh.refresh {
+            if (type == "2") getData()
+            else {
+                mDisposable.add(
+                    Completable.timer(500, TimeUnit.MILLISECONDS)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            mAdapter.notifyDataSetChanged()
+                            swipe_refresh.isRefreshing = false
+                        }
+                )
+            }
+        }
         recycle_list.load_Linear(baseContext, swipe_refresh)
 
         mAdapter = SlimAdapter.create()
@@ -269,4 +288,10 @@ class NetworkHandleActivity : BaseActivity() {
 
             })
     }
+
+    override fun finish() {
+        super.finish()
+        mDisposable.clear()
+    }
+
 }

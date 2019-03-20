@@ -23,7 +23,17 @@ public class TeamAVChatProfile {
     private static final String KEY_MODIFY = "modify";
 
     private boolean isTeamAVChatting = false;
+    private String teamAVChatId;
+    private String teamAVChatName;
+    private String chatModel;
+
     private boolean isSyncComplete = true; //未开始也算同步完成，可能存在不启动同步的情况
+
+    private TeamAVChatProfile() {
+        teamAVChatId = "";
+        teamAVChatName = "";
+        chatModel = "none";
+    }
 
     public String buildContent(String roomMode) {
         JSONObject json = new JSONObject();
@@ -178,8 +188,32 @@ public class TeamAVChatProfile {
         isTeamAVChatting = teamAVChatting;
     }
 
+    public void setTeamAVChatId(String teamId) {
+        teamAVChatId = teamId;
+    }
+
+    public void setTeamAVChatName(String teamName) {
+        teamAVChatName = teamName;
+    }
+
     public boolean isTeamAVChatting() {
         return isTeamAVChatting;
+    }
+
+    public String getTeamAVChatId() {
+        return teamAVChatId;
+    }
+
+    public String getTeamAVChatName() {
+        return teamAVChatName;
+    }
+
+    public String getChatModel() {
+        return chatModel;
+    }
+
+    public void setChatModel(String chatModel) {
+        this.chatModel = chatModel;
     }
 
     public void registerObserver(boolean register) {
@@ -194,4 +228,5 @@ public class TeamAVChatProfile {
     private static class InstanceHolder {
         private final static TeamAVChatProfile teamAVChatProfile = new TeamAVChatProfile();
     }
+
 }

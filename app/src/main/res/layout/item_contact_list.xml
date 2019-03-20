@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_contact_swipe"
     android:layout_width="match_parent"
     android:layout_height="@dimen/dimen_size_100">
@@ -48,13 +49,23 @@
         <TextView
             android:id="@+id/item_contact_name"
             style="@style/Font15_white"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dimen_size_15"
-            android:layout_marginEnd="@dimen/dimen_size_30"
+            android:layout_marginEnd="@dimen/dimen_size_15"
+            android:layout_weight="1"
             android:ellipsize="end"
             android:lineSpacingExtra="@dimen/dimen_size_3"
             android:maxLines="2" />
+
+        <ImageView
+            android:id="@+id/item_contact_mic"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dimen_size_20"
+            android:layout_marginEnd="@dimen/dimen_size_45"
+            android:src="@mipmap/icon_mic"
+            android:visibility="invisible"
+            tools:ignore="ContentDescription" />
 
     </LinearLayout>
 
