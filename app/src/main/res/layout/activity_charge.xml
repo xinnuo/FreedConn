@@ -1,9 +1,282 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_15"
+            android:layout_marginTop="@dimen/dimen_size_20"
+            android:layout_marginEnd="@dimen/dimen_size_15"
+            android:padding="@dimen/dimen_size_0.5"
+            android:background="@drawable/rec_bg_blue_alpha33_stroke_blue_r10"
+            android:orientation="vertical">
 
-</LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/charge_tel"
+                    style="@style/Font15_white"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dimen_size_20"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:id="@+id/charge_img"
+                    android:layout_width="@dimen/dimen_size_45"
+                    android:layout_height="@dimen/dimen_size_45"
+                    android:layout_marginTop="@dimen/dimen_size_10"
+                    android:layout_marginEnd="@dimen/dimen_size_20"
+                    android:layout_marginBottom="@dimen/dimen_size_10"
+                    android:background="#332589DB"
+                    android:padding="@dimen/dimen_size_3"
+                    android:src="@mipmap/default_user"
+                    tools:ignore="ContentDescription" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_size_3"
+                android:background="@color/black" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <FrameLayout
+                    android:id="@+id/charge_time1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="doClick">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/dimen_size_20"
+                        android:layout_marginBottom="@dimen/dimen_size_20"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Font15_white"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="10元"
+                            android:textSize="@dimen/sp_size_18" />
+
+                        <TextView
+                            style="@style/Font14_white"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dimen_size_10"
+                            android:layout_weight="1"
+                            android:text="1000分钟" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/charge_img1"
+                        android:layout_width="@dimen/dimen_size_30"
+                        android:layout_height="@dimen/dimen_size_30"
+                        android:layout_gravity="end"
+                        android:src="@mipmap/icon53"
+                        tools:ignore="ContentDescription" />
+
+                </FrameLayout>
+
+                <View
+                    android:layout_width="@dimen/dimen_size_3"
+                    android:layout_height="match_parent"
+                    android:background="@color/black" />
+
+                <FrameLayout
+                    android:id="@+id/charge_time2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="doClick">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/dimen_size_20"
+                        android:layout_marginBottom="@dimen/dimen_size_20"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Font15_white"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="20元"
+                            android:textSize="@dimen/sp_size_18" />
+
+                        <TextView
+                            style="@style/Font14_white"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dimen_size_10"
+                            android:layout_weight="1"
+                            android:text="2000分钟" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/charge_img2"
+                        android:layout_width="@dimen/dimen_size_30"
+                        android:layout_height="@dimen/dimen_size_30"
+                        android:layout_gravity="end"
+                        android:src="@mipmap/icon53"
+                        android:visibility="invisible"
+                        tools:ignore="ContentDescription" />
+
+                </FrameLayout>
+
+                <View
+                    android:layout_width="@dimen/dimen_size_3"
+                    android:layout_height="match_parent"
+                    android:background="@color/black" />
+
+                <FrameLayout
+                    android:id="@+id/charge_time3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="doClick">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/dimen_size_20"
+                        android:layout_marginBottom="@dimen/dimen_size_20"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Font15_white"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="50元"
+                            android:textSize="@dimen/sp_size_18" />
+
+                        <TextView
+                            style="@style/Font14_white"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dimen_size_10"
+                            android:layout_weight="1"
+                            android:text="5000分钟" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/charge_img3"
+                        android:layout_width="@dimen/dimen_size_30"
+                        android:layout_height="@dimen/dimen_size_30"
+                        android:layout_gravity="end"
+                        android:src="@mipmap/icon53"
+                        android:visibility="invisible"
+                        tools:ignore="ContentDescription" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_size_3"
+                android:background="@color/black" />
+
+            <RadioGroup
+                android:id="@+id/charge_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RadioButton
+                    android:id="@+id/charge_check1"
+                    style="@style/Font15_white"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_size_70"
+                    android:background="@color/transparent"
+                    android:button="@null"
+                    android:drawableStart="@mipmap/icon54"
+                    android:drawableEnd="@drawable/cb_charge_selector"
+                    android:drawablePadding="@dimen/dimen_size_10"
+                    android:paddingStart="@dimen/dimen_size_15"
+                    android:paddingEnd="@dimen/dimen_size_15"
+                    android:text="支付宝" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_size_3"
+                    android:background="@color/black" />
+
+                <RadioButton
+                    android:id="@+id/charge_check2"
+                    style="@style/Font15_white"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_size_70"
+                    android:background="@color/transparent"
+                    android:button="@null"
+                    android:drawableStart="@mipmap/icon55"
+                    android:drawableEnd="@drawable/cb_charge_selector"
+                    android:drawablePadding="@dimen/dimen_size_12"
+                    android:paddingStart="@dimen/dimen_size_15"
+                    android:paddingEnd="@dimen/dimen_size_15"
+                    android:text="微信" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_size_3"
+                    android:background="@color/black" />
+
+                <RadioButton
+                    android:id="@+id/charge_check3"
+                    style="@style/Font15_white"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_size_70"
+                    android:background="@color/transparent"
+                    android:button="@null"
+                    android:drawableEnd="@drawable/cb_charge_selector"
+                    android:paddingStart="@dimen/dimen_size_15"
+                    android:paddingEnd="@dimen/dimen_size_15"
+                    android:text="其他支付方式" />
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/bt_pay"
+            style="@style/Font18_blue_light"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_size_70"
+            android:layout_marginStart="@dimen/dimen_size_22"
+            android:layout_marginTop="@dimen/dimen_size_30"
+            android:layout_marginEnd="@dimen/dimen_size_22"
+            android:background="@mipmap/btn01"
+            android:onClick="doClick"
+            android:text="确认支付" />
+
+    </LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>

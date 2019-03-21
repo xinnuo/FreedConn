@@ -45,8 +45,6 @@ class MainActivity : BaseActivity() {
         setToolbarVisibility(false)
         init_title()
 
-        setDeviceEnable(false)
-
         registerReceiver()
     }
 
@@ -63,6 +61,7 @@ class MainActivity : BaseActivity() {
 
     override fun init_title() {
         checkBluetoothState()
+        setDeviceEnable(false)
 
         /* 在线状态观察者 */
         getService<AuthServiceObserver>().observeOnlineStatus {
@@ -86,7 +85,7 @@ class MainActivity : BaseActivity() {
                             main_check1.isChecked = false
                             main_check2.isChecked = false
                             main_check3.isChecked = true
-                            setDeviceEnable(false)
+                            setDeviceEnable(true)
                             setMultiEnable(false)
                         } else {
                             main_check1.isChecked = false
@@ -219,7 +218,7 @@ class MainActivity : BaseActivity() {
                         main_check1.isChecked = false
                         main_check2.isChecked = false
                         main_check3.isChecked = true
-                        setDeviceEnable(false)
+                        setDeviceEnable(true)
                         setMultiEnable(false)
                     } else {
                         main_check1.isChecked = false

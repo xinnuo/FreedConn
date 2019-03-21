@@ -84,7 +84,7 @@ class Application : MultiDexApplication() {
 
         //友盟分享
         UMConfigure.init(this@Application, "5c8b860e2036579222000546", "umeng", UMConfigure.DEVICE_TYPE_PHONE, "")
-        PlatformConfig.setWeixin("wxdf549666adf94872", "c28fb66080a11b67399eb50e3e910c86")
+        PlatformConfig.setWeixin("wxdf549666adf94872", "5a470af566dc664e3c27d1d901943af2")
         Config.isJumptoAppStore = true
         UMConfigure.setLogEnabled(BuildConfig.LOG_DEBUG)
 

@@ -14,8 +14,8 @@ android {
         applicationId "com.meida.freedconn"
         minSdkVersion versions.minSdkVersion
         targetSdkVersion versions.targetSdkVersion
-        versionCode 107
-        versionName "1.0.7"
+        versionCode 108
+        versionName "1.0.8"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -136,6 +136,7 @@ dependencies {
     implementation 'com.carlos.voiceline:mylibrary:1.0.6'
     implementation 'com.clj.fastble:FastBleLib:2.3.2'
     implementation "com.daimajia.swipelayout:library:1.2.0@aar"
+    implementation 'com.github.antonKozyriatskyi:CircularProgressIndicator:1.3.0'
     implementation 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.1.1'
     implementation 'com.lqr.ninegridimageview:library:1.0.0'
     implementation 'com.yanzhenjie:permission:1.1.2'

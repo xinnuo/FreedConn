@@ -12,6 +12,7 @@
     <dimen name="line_height">45dp</dimen>
     <dimen name="btn_height">35dp</dimen>
 
+    <dimen name="dimen_size_275">275dp</dimen>
     <dimen name="dimen_size_240">240dp</dimen>
     <dimen name="dimen_size_205">205dp</dimen>
     <dimen name="dimen_size_200">200dp</dimen>

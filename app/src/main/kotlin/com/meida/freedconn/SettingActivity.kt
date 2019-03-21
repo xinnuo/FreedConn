@@ -13,9 +13,12 @@ import com.lzy.okgo.OkGo
 import com.lzy.okgo.model.Response
 import com.meida.base.BaseActivity
 import com.meida.base.*
+import com.meida.model.RefreshMessageEvent
 import com.meida.share.BaseHttp
 import com.meida.share.Const
 import kotlinx.android.synthetic.main.activity_setting.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import org.json.JSONObject
@@ -29,6 +32,8 @@ class SettingActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
         init_title(getString(R.string.setting))
+
+        EventBus.getDefault().register(this@SettingActivity)
 
         getData()
     }
@@ -51,7 +56,7 @@ class SettingActivity : BaseActivity() {
             R.id.setting_tel_ll -> startActivity<SettingPhoneActivity>()
             R.id.setting_pwd -> startActivity<SettingPasswordActivity>()
             R.id.setting_version -> startActivity<SettingVersionActivity>()
-            R.id.setting_charge -> {  }
+            R.id.setting_charge -> startActivity<ChargeActivity>()
             R.id.setting_quit -> startActivity<LoginActivity>("offLine" to true)
             R.id.setting_img -> {
                 PictureSelector.create(this@SettingActivity)
@@ -174,6 +179,18 @@ class SettingActivity : BaseActivity() {
                 }
 
             })
+    }
+
+    override fun finish() {
+        super.finish()
+        EventBus.getDefault().unregister(this@SettingActivity)
+    }
+
+    @Subscribe
+    fun onMessageEvent(event: RefreshMessageEvent) {
+        when (event.type) {
+            "支付成功" -> getData()
+        }
     }
 
 }

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_74"
+        android:layout_marginStart="@dimen/dimen_size_10"
+        android:layout_marginTop="@dimen/dimen_size_25"
+        android:layout_marginEnd="@dimen/dimen_size_10"
+        android:background="@mipmap/bj04">
+
+        <TextView
+            android:id="@+id/remote_search"
+            style="@style/Font14_black_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="搜索中......" />
+
+        <LinearLayout
+            android:id="@+id/remote_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <TextView
+                style="@style/Font14_blue_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="显示名称：" />
+
+            <TextView
+                android:id="@+id/remote_name"
+                style="@style/Font14_blue_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/remote_power"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="@dimen/dimen_size_275"
+                android:layout_height="@dimen/dimen_size_275"
+                android:background="@mipmap/bj06">
+
+                <antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator
+                    android:id="@+id/remote_progress"
+                    android:layout_width="@dimen/dimen_size_275"
+                    android:layout_height="@dimen/dimen_size_275"
+                    android:layout_gravity="center"
+                    android:padding="@dimen/dimen_size_10"
+                    app:direction="counterclockwise"
+                    app:drawDot="false"
+                    app:enableProgressAnimation="true"
+                    app:fillBackground="false"
+                    app:gradientEndColor="#2A9AE4"
+                    app:gradientType="linear"
+                    app:progressBackgroundColor="@color/transparent"
+                    app:progressCap="round"
+                    app:progressColor="#114090"
+                    app:progressStrokeWidth="@dimen/dimen_size_27"
+                    app:startAngle="0"
+                    app:textColor="@color/white"
+                    app:textSize="@dimen/sp_size_25" />
+
+            </FrameLayout>
+
+            <TextView
+                style="@style/Font15_black_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/dimen_size_25"
+                android:text="遥控器电量显示"
+                android:textSize="@dimen/sp_size_16" />
+
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/remote_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never"/>
+
+    </FrameLayout>
+
+</LinearLayout>

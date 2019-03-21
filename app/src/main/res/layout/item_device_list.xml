@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dimen_size_95"
+    android:layout_marginStart="@dimen/dimen_size_10"
+    android:layout_marginTop="@dimen/dimen_size_15"
+    android:layout_marginEnd="@dimen/dimen_size_10">
+
+    <LinearLayout
+        android:id="@+id/item_device"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/bj07"
+        android:gravity="center_vertical"
+        android:paddingTop="@dimen/dimen_size_5"
+        tools:ignore="UselessParent">
+
+        <TextView
+            android:id="@+id/item_device_name"
+            style="@style/Font15_white"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_35"
+            android:layout_marginEnd="@dimen/dimen_size_10"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:lineSpacingExtra="@dimen/dimen_size_3"
+            android:maxLines="2" />
+
+        <CheckBox
+            android:id="@+id/item_device_check"
+            android:layout_width="@dimen/dimen_size_30"
+            android:layout_height="@dimen/dimen_size_30"
+            android:layout_marginEnd="@dimen/dimen_size_35"
+            android:background="@drawable/cb_talk_selector"
+            android:button="@null"
+            android:clickable="false" />
+
+    </LinearLayout>
+
+</FrameLayout>

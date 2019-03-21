@@ -72,4 +72,5 @@ object BaseHttp {
     val pollcode_bind = "$baseIp/pollcode_bind.rm" //注册码绑定
     val system_set = "$baseIp/system_set.rm"       //设置
     val zcxy_center = "$baseIp/zcxy_center.rm"     //注册协议
+    val pay_sub = "$baseIp/pay_sub.rm"             //充值
 }

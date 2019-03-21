@@ -1162,8 +1162,8 @@ class NetworkChatActivity : BaseActivity() {
                 forceVoiceToBluetooth()
                 updateOnlineData()
 
-                sendAdminCommand()
-                checkAdminCommand()
+                // sendAdminCommand()
+                // checkAdminCommand()
             }
             onFailed {
                 showToast(getString(R.string.network_chat_error_join))
@@ -1339,8 +1339,6 @@ class NetworkChatActivity : BaseActivity() {
         }
     }
 
-    private var hasNet = true
-
     /* 音视频状态观察者 */
     private val mStateObserver = object : _AVChatStateObserver() {
 
@@ -1374,43 +1372,23 @@ class NetworkChatActivity : BaseActivity() {
             }
         }
 
-        private val mDisposableNet by lazy { CompositeDisposable() }
         override fun onConnectionTypeChanged(netType: Int) {
             when (netType) {
                 20 -> {
                     showToast(getString(R.string.network_wifi))
                     cancelLoadingDialog()
-                    hasNet = true
-
-                    mDisposableNet.clear()
                 }
                 30, 40, 50 -> {
                     showToast(getString(R.string.network_wap))
                     cancelLoadingDialog()
-                    hasNet = true
-
-                    mDisposableNet.clear()
                 }
                 70 -> {
                     showToast(getString(R.string.network_none))
                     showLoadingDialog(getString(R.string.connecting))
-                    hasNet = false
-
-                    if (getString("accid") == modeMaster) {
-                        mDisposableNet.add(Completable.timer(60, TimeUnit.SECONDS)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe {
-                                finish()
-                            })
-                    }
                 }
                 90 -> {
                     showToast(getString(R.string.network_vpn))
                     cancelLoadingDialog()
-                    hasNet = true
-
-                    mDisposableNet.clear()
                 }
             }
         }
@@ -1467,7 +1445,6 @@ class NetworkChatActivity : BaseActivity() {
     override fun finish() {
         if (modeMaster.isNotEmpty()
             && getString("accid") == modeMaster
-            && hasNet
         ) {
             getStatusData(0) {
                 sendControlCommand(
