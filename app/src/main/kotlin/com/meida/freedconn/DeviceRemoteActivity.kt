@@ -36,7 +36,7 @@ class DeviceRemoteActivity : BaseActivity() {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
             when (msg.what) {
-                10 -> sendDataByBle("FF01050700", "")
+                10 -> remote_progress.setProgress((msg.obj).toString().toNotDouble(), 100.0)
                 1000 -> {
                     regainBleDataCount = 0
                     bleFlag = false
@@ -173,6 +173,8 @@ class DeviceRemoteActivity : BaseActivity() {
                     remote_power.visible()
                     remote_list.gone()
                     remote_name.text = listDevice[mPosition].name
+
+                    sendDataByBle("FF01050700", "")
                     bleConnectUtil.setCallback(object : BleConnectionCallBack {
 
                         override fun onRecive(data_char: BluetoothGattCharacteristic) {
@@ -180,10 +182,10 @@ class DeviceRemoteActivity : BaseActivity() {
 
                             //收到的数据
                             val receiverData = CheckUtils.byte2hex(data_char.value).toString()
-                            remote_progress.setProgress(receiverData.toNotDouble(), 100.0)
+                            val data = (receiverData.substring(8,10).toInt(16)).toString()
 
                             handler.sendMessage(Message().apply {
-                                obj = receiverData
+                                obj = data
                                 what = 10
                             })
                         }
