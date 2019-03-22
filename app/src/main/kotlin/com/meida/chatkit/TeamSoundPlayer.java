@@ -45,6 +45,15 @@ public class TeamSoundPlayer {
         }
     }
 
+    public void play(int resId) {
+        initSoundPool();
+
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
+            soundId = soundPool.load(context, resId, 1);
+        }
+    }
+
     public void play() {
         initSoundPool();
 

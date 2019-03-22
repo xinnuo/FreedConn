@@ -55,13 +55,14 @@ class MainActivity : BaseActivity() {
             isTeamAVChatting = false
             teamAVChatId = ""
             teamAVChatName = ""
-            chatModel = "none"
+            isTeamAVEnable = false
         }
     }
 
     override fun init_title() {
         checkBluetoothState()
-        setDeviceEnable(false)
+        setDeviceEnable(true)
+        setMultiEnable(true)
 
         /* 在线状态观察者 */
         getService<AuthServiceObserver>().observeOnlineStatus {
@@ -86,13 +87,13 @@ class MainActivity : BaseActivity() {
                             main_check2.isChecked = false
                             main_check3.isChecked = true
                             setDeviceEnable(true)
-                            setMultiEnable(false)
+                            setMultiEnable(true)
                         } else {
                             main_check1.isChecked = false
                             main_check2.isChecked = false
                             main_check3.isChecked = false
-                            setDeviceEnable(false)
-                            setMultiEnable(false)
+                            setDeviceEnable(true)
+                            setMultiEnable(true)
                         }
                     }
 
@@ -105,6 +106,7 @@ class MainActivity : BaseActivity() {
     override fun doClick(v: View) {
         when (v.id) {
             R.id.main_device -> startActivity<DeviceActivity>()
+            R.id.main_bluetooth -> toast("暂不对外开放")
             R.id.main_network -> {
                 if (getString("pollcode").isEmpty()) startActivity<BindActivity>()
                 else startActivity<NetworkActivity>()
@@ -219,23 +221,33 @@ class MainActivity : BaseActivity() {
                         main_check2.isChecked = false
                         main_check3.isChecked = true
                         setDeviceEnable(true)
-                        setMultiEnable(false)
+                        setMultiEnable(true)
+                    } else if (deviceMac.startsWith(Const.MACBLE_HEADER_1)) {
+                        main_check2.isChecked = true
                     } else {
                         main_check1.isChecked = false
                         main_check2.isChecked = false
                         main_check3.isChecked = false
-                        setDeviceEnable(false)
-                        setMultiEnable(false)
+                        setDeviceEnable(true)
+                        setMultiEnable(true)
                     }
 
                     EventBus.getDefault().post(RefreshMessageEvent("蓝牙连接"))
                 }
                 BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
-                    main_check1.isChecked = false
-                    main_check2.isChecked = false
-                    main_check3.isChecked = false
-                    setDeviceEnable(false)
-                    setMultiEnable(false)
+                    val device =
+                        intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                    val deviceMac = device.address
+                    if (deviceMac.startsWith(Const.MAC_HEADER_1)
+                        || deviceMac.startsWith(Const.MAC_HEADER_2)
+                        || deviceMac.startsWith(Const.MAC_HEADER_3)
+                    ) {
+                        main_check3.isChecked = false
+                    } else if (deviceMac.startsWith(Const.MACBLE_HEADER_1)) {
+                        main_check2.isChecked = false
+                    }
+                    setDeviceEnable(true)
+                    setMultiEnable(true)
 
                     EventBus.getDefault().post(RefreshMessageEvent("蓝牙断开"))
                 }
@@ -246,12 +258,13 @@ class MainActivity : BaseActivity() {
                             main_check1.isChecked = false
                             main_check2.isChecked = false
                             main_check3.isChecked = false
-                            setDeviceEnable(false)
-                            setMultiEnable(false)
+                            setDeviceEnable(true)
+                            setMultiEnable(true)
 
                             EventBus.getDefault().post(RefreshMessageEvent("蓝牙断开"))
                         }
-                        BluetoothAdapter.STATE_ON -> { }
+                        BluetoothAdapter.STATE_ON -> {
+                        }
                     }
                 }
             }

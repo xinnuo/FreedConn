@@ -323,18 +323,21 @@ class NetworkChatActivity : BaseActivity() {
                                 if (isTalkModeOn) {
                                     chatMode = TeamState.CHAT_TALK
                                     chat_ptt.setImageResource(R.mipmap.icon35)
-                                    chat_ptt.visible()
+                                    if (accountsOnline.size > 1) chat_ptt.visible()
                                     if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
                                     if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
+
+                                    TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
                                 } else {
                                     chatMode = TeamState.CHAT_NONE
                                     chat_ptt.setImageResource(R.mipmap.icon34)
                                     chat_mic.setImageResource(R.mipmap.icon28)
                                     chat_voice.setImageResource(R.mipmap.icon29)
                                     chat_ptt.invisible()
+
+                                    TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
                                 }
 
-                                setChatting(true)
                                 AVChatManager.getInstance().muteLocalAudio(true)
 
                                 getAllStatusData(if (isTalkModeOn) "0" else "1") //对讲模式状态
@@ -380,10 +383,11 @@ class NetworkChatActivity : BaseActivity() {
                                 if (isGroupModeOn) {
                                     chatMode = TeamState.CHAT_GROUP
                                     chat_ptt.setImageResource(R.mipmap.icon35)
-                                    chat_ptt.visible()
+                                    if (accountsOnline.size > 1) chat_ptt.visible()
                                     if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
                                     if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
 
+                                    TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
                                     AVChatManager.getInstance().muteLocalAudio(isLocalMute)
                                 } else {
                                     chatMode = TeamState.CHAT_NONE
@@ -392,10 +396,10 @@ class NetworkChatActivity : BaseActivity() {
                                     chat_voice.setImageResource(R.mipmap.icon29)
                                     chat_ptt.invisible()
 
+                                    TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
                                     AVChatManager.getInstance().muteLocalAudio(true)
                                 }
 
-                                setChatting(true)
                                 getAllStatusData(if (isGroupModeOn) "0" else "1") //对讲模式状态
                             }
                         }
@@ -441,6 +445,7 @@ class NetworkChatActivity : BaseActivity() {
                     setLocalMicMute(false)
                     setLocalAudioMute(false)
                     setVoiceLine(isGroupModeOn)
+                    TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
                     if (chatMode != TeamState.CHAT_NONE) {
                         chat_ptt.setImageResource(R.mipmap.icon35)
 
@@ -449,8 +454,12 @@ class NetworkChatActivity : BaseActivity() {
                             val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
                             val isFirst = accid == roomMaster || priority == "0"
 
-                            chat_ptt.visibility = if (isFirst) View.VISIBLE else View.INVISIBLE
-                        } else chat_ptt.visible()
+                            chat_ptt.visibility =
+                                if (isFirst && accountsOnline.size > 1) View.VISIBLE
+                                else View.INVISIBLE
+                        } else {
+                            if (accountsOnline.size > 1) chat_ptt.visible()
+                        }
                     } else {
                         chat_mic.setImageResource(R.mipmap.icon28)
                         chat_voice.setImageResource(R.mipmap.icon29)
@@ -463,6 +472,7 @@ class NetworkChatActivity : BaseActivity() {
                     setVoiceLine(false)
                     chat_ptt.setImageResource(R.mipmap.icon34)
                     chat_ptt.invisible()
+                    TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
                 }
             }
 
@@ -668,7 +678,7 @@ class NetworkChatActivity : BaseActivity() {
 
                         OkLogger.e("memeber$mMemberCount")
 
-                        if (mMemberCount > mAdminCount + 7) {
+                        if (mMemberCount > mAdminCount + 2) {
                             mAdminCount = 0L
                             mMemberCount = 0L
 
@@ -753,20 +763,22 @@ class NetworkChatActivity : BaseActivity() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    OkGo.post<String>(BaseHttp.update_residueTime)
-                        .tag(this@NetworkChatActivity)
-                        .headers("token", getString("token"))
-                        .execute(object : StringDialogCallback(baseContext, false) {
+                    if (accountsOnline.size > 1) {
+                        OkGo.post<String>(BaseHttp.update_residueTime)
+                            .tag(this@NetworkChatActivity)
+                            .headers("token", getString("token"))
+                            .execute(object : StringDialogCallback(baseContext, false) {
 
-                            override fun onSuccessResponse(
-                                response: Response<String>,
-                                msg: String,
-                                msgCode: String
-                            ) {
-                                OkLogger.i(msg)
-                            }
+                                override fun onSuccessResponse(
+                                    response: Response<String>,
+                                    msg: String,
+                                    msgCode: String
+                                ) {
+                                    OkLogger.i(msg)
+                                }
 
-                        })
+                            })
+                    }
                 }
         )
     }
@@ -1067,7 +1079,6 @@ class NetworkChatActivity : BaseActivity() {
         TeamAVChatProfile.sharedInstance().isTeamAVChatting = isChatting
         TeamAVChatProfile.sharedInstance().teamAVChatId = if (isChatting) roomName else ""
         TeamAVChatProfile.sharedInstance().teamAVChatName = if (isChatting) clusterName else ""
-        TeamAVChatProfile.sharedInstance().chatModel = chatMode
     }
 
     /* 通知栏显示状态 */
@@ -1162,8 +1173,8 @@ class NetworkChatActivity : BaseActivity() {
                 forceVoiceToBluetooth()
                 updateOnlineData()
 
-                // sendAdminCommand()
-                // checkAdminCommand()
+                sendAdminCommand()
+                checkAdminCommand()
             }
             onFailed {
                 showToast(getString(R.string.network_chat_error_join))
@@ -1209,6 +1220,7 @@ class NetworkChatActivity : BaseActivity() {
                 setLocalMicMute(true)
                 setLocalAudioMute(true)
                 setVoiceLine(false)
+                TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
                 getAllStatusData("1")
 
                 /* 群主、优先者开启管理员模式 */
@@ -1347,6 +1359,22 @@ class NetworkChatActivity : BaseActivity() {
             OkLogger.i("用户：${account}加入房间")
             if (accountsOnline.none { it == account }) accountsOnline.add(account)
 
+            if (chatMode != TeamState.CHAT_NONE) {
+                if (chatMode == TeamState.CHAT_GROUP) {
+                    val accid = getString("accid")
+                    val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
+                    val isFirst = accid == roomMaster || priority == "0"
+
+                    chat_ptt.visibility =
+                        if (isFirst && !isLocalAllMute && accountsOnline.size > 1) View.VISIBLE
+                        else View.INVISIBLE
+                } else {
+                    chat_ptt.visibility =
+                        if (!isLocalAllMute && accountsOnline.size > 1) View.VISIBLE
+                        else View.INVISIBLE
+                }
+            }
+
             if (isMicHolding && holdingMaster == getString("accid")) {
                 AVChatManager.getInstance().sendControlCommand(
                     chatId,
@@ -1362,6 +1390,22 @@ class NetworkChatActivity : BaseActivity() {
         override fun onUserLeave(account: String, event: Int) {
             OkLogger.i("用户：${account}离开房间")
             if (accountsOnline.any { it == account }) accountsOnline.remove(account)
+
+            if (chatMode != TeamState.CHAT_NONE) {
+                if (chatMode == TeamState.CHAT_GROUP) {
+                    val accid = getString("accid")
+                    val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
+                    val isFirst = accid == roomMaster || priority == "0"
+
+                    chat_ptt.visibility =
+                        if (isFirst && !isLocalAllMute && accountsOnline.size > 1) View.VISIBLE
+                        else View.INVISIBLE
+                } else {
+                    chat_ptt.visibility =
+                        if (!isLocalAllMute && accountsOnline.size > 1) View.VISIBLE
+                        else View.INVISIBLE
+                }
+            }
         }
 
         @SuppressLint("CheckResult")
@@ -1372,23 +1416,36 @@ class NetworkChatActivity : BaseActivity() {
             }
         }
 
+        private val mDisposableNet by lazy { CompositeDisposable() }
         override fun onConnectionTypeChanged(netType: Int) {
             when (netType) {
                 20 -> {
                     showToast(getString(R.string.network_wifi))
                     cancelLoadingDialog()
+                    mDisposableNet.clear()
                 }
                 30, 40, 50 -> {
                     showToast(getString(R.string.network_wap))
                     cancelLoadingDialog()
+                    mDisposableNet.clear()
                 }
                 70 -> {
                     showToast(getString(R.string.network_none))
                     showLoadingDialog(getString(R.string.connecting))
+
+                    mDisposableNet.add(
+                        Completable.timer(60, TimeUnit.SECONDS)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe {
+                                TeamSoundPlayer.instance().play(R.raw.half_second_low_tones)
+                            }
+                    )
                 }
                 90 -> {
                     showToast(getString(R.string.network_vpn))
                     cancelLoadingDialog()
+                    mDisposableNet.clear()
                 }
             }
         }
@@ -1574,7 +1631,7 @@ class NetworkChatActivity : BaseActivity() {
 
                     if (priority == "1" && priorityInner == "0") {
                         when (chatMode) {
-                            TeamState.CHAT_GROUP -> chat_ptt.visible()
+                            TeamState.CHAT_GROUP -> if (accountsOnline.size > 1) chat_ptt.visible()
                             TeamState.CHAT_NONE -> {
                                 setAdminEnable(true)
                                 setMuteAll(false)

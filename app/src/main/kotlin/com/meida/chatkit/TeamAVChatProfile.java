@@ -25,14 +25,13 @@ public class TeamAVChatProfile {
     private boolean isTeamAVChatting = false;
     private String teamAVChatId;
     private String teamAVChatName;
-    private String chatModel;
+    private boolean isTeamAVEnable = false;
 
     private boolean isSyncComplete = true; //未开始也算同步完成，可能存在不启动同步的情况
 
     private TeamAVChatProfile() {
         teamAVChatId = "";
         teamAVChatName = "";
-        chatModel = "none";
     }
 
     public String buildContent(String roomMode) {
@@ -208,12 +207,10 @@ public class TeamAVChatProfile {
         return teamAVChatName;
     }
 
-    public String getChatModel() {
-        return chatModel;
-    }
+    public boolean isTeamAVEnable() { return isTeamAVEnable; }
 
-    public void setChatModel(String chatModel) {
-        this.chatModel = chatModel;
+    public void setTeamAVEnable(boolean isTeamAVEnable) {
+        this.isTeamAVEnable = isTeamAVEnable;
     }
 
     public void registerObserver(boolean register) {

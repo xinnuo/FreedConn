@@ -9,6 +9,7 @@ import android.os.Message
 import com.meida.base.*
 import com.meida.ble.*
 import com.meida.ble.BleConnectUtil.mBluetoothGattCharacteristic
+import com.meida.share.Const
 import com.meida.utils.toNotDouble
 import kotlinx.android.synthetic.main.activity_device_remote.*
 import net.idik.lib.slimadapter.SlimAdapter
@@ -36,7 +37,10 @@ class DeviceRemoteActivity : BaseActivity() {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
             when (msg.what) {
-                10 -> remote_progress.setProgress((msg.obj).toString().toNotDouble(), 100.0)
+                10 -> {
+                    cancelLoadingDialog()
+                    remote_progress.setProgress((msg.obj).toString().toNotDouble(), 100.0)
+                }
                 1000 -> {
                     regainBleDataCount = 0
                     bleFlag = false
@@ -55,7 +59,16 @@ class DeviceRemoteActivity : BaseActivity() {
 
         EventBus.getDefault().register(this@DeviceRemoteActivity)
 
-        searchBleDevice()
+        if (Const.BleAddress != "") {
+            remote_result.visible()
+            remote_power.visible()
+            remote_list.gone()
+            bleConnectUtil.connectBle2(Const.BleAddress)
+            showLoadingDialog("获取数据中...")
+            remote_name.text = Const.BleName
+        } else {
+            searchBleDevice()
+        }
     }
 
     override fun init_title() {
@@ -91,8 +104,10 @@ class DeviceRemoteActivity : BaseActivity() {
     private fun searchBleDevice() {
         bleConnectUtil.bluetoothIsAble { device ->
             if (listDevice.none { it.address == device.address }) {
-                listDevice.add(device)
-                mAdapter.updateData(listDevice)
+                if(device.address.startsWith(Const.MACBLE_HEADER_1)) {
+                    listDevice.add(device)
+                    mAdapter.updateData(listDevice)
+                }
             }
         }
     }
@@ -109,7 +124,7 @@ class DeviceRemoteActivity : BaseActivity() {
                 } else {
                     regainBleDataCount++
 
-                    sendDataByBle(currentSendOrder, "")
+                    sendDataByBle(currentSendOrder)
                     handler.postDelayed(this, 3000)
                 }
             }
@@ -121,7 +136,7 @@ class DeviceRemoteActivity : BaseActivity() {
      * 每条数据长度应保证在20个字节以内
      * 2条数据至少要空15ms
      */
-    private fun sendDataByBle(currentSendAllOrder: String, title: String) {
+    private fun sendDataByBle(currentSendAllOrder: String) {
         if (currentSendAllOrder.isNotEmpty()) {
             currentSendOrder = currentSendAllOrder
             val isSuccess = BooleanArray(1)
@@ -157,7 +172,7 @@ class DeviceRemoteActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        bleConnectUtil.disConnect()
+        // bleConnectUtil.disConnect()
         EventBus.getDefault().unregister(this@DeviceRemoteActivity)
     }
 
@@ -172,9 +187,17 @@ class DeviceRemoteActivity : BaseActivity() {
                     remote_result.visible()
                     remote_power.visible()
                     remote_list.gone()
-                    remote_name.text = listDevice[mPosition].name
 
-                    sendDataByBle("FF01050700", "")
+                    try {
+                        remote_name.text = listDevice[mPosition].name
+                        Const.BleAddress = listDevice[mPosition].address
+                        Const.BleName = listDevice[mPosition].name
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+
+                    handler.postDelayed({ sendDataByBle("FF01050700") }, 1000)
+
                     bleConnectUtil.setCallback(object : BleConnectionCallBack {
 
                         override fun onRecive(data_char: BluetoothGattCharacteristic) {
@@ -182,15 +205,18 @@ class DeviceRemoteActivity : BaseActivity() {
 
                             //收到的数据
                             val receiverData = CheckUtils.byte2hex(data_char.value).toString()
-                            val data = (receiverData.substring(8,10).toInt(16)).toString()
+                            if ("07" in receiverData) {
+                                val data = (receiverData.substring(8, 10).toInt(16)).toString()
 
-                            handler.sendMessage(Message().apply {
-                                obj = data
-                                what = 10
-                            })
+                                handler.sendMessage(Message().apply {
+                                    obj = data
+                                    what = 10
+                                })
+                            }
                         }
 
-                        override fun onSuccessSend() { /* 数据发送成功 */ }
+                        override fun onSuccessSend() { /* 数据发送成功 */
+                        }
 
                         override fun onDisconnect() {
                             //设备断开连接

@@ -97,7 +97,7 @@ class ContactFragment : BaseFragment() {
                             val chatName = TeamAVChatProfile.sharedInstance().teamAVChatName
                             if (chatId == list[it].clusterId) {
                                 AVChatKit.outgoingTeamCall(activity, list[it].clusterId)
-                            } else {
+                            } else if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
                                 DialogHelper.showHintDialog(
                                     activity,
                                     "加入群聊",
@@ -121,6 +121,19 @@ class ContactFragment : BaseFragment() {
                                             }
                                     }
                                 }
+                            } else {
+                                ActivityStack.screenManager.popActivities(NetworkChatActivity::class.java)
+
+                                Completable.timer(500, TimeUnit.MILLISECONDS)
+                                    .subscribeOn(Schedulers.io())
+                                    .subscribe {
+                                        if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                                            AVChatKit.outgoingTeamCall(
+                                                activity,
+                                                list[it].clusterId
+                                            )
+                                        }
+                                    }
                             }
                         } else
                             AVChatKit.outgoingTeamCall(activity, list[it].clusterId)

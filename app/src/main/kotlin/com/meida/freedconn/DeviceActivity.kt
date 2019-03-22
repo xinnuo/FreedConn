@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import com.meida.base.BaseActivity
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 
 class DeviceActivity : BaseActivity() {
 
@@ -17,6 +18,7 @@ class DeviceActivity : BaseActivity() {
         super.doClick(v)
         when (v.id) {
             R.id.device_remote -> startActivity<DeviceRemoteActivity>()
+            R.id.device_bluetooth -> toast("暂不对外开放")
         }
     }
 

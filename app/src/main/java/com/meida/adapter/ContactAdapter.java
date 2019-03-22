@@ -17,7 +17,6 @@ import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
 import com.lqr.ninegridimageview.LQRNineGridImageView;
 import com.lqr.ninegridimageview.LQRNineGridImageViewAdapter;
 import com.meida.chatkit.TeamAVChatProfile;
-import com.meida.chatkit.TeamState;
 import com.meida.freedconn.R;
 import com.meida.model.CommonData;
 import com.meida.share.BaseHttp;
@@ -148,11 +147,8 @@ public class ContactAdapter extends RecyclerSwipeAdapter<RecyclerView.ViewHolder
             tvName.setText(TextUtils.isEmpty(data.getClusterId()) ? data.getUserName() : data.getClusterName());
 
             if (data.isTalking()) {
-                String mode = TeamAVChatProfile.sharedInstance().getChatModel();
-                if (mode.equals(TeamState.CHAT_TALK)
-                        || mode.equals(TeamState.CHAT_GROUP)) {
-                    ivMic.setVisibility(View.VISIBLE);
-                } else ivMic.setVisibility(View.INVISIBLE);
+                boolean isEnable = TeamAVChatProfile.sharedInstance().isTeamAVEnable();
+                ivMic.setVisibility(isEnable ? View.VISIBLE : View.INVISIBLE);
             } else {
                 ivMic.setVisibility(View.INVISIBLE);
             }

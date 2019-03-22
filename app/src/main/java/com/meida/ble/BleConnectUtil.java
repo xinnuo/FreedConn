@@ -111,6 +111,12 @@ public class BleConnectUtil {
         new connectThread().start();
     }
 
+    public void connectBle2(String address) {
+        //获取所需地址
+        mDeviceAddress = address;
+        new connectThread().start();
+    }
+
     /**
      * 连接并且读取数据线程
      */
