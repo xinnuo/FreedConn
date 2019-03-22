@@ -1,6 +1,7 @@
 package com.meida.base;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
@@ -28,6 +29,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.lzy.okgo.OkGo;
+import com.meida.ble.BleConnectionCallBack;
 import com.meida.freedconn.R;
 import com.meida.utils.ActivityStack;
 import com.meida.utils.StatusUtil;
@@ -39,7 +41,8 @@ public class BaseActivity extends AppCompatActivity implements
         TextWatcher,
         View.OnClickListener,
         RadioGroup.OnCheckedChangeListener,
-        CompoundButton.OnCheckedChangeListener {
+        CompoundButton.OnCheckedChangeListener,
+        BleConnectionCallBack {
 
     private Toolbar toolbar;
     public TextView tvRight, tvTitle, btRight;
@@ -251,4 +254,14 @@ public class BaseActivity extends AppCompatActivity implements
 
     @Override
     public void onClick(View v) { }
+
+    @Override
+    public void onRecive(BluetoothGattCharacteristic data_char) { }
+
+    @Override
+    public void onSuccessSend() { }
+
+    @Override
+    public void onDisconnect() { }
+
 }

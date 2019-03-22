@@ -1,6 +1,7 @@
 package com.meida.freedconn
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothGattCharacteristic
 import android.content.Context
 import android.content.Intent
 import android.graphics.ColorMatrix
@@ -21,6 +22,7 @@ import com.lzy.okgo.OkGo
 import com.lzy.okgo.model.Response
 import com.lzy.okgo.utils.OkLogger
 import com.meida.base.*
+import com.meida.ble.BleConnectUtil
 import com.meida.chatkit.*
 import com.meida.model.ClusterModel
 import com.meida.model.CommonData
@@ -175,6 +177,10 @@ class NetworkChatActivity : BaseActivity() {
                     if (it.size > 2) showToast(getString(R.string.network_worse))
                 }
         )
+
+        if (BleConnectUtil.getInstance(baseContext).isConnected) {
+            BleConnectUtil.getInstance(baseContext).setCallback(this)
+        }
     }
 
     override fun onResume() {
@@ -229,60 +235,8 @@ class NetworkChatActivity : BaseActivity() {
                 && chatMode != TeamState.CHAT_NONE
             ) {
                 when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        mDisposables.add(
-                            Completable.timer(500, TimeUnit.MILLISECONDS)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe {
-                                    if (chatMode == TeamState.CHAT_TALK) { //对讲抢麦
-                                        setGrabAnimation(true)
-                                        startTalkToGrab()
-                                    } else { //群聊抢麦
-                                        val accidMine = getString("accid")
-                                        val priorityMine =
-                                            list.first { it.mobile == accidMine }.priority
-
-                                        val authorMine = when {
-                                            roomMaster == accidMine -> TeamState.MASTER
-                                            priorityMine == "0" -> TeamState.PRIORITY
-                                            else -> TeamState.COMMON
-                                        }
-
-                                        if (authorMine > TeamState.COMMON) {
-                                            setGrabAnimation(true)
-                                            startGroupToGrab()
-                                        }
-                                    }
-                                }
-                        )
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        mDisposables.clear() //取消订阅
-
-                        Completable.timer(500, TimeUnit.MILLISECONDS)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe {
-                                if (holdingMaster == getString("accid")) { //抢麦者松开
-                                    setGrabAnimation(false)
-                                    sendCancelCommand {
-                                        if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
-                                        else {
-                                            chat_ptt.setImageResource(R.mipmap.icon35)
-                                            setVoiceLine(true)
-                                        }
-                                    }
-                                } else { //非抢麦者松开
-                                    setGrabAnimation(false)
-                                    if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
-                                    else {
-                                        chat_ptt.setImageResource(R.mipmap.icon35)
-                                        setVoiceLine(true)
-                                    }
-                                }
-                            }
-                    }
+                    MotionEvent.ACTION_DOWN -> onPTTDown()
+                    MotionEvent.ACTION_UP -> onPTTUp()
                 }
             }
 
@@ -541,6 +495,65 @@ class NetworkChatActivity : BaseActivity() {
                 "name" to clusterName
             )
         }
+    }
+
+    /* PTT按下 */
+    private fun onPTTDown() {
+        mDisposables.add(
+            Completable.timer(500, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (chatMode == TeamState.CHAT_TALK) { //对讲抢麦
+                        setGrabAnimation(true)
+                        startTalkToGrab()
+                    } else { //群聊抢麦
+                        val accidMine = getString("accid")
+                        val priorityMine =
+                            list.first { it.mobile == accidMine }.priority
+
+                        val authorMine = when {
+                            roomMaster == accidMine -> TeamState.MASTER
+                            priorityMine == "0" -> TeamState.PRIORITY
+                            else -> TeamState.COMMON
+                        }
+
+                        if (authorMine > TeamState.COMMON) {
+                            setGrabAnimation(true)
+                            startGroupToGrab()
+                        }
+                    }
+                }
+        )
+    }
+
+    /* PTT松开 */
+    @SuppressLint("CheckResult")
+    private fun onPTTUp() {
+        mDisposables.clear() //取消订阅
+
+        Completable.timer(500, TimeUnit.MILLISECONDS)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                if (holdingMaster == getString("accid")) { //抢麦者松开
+                    setGrabAnimation(false)
+                    sendCancelCommand {
+                        if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
+                        else {
+                            chat_ptt.setImageResource(R.mipmap.icon35)
+                            setVoiceLine(true)
+                        }
+                    }
+                } else { //非抢麦者松开
+                    setGrabAnimation(false)
+                    if (chatMode == TeamState.CHAT_TALK) setPttVoice(false)
+                    else {
+                        chat_ptt.setImageResource(R.mipmap.icon35)
+                        setVoiceLine(true)
+                    }
+                }
+            }
     }
 
     /* 群聊信息 */
@@ -1687,6 +1700,15 @@ class NetworkChatActivity : BaseActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         UMShareAPI.get(this@NetworkChatActivity).onActivityResult(requestCode, resultCode, data)
+    }
+
+    /* ble设备回调 */
+    override fun onRecive(data_char: BluetoothGattCharacteristic) {
+        if (!isLocalMute
+            && chatMode != TeamState.CHAT_NONE
+        ) {
+
+        }
     }
 
     companion object {

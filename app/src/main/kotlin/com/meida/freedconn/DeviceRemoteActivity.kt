@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Message
 import com.meida.base.*
 import com.meida.ble.*
+import com.meida.ble.BleConnectUtil.getInstance
 import com.meida.ble.BleConnectUtil.mBluetoothGattCharacteristic
 import com.meida.share.Const
 import com.meida.utils.toNotDouble
@@ -77,7 +78,8 @@ class DeviceRemoteActivity : BaseActivity() {
         remote_result.gone()
         remote_power.gone()
         remote_list.visible()
-        bleConnectUtil = BleConnectUtil(baseContext)
+        bleConnectUtil = getInstance(baseContext)
+        bleConnectUtil.setCallback(this)
 
         remote_progress.setProgressTextAdapter {
             return@setProgressTextAdapter "${it.roundToInt()}%"
@@ -172,7 +174,6 @@ class DeviceRemoteActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // bleConnectUtil.disConnect()
         EventBus.getDefault().unregister(this@DeviceRemoteActivity)
     }
 
@@ -197,36 +198,29 @@ class DeviceRemoteActivity : BaseActivity() {
                     }
 
                     handler.postDelayed({ sendDataByBle("FF01050700") }, 1000)
-
-                    bleConnectUtil.setCallback(object : BleConnectionCallBack {
-
-                        override fun onRecive(data_char: BluetoothGattCharacteristic) {
-                            bleFlag = true
-
-                            //收到的数据
-                            val receiverData = CheckUtils.byte2hex(data_char.value).toString()
-                            if ("07" in receiverData) {
-                                val data = (receiverData.substring(8, 10).toInt(16)).toString()
-
-                                handler.sendMessage(Message().apply {
-                                    obj = data
-                                    what = 10
-                                })
-                            }
-                        }
-
-                        override fun onSuccessSend() { /* 数据发送成功 */
-                        }
-
-                        override fun onDisconnect() {
-                            //设备断开连接
-                            handler.sendMessage(Message().apply { what = 1111 })
-                        }
-
-                    })
                 } else toast("遥控设备连接失败")
             }
         }
+    }
+
+    override fun onRecive(data_char: BluetoothGattCharacteristic) {
+        bleFlag = true
+
+        //收到的数据
+        val receiverData = CheckUtils.byte2hex(data_char.value).toString()
+        if ("07" in receiverData) {
+            val data = (receiverData.substring(8, 10).toInt(16)).toString()
+
+            handler.sendMessage(Message().apply {
+                obj = data
+                what = 10
+            })
+        }
+    }
+
+    override fun onDisconnect() {
+        //设备断开连接
+        handler.sendMessage(Message().apply { what = 1111 })
     }
 
 }

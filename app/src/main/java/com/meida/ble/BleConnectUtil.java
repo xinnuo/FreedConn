@@ -28,6 +28,7 @@ public class BleConnectUtil {
     public static BluetoothGattCharacteristic mBluetoothGattCharacteristic, mBluetoothGattCharacteristicNotify;
 
     public static BluetoothAdapter mBluetoothAdapter;
+    private static BleConnectUtil instance;
     public BluetoothManager mBluetoothManager;
     private BluetoothGatt mBluetoothGatt;
     private BluetoothDevice device;
@@ -38,12 +39,17 @@ public class BleConnectUtil {
      * 操作间要有至少15ms的间隔
      */
     private static final int DELAY_TIME = 15;
-    private Activity context;
+    private Context context;
     private BleDeviceCallBack mBleCallBack;
 
     Handler handler = new Handler();
 
-    public BleConnectUtil(Activity context) {
+    public static BleConnectUtil getInstance(Context context) {
+        if (instance == null) instance = new BleConnectUtil(context);
+        return instance;
+    }
+
+    private BleConnectUtil(Context context) {
         this.context = context;
         init();
     }
