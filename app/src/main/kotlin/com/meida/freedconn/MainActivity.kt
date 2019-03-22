@@ -114,23 +114,26 @@ class MainActivity : BaseActivity() {
                 onServiceConnected { profile, proxy ->
                     val mDevices = proxy.connectedDevices
                     if (!mDevices.isNullOrEmpty()) {
-                        val device = mDevices.first()
-                        val deviceMac = device.address
-                        if (deviceMac.startsWith(Const.MAC_HEADER_1)
-                            || deviceMac.startsWith(Const.MAC_HEADER_2)
-                            || deviceMac.startsWith(Const.MAC_HEADER_3)
-                        ) {
-                            main_check1.isChecked = false
-                            main_check2.isChecked = false
-                            main_check3.isChecked = true
-                            setDeviceEnable(true)
-                            setMultiEnable(true)
-                        } else {
-                            main_check1.isChecked = false
-                            main_check2.isChecked = false
-                            main_check3.isChecked = false
-                            setDeviceEnable(true)
-                            setMultiEnable(true)
+                        mDevices.forEach {
+                            val deviceMac = it.address
+                            if (deviceMac.startsWith(Const.MAC_HEADER_1)
+                                || deviceMac.startsWith(Const.MAC_HEADER_2)
+                                || deviceMac.startsWith(Const.MAC_HEADER_3)
+                            ) {
+                                main_check1.isChecked = false
+                                main_check2.isChecked = false
+                                main_check3.isChecked = true
+                                setDeviceEnable(true)
+                                setMultiEnable(true)
+                            } else if (deviceMac.startsWith(Const.MACBLE_HEADER_1)) {
+                                main_check2.isChecked = true
+                            } else {
+                                main_check1.isChecked = false
+                                main_check2.isChecked = false
+                                main_check3.isChecked = false
+                                setDeviceEnable(true)
+                                setMultiEnable(true)
+                            }
                         }
                     }
 
@@ -318,6 +321,7 @@ class MainActivity : BaseActivity() {
                         setMultiEnable(true)
                     } else if (deviceMac.startsWith(Const.MACBLE_HEADER_1)) {
                         main_check2.isChecked = true
+                        EventBus.getDefault().post(RefreshMessageEvent("遥控器连接"))
                     } else {
                         main_check1.isChecked = false
                         main_check2.isChecked = false
@@ -339,6 +343,7 @@ class MainActivity : BaseActivity() {
                         main_check3.isChecked = false
                     } else if (deviceMac.startsWith(Const.MACBLE_HEADER_1)) {
                         main_check2.isChecked = false
+                        EventBus.getDefault().post(RefreshMessageEvent("遥控器断开"))
                     }
                     setDeviceEnable(true)
                     setMultiEnable(true)
@@ -355,6 +360,7 @@ class MainActivity : BaseActivity() {
                             setDeviceEnable(true)
                             setMultiEnable(true)
 
+                            EventBus.getDefault().post(RefreshMessageEvent("遥控器断开"))
                             EventBus.getDefault().post(RefreshMessageEvent("蓝牙断开"))
                         }
                         BluetoothAdapter.STATE_ON -> { }

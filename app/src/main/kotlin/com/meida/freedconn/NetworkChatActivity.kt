@@ -52,6 +52,7 @@ import net.idik.lib.slimadapter.SlimAdapter
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.jetbrains.anko.collections.forEachWithIndex
+import org.jetbrains.anko.longToast
 import org.jetbrains.anko.sdk25.listeners.onTouch
 import org.jetbrains.anko.startActivity
 import java.util.concurrent.TimeUnit
@@ -327,6 +328,7 @@ class NetworkChatActivity : BaseActivity() {
                                     if (accountsOnline.size > 1) chat_ptt.visible()
                                     if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
                                     if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
+                                    checkFreedconn()
 
                                     TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
                                 } else {
@@ -387,6 +389,7 @@ class NetworkChatActivity : BaseActivity() {
                                     if (accountsOnline.size > 1) chat_ptt.visible()
                                     if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
                                     if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
+                                    checkFreedconn()
 
                                     TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
                                     AVChatManager.getInstance().muteLocalAudio(isLocalMute)
@@ -447,6 +450,7 @@ class NetworkChatActivity : BaseActivity() {
                     setLocalAudioMute(false)
                     setVoiceLine(isGroupModeOn)
                     TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
+                    checkFreedconn()
                     if (chatMode != TeamState.CHAT_NONE) {
                         chat_ptt.setImageResource(R.mipmap.icon35)
 
@@ -816,19 +820,20 @@ class NetworkChatActivity : BaseActivity() {
                                     onServiceConnected { profile, proxy ->
                                         val mDevices = proxy.connectedDevices
                                         if (!mDevices.isNullOrEmpty()) {
-                                            val device = mDevices.first()
-                                            val deviceMac = device.address
-                                            if (deviceMac.startsWith(Const.MAC_HEADER_1)
-                                                || deviceMac.startsWith(Const.MAC_HEADER_2)
-                                                || deviceMac.startsWith(Const.MAC_HEADER_3)
-                                            ) {
-                                                am.isBluetoothScoOn = true
-                                                am.isSpeakerphoneOn = false
-                                                am.startBluetoothSco()
-                                            } else {
-                                                am.isBluetoothScoOn = false
-                                                am.isSpeakerphoneOn = true
-                                                am.stopBluetoothSco()
+                                            mDevices.forEach {
+                                                val deviceMac = it.address
+                                                if (deviceMac.startsWith(Const.MAC_HEADER_1)
+                                                    || deviceMac.startsWith(Const.MAC_HEADER_2)
+                                                    || deviceMac.startsWith(Const.MAC_HEADER_3)
+                                                ) {
+                                                    am.isBluetoothScoOn = true
+                                                    am.isSpeakerphoneOn = false
+                                                    am.startBluetoothSco()
+                                                } else {
+                                                    am.isBluetoothScoOn = false
+                                                    am.isSpeakerphoneOn = true
+                                                    am.stopBluetoothSco()
+                                                }
                                             }
                                         }
 
@@ -857,19 +862,20 @@ class NetworkChatActivity : BaseActivity() {
                                     onServiceConnected { profile, proxy ->
                                         val mDevices = proxy.connectedDevices
                                         if (!mDevices.isNullOrEmpty()) {
-                                            val device = mDevices.first()
-                                            val deviceMac = device.address
-                                            if (deviceMac.startsWith(Const.MAC_HEADER_1)
-                                                || deviceMac.startsWith(Const.MAC_HEADER_2)
-                                                || deviceMac.startsWith(Const.MAC_HEADER_3)
-                                            ) {
-                                                am.isBluetoothScoOn = true
-                                                am.isSpeakerphoneOn = false
-                                                am.startBluetoothSco()
-                                            } else {
-                                                am.isBluetoothScoOn = false
-                                                am.isSpeakerphoneOn = true
-                                                am.stopBluetoothSco()
+                                            mDevices.forEach {
+                                                val deviceMac = it.address
+                                                if (deviceMac.startsWith(Const.MAC_HEADER_1)
+                                                    || deviceMac.startsWith(Const.MAC_HEADER_2)
+                                                    || deviceMac.startsWith(Const.MAC_HEADER_3)
+                                                ) {
+                                                    am.isBluetoothScoOn = true
+                                                    am.isSpeakerphoneOn = false
+                                                    am.startBluetoothSco()
+                                                } else {
+                                                    am.isBluetoothScoOn = false
+                                                    am.isSpeakerphoneOn = true
+                                                    am.stopBluetoothSco()
+                                                }
                                             }
                                         }
 
@@ -894,6 +900,29 @@ class NetworkChatActivity : BaseActivity() {
                     am.mode = AudioManager.MODE_NORMAL
                 }
         )
+    }
+
+    /* 是否使用FreedConn产品 */
+    private fun checkFreedconn() {
+        if (BluetoothHelper.isBluetoothConnected()) {
+            getAdapter()!!.getProfileProxy(baseContext, getConnectedProfile()) {
+                onServiceConnected { profile, proxy ->
+                    val mDevices = proxy.connectedDevices
+                    if (!mDevices.isNullOrEmpty()) {
+                        mDevices.forEach {
+                            val deviceMac = it.address
+                            if (Const.MAC_HEADER_1 !in deviceMac
+                                && Const.MAC_HEADER_2 !in deviceMac
+                                && Const.MAC_HEADER_3 !in deviceMac) {
+                                longToast("请使用 Freedconn 产品")
+                            }
+                        }
+                    }
+
+                    getAdapter()!!.closeProfileProxy(profile, proxy)
+                }
+            }
+        }
     }
 
     /* 开始对讲抢麦 */

@@ -1,7 +1,6 @@
 package com.meida.freedconn
 
 import android.os.Bundle
-import android.view.View
 import com.lzg.extend.StringDialogCallback
 import com.lzy.okgo.OkGo
 import com.lzy.okgo.model.Response
@@ -11,8 +10,11 @@ import com.meida.fragment.OnFragmentListener
 import com.meida.fragment.TalkFragment
 import com.meida.model.RefreshMessageEvent
 import com.meida.share.BaseHttp
+import com.meida.share.Const
 import com.meida.utils.ActivityStack
+import com.meida.utils.BluetoothHelper
 import com.meida.utils.BluetoothHelper.isBluetoothConnected
+import com.meida.utils.getProfileProxy
 import kotlinx.android.synthetic.main.activity_network.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -40,7 +42,26 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
 
     override fun init_title() {
         mContact = ContactFragment()
-        network_disconnect.visibility = if (isBluetoothConnected()) View.INVISIBLE else View.VISIBLE
+
+        if (isBluetoothConnected()) {
+            BluetoothHelper.getAdapter()!!.getProfileProxy(this,
+                BluetoothHelper.getConnectedProfile()
+            ) {
+                onServiceConnected { profile, proxy ->
+                    val mDevices = proxy.connectedDevices
+                    if (!mDevices.isNullOrEmpty()) {
+                        mDevices.forEach {
+                            val deviceMac = it.address
+                            if (deviceMac.startsWith(Const.MACBLE_HEADER_1)) {
+                                network_disconnect.invisible()
+                            } else network_disconnect.visible()
+                        }
+                    }
+
+                    BluetoothHelper.getAdapter()!!.closeProfileProxy(profile, proxy)
+                }
+            }
+        }
 
         supportFragmentManager.addOnBackStackChangedListener {
             when (supportFragmentManager.backStackEntryCount) {
@@ -116,8 +137,8 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
     @Subscribe
     fun onMessageEvent(event: RefreshMessageEvent) {
         when (event.type) {
-            "蓝牙连接" -> network_disconnect.invisible()
-            "蓝牙断开" -> network_disconnect.visible()
+            "遥控器连接" -> network_disconnect.invisible()
+            "遥控器断开" -> network_disconnect.visible()
         }
     }
 
