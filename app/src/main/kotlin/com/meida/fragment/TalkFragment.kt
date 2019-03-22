@@ -72,11 +72,11 @@ class TalkFragment : BaseFragment() {
             .attachTo(recycle_list)
 
         talk_left.onClick { (activity as OnFragmentListener).onViewClick("back") }
-        talk_right.onClick { _ ->
+        talk_right.oneClick { _ ->
             if (talk_name.text.isBlank()) {
                 talk_name.requestFocus()
                 toast(getString(R.string.network_noName))
-                return@onClick
+                return@oneClick
             }
 
             list.filter { it.isChecked }.forEach {

@@ -109,6 +109,7 @@ class NetworkChatActivity : BaseActivity() {
         roomName = intent.getStringExtra(KEY_ROOM) ?: ""
         initNotification()
         initListeners()
+        TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
 
         chat_nine.setAdapter {
             onDisplayImage { _, imageView, url ->
@@ -1416,36 +1417,23 @@ class NetworkChatActivity : BaseActivity() {
             }
         }
 
-        private val mDisposableNet by lazy { CompositeDisposable() }
         override fun onConnectionTypeChanged(netType: Int) {
             when (netType) {
                 20 -> {
                     showToast(getString(R.string.network_wifi))
                     cancelLoadingDialog()
-                    mDisposableNet.clear()
                 }
                 30, 40, 50 -> {
                     showToast(getString(R.string.network_wap))
                     cancelLoadingDialog()
-                    mDisposableNet.clear()
                 }
                 70 -> {
                     showToast(getString(R.string.network_none))
                     showLoadingDialog(getString(R.string.connecting))
-
-                    mDisposableNet.add(
-                        Completable.timer(60, TimeUnit.SECONDS)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe {
-                                TeamSoundPlayer.instance().play(R.raw.half_second_low_tones)
-                            }
-                    )
                 }
                 90 -> {
                     showToast(getString(R.string.network_vpn))
                     cancelLoadingDialog()
-                    mDisposableNet.clear()
                 }
             }
         }

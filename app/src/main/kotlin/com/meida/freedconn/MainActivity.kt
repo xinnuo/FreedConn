@@ -1,5 +1,6 @@
 package com.meida.freedconn
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -34,10 +35,22 @@ import org.greenrobot.eventbus.EventBus
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import java.util.concurrent.TimeUnit
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkInfo
+import android.net.NetworkRequest
+import android.os.Build
+import com.lzy.okgo.utils.OkLogger
+import com.meida.chatkit.TeamSoundPlayer
+import com.yanzhenjie.permission.AndPermission
+import com.yanzhenjie.permission.PermissionListener
+import io.reactivex.disposables.CompositeDisposable
+
 
 class MainActivity : BaseActivity() {
 
     private var mDisposable: Disposable? = null
+    private val mDisposableNet by lazy { CompositeDisposable() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +59,7 @@ class MainActivity : BaseActivity() {
         init_title()
 
         registerReceiver()
+        registerNetReceiver()
     }
 
     override fun onResume() {
@@ -63,6 +77,29 @@ class MainActivity : BaseActivity() {
         checkBluetoothState()
         setDeviceEnable(true)
         setMultiEnable(true)
+
+        AndPermission.with(this@MainActivity)
+            .permission(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.WAKE_LOCK,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.MODIFY_AUDIO_SETTINGS,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            .callback(object : PermissionListener {
+                override fun onSucceed(requestCode: Int, grantPermissions: MutableList<String>) {}
+
+                override fun onFailed(requestCode: Int, deniedPermissions: MutableList<String>) {
+                    toast(getString(R.string.permission_denied))
+                    onBackPressed()
+                }
+            }).start()
 
         /* 在线状态观察者 */
         getService<AuthServiceObserver>().observeOnlineStatus {
@@ -177,11 +214,47 @@ class MainActivity : BaseActivity() {
         )
     }
 
-    /** 注册广播 **/
+    /** 注册蓝牙状态监听广播 **/
     private fun registerReceiver() {
         registerReceiver(mReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
         registerReceiver(mReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED))
         registerReceiver(mReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
+    }
+
+    /** 注册网络状态监听广播 **/
+    private fun registerNetReceiver() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            (getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?)?.registerNetworkCallback(
+                NetworkRequest.Builder().build(),
+                object : ConnectivityManager.NetworkCallback() {
+                    override fun onAvailable(network: Network?) {
+                        OkLogger.i("网络可用")
+                        mDisposableNet.clear()
+                    }
+
+                    override fun onLost(network: Network?) {
+                        OkLogger.i("网络丢失")
+                        updateNetWork()
+                    }
+                }
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            registerReceiver(mNetReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+        }
+    }
+
+    private fun updateNetWork() {
+        if (mDisposableNet.size() > 0) mDisposableNet.clear()
+
+        mDisposableNet.add(
+            Observable.interval(60, 60, TimeUnit.SECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    TeamSoundPlayer.instance().play(R.raw.half_second_low_tones)
+                }
+        )
     }
 
     /** 退出 **/
@@ -198,14 +271,35 @@ class MainActivity : BaseActivity() {
     override fun finish() {
         super.finish()
         mDisposable?.dispose()
-        try {
-            unregisterReceiver(mReceiver)
-        } catch (e: Exception) {
-            e.printStackTrace()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) mDisposableNet.clear()
+        else unregisterReceiver(mNetReceiver)
+
+        unregisterReceiver(mReceiver)
+    }
+
+    /** 网络广播 BroadcastReceiver **/
+    @Suppress("DEPRECATION")
+    private val mNetReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action === ConnectivityManager.CONNECTIVITY_ACTION) {
+                //获取联网状态的NetworkInfo对象
+                val info =
+                    intent.getParcelableExtra<NetworkInfo>(ConnectivityManager.EXTRA_NETWORK_INFO)
+                if (info.isAvailable
+                    && info.state == NetworkInfo.State.CONNECTED
+                ) {
+                    OkLogger.i("网络连接")
+                    mDisposableNet.clear()
+                } else {
+                    OkLogger.i("网络断开")
+                    updateNetWork()
+                }
+            }
         }
     }
 
-    /** 广播 BroadcastReceiver **/
+    /** 蓝牙广播 BroadcastReceiver **/
     private val mReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
@@ -263,8 +357,7 @@ class MainActivity : BaseActivity() {
 
                             EventBus.getDefault().post(RefreshMessageEvent("蓝牙断开"))
                         }
-                        BluetoothAdapter.STATE_ON -> {
-                        }
+                        BluetoothAdapter.STATE_ON -> { }
                     }
                 }
             }

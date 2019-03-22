@@ -100,11 +100,12 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
     override fun onViewClick(name: String) = onBackPressed()
 
     override fun onBackPressed() {
-        val isActive = ActivityStack.screenManager.isContainsActivity(NetworkChatActivity::class.java)
-        if (isActive) {
-            ActivityStack.screenManager.popAllActivityExceptOne(MainActivity::class.java)
+        if (!supportFragmentManager.popBackStackImmediate()) {
+            val isActive = ActivityStack.screenManager.isContainsActivity(NetworkChatActivity::class.java)
+            if (isActive) {
+                ActivityStack.screenManager.popAllActivityExceptOne(MainActivity::class.java)
+            } else super.onBackPressed()
         }
-        super.onBackPressed()
     }
 
     override fun finish() {

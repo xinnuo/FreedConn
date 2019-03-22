@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- 过滤掉没有蓝牙BLE功能的蓝牙按时required为true时，则应用只能在支持BLE的Android设备上安装运行；
          required为false时，Android设备均可正常安装运行，需要在代码运行时判断设备是否支持BLE feature： -->

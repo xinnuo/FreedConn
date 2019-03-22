@@ -1,5 +1,6 @@
 package com.meida.freedconn
 
+import android.Manifest
 import android.os.Bundle
 import android.view.View
 import com.lzg.extend.StringDialogCallback
@@ -14,6 +15,8 @@ import com.meida.chatkit.login
 import com.meida.share.BaseHttp
 import com.meida.utils.ActivityStack
 import com.meida.utils.isMobile
+import com.yanzhenjie.permission.AndPermission
+import com.yanzhenjie.permission.PermissionListener
 import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
@@ -40,6 +43,29 @@ class LoginActivity : BaseActivity() {
             clearData()
             ActivityStack.screenManager.popAllActivityExcept(this@LoginActivity::class.java)
         }
+
+        AndPermission.with(this@LoginActivity)
+            .permission(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.WAKE_LOCK,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.MODIFY_AUDIO_SETTINGS,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            .callback(object : PermissionListener {
+                override fun onSucceed(requestCode: Int, grantPermissions: MutableList<String>) {}
+
+                override fun onFailed(requestCode: Int, deniedPermissions: MutableList<String>) {
+                    toast(getString(R.string.permission_denied))
+                    onBackPressed()
+                }
+            }).start()
     }
 
     override fun doClick(v: View) {

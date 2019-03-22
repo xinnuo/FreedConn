@@ -95,10 +95,12 @@ class ContactFragment : BaseFragment() {
                         if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
                             val chatId = TeamAVChatProfile.sharedInstance().teamAVChatId
                             val chatName = TeamAVChatProfile.sharedInstance().teamAVChatName
-                            if (chatId == list[it].clusterId) {
-                                AVChatKit.outgoingTeamCall(activity, list[it].clusterId)
-                            } else if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
-                                DialogHelper.showHintDialog(
+                            when {
+                                chatId == list[it].clusterId -> AVChatKit.outgoingTeamCall(
+                                    activity,
+                                    list[it].clusterId
+                                )
+                                TeamAVChatProfile.sharedInstance().isTeamAVEnable -> DialogHelper.showHintDialog(
                                     activity,
                                     "加入群聊",
                                     "${chatName}群正在对讲中，是否结束该的对讲",
@@ -107,7 +109,9 @@ class ContactFragment : BaseFragment() {
                                     false
                                 ) { hint ->
                                     if (hint == "yes") {
-                                        ActivityStack.screenManager.popActivities(NetworkChatActivity::class.java)
+                                        ActivityStack.screenManager.popActivities(
+                                            NetworkChatActivity::class.java
+                                        )
 
                                         Completable.timer(500, TimeUnit.MILLISECONDS)
                                             .subscribeOn(Schedulers.io())
@@ -121,19 +125,20 @@ class ContactFragment : BaseFragment() {
                                             }
                                     }
                                 }
-                            } else {
-                                ActivityStack.screenManager.popActivities(NetworkChatActivity::class.java)
+                                else -> {
+                                    ActivityStack.screenManager.popActivities(NetworkChatActivity::class.java)
 
-                                Completable.timer(500, TimeUnit.MILLISECONDS)
-                                    .subscribeOn(Schedulers.io())
-                                    .subscribe {
-                                        if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
-                                            AVChatKit.outgoingTeamCall(
-                                                activity,
-                                                list[it].clusterId
-                                            )
+                                    Completable.timer(500, TimeUnit.MILLISECONDS)
+                                        .subscribeOn(Schedulers.io())
+                                        .subscribe {
+                                            if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                                                AVChatKit.outgoingTeamCall(
+                                                    activity,
+                                                    list[it].clusterId
+                                                )
+                                            }
                                         }
-                                    }
+                                }
                             }
                         } else
                             AVChatKit.outgoingTeamCall(activity, list[it].clusterId)
@@ -163,47 +168,87 @@ class ContactFragment : BaseFragment() {
                         })
                 } else {
                     if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
-                        val chatId = TeamAVChatProfile.sharedInstance().teamAVChatId
-                        if (chatId == list[index].clusterId) {
-                            toast("正在网络对讲，无法操作")
-                            return@setOnItemDeleteClickListener
-                        }
-                    }
+                        if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
+                            val chatId = TeamAVChatProfile.sharedInstance().teamAVChatId
+                            if (chatId == list[index].clusterId) {
+                                toast("正在网络对讲，无法操作")
+                                return@setOnItemDeleteClickListener
+                            }
+                        } else {
+                            ActivityStack.screenManager.popActivities(NetworkChatActivity::class.java)
 
-                    val datas = ArrayList<CommonData>()
-                    datas.addItems(list[index].clusterMembers)
+                            val datas = ArrayList<CommonData>()
+                            datas.addItems(list[index].clusterMembers)
 
+                            when (datas.size) {
+                                0 -> {
+                                    list.removeAt(index)
+                                    mListAdapter.updateData(list)
+                                }
+                                1 -> getQuitData(index)
+                                else -> {
+                                    if (datas.any { it.master == "0" }) {
+                                        val item = datas.first { it.master == "0" }
+                                        if (getString("token") == item.accountInfoId) {
+                                            DialogHelper.showHintDialog(
+                                                activity,
+                                                "退出群聊",
+                                                "确定要退出并转让群主吗？",
+                                                "取消",
+                                                "确定",
+                                                false
+                                            ) {
+                                                if (it == "yes") {
+                                                    startActivity<NetworkHandleActivity>(
+                                                        "type" to "4",
+                                                        "position" to index.toString(),
+                                                        "list" to datas
+                                                    )
+                                                }
+                                            }
+                                        } else getQuitData(index)
 
-                    when(datas.size) {
-                        0 -> {
-                            list.removeAt(index)
-                            mListAdapter.updateData(list)
-                        }
-                        1 -> getQuitData(index)
-                        else -> {
-                            if (datas.any { it.master == "0" }) {
-                                val item = datas.first { it.master == "0" }
-                                if (getString("token") == item.accountInfoId) {
-                                    DialogHelper.showHintDialog(
-                                        activity,
-                                        "退出群聊",
-                                        "确定要退出并转让群主吗？",
-                                        "取消",
-                                        "确定",
-                                        false
-                                    ) {
-                                        if (it == "yes") {
-                                            startActivity<NetworkHandleActivity>(
-                                                "type" to "4",
-                                                "position" to index.toString(),
-                                                "list" to datas
-                                            )
-                                        }
+                                    } else {
+                                        getQuitData(index)
                                     }
-                                } else getQuitData(index)
+                                }
+                            }
+                        }
+                    } else {
+                        val datas = ArrayList<CommonData>()
+                        datas.addItems(list[index].clusterMembers)
 
-                            } else {
-                                getQuitData(index)
+                        when (datas.size) {
+                            0 -> {
+                                list.removeAt(index)
+                                mListAdapter.updateData(list)
+                            }
+                            1 -> getQuitData(index)
+                            else -> {
+                                if (datas.any { it.master == "0" }) {
+                                    val item = datas.first { it.master == "0" }
+                                    if (getString("token") == item.accountInfoId) {
+                                        DialogHelper.showHintDialog(
+                                            activity,
+                                            "退出群聊",
+                                            "确定要退出并转让群主吗？",
+                                            "取消",
+                                            "确定",
+                                            false
+                                        ) {
+                                            if (it == "yes") {
+                                                startActivity<NetworkHandleActivity>(
+                                                    "type" to "4",
+                                                    "position" to index.toString(),
+                                                    "list" to datas
+                                                )
+                                            }
+                                        }
+                                    } else getQuitData(index)
+
+                                } else {
+                                    getQuitData(index)
+                                }
                             }
                         }
                     }
