@@ -1603,8 +1603,23 @@ class NetworkChatActivity : BaseActivity() {
                     if (accounts.none { it == getString("accid") }) finish()
                 }
             }
-            "加入群组通知", "退出群组通知" -> if (event.id == roomName) {
+            "加入群组通知" -> if (event.id == roomName) {
                 getInfoData()
+            }
+            "退出群组通知" -> if (event.id == roomName) {
+                getInfoData {
+                    /* 群主、优先者开启管理员模式 */
+                    val accid = getString("accid")
+                    val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
+                    val isFirst = accid == roomMaster || priority == "0"
+                    if (isFirst) {
+                        setAdminEnable(true)
+                        setMuteAll(false)
+                        setLocalMicMute(false)
+                        setLocalAudioMute(false)
+                        setVoiceLine(false)
+                    }
+                }
             }
             "修改群名通知" -> if (event.id == roomName) {
                 clusterName = event.name
