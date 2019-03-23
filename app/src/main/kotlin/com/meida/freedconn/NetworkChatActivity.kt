@@ -23,6 +23,7 @@ import com.lzy.okgo.model.Response
 import com.lzy.okgo.utils.OkLogger
 import com.meida.base.*
 import com.meida.ble.BleConnectUtil
+import com.meida.ble.CheckUtils
 import com.meida.chatkit.*
 import com.meida.model.ClusterModel
 import com.meida.model.CommonData
@@ -60,7 +61,7 @@ import org.jetbrains.anko.startActivity
 import java.util.concurrent.TimeUnit
 
 class NetworkChatActivity : BaseActivity() {
-
+    private lateinit var bleConnectUtil: BleConnectUtil
     //DATA
     private val list = ArrayList<CommonData>()       //房间全部成员
     private val listShow = ArrayList<CommonData>()   //房间展示成员
@@ -102,6 +103,9 @@ class NetworkChatActivity : BaseActivity() {
     }
 
     override fun init_title() {
+
+        bleConnectUtil = BleConnectUtil.getInstance(baseContext)
+        bleConnectUtil.setCallback(this)
         super.init_title()
         chat_admin.gone()
         chat_level.gone()
@@ -1141,19 +1145,11 @@ class NetworkChatActivity : BaseActivity() {
         AVChatManager.getInstance().observeAVChatState(mStateObserver, false) //注销网络通话状态
         AVChatManager.getInstance().observeAVChatState(mStateObserver, true)  //注册网络通话状态
 
-        AVChatManager.getInstance()
-            .observeControlNotification(mControlEventObserver, false) //注销网络通话控制消息
-        AVChatManager.getInstance()
-            .observeControlNotification(mControlEventObserver, true)  //注册网络通话控制消息
+        AVChatManager.getInstance().observeControlNotification(mControlEventObserver, false) //注销网络通话控制消息
+        AVChatManager.getInstance().observeControlNotification(mControlEventObserver, true)  //注册网络通话控制消息
 
-        AVChatManager.getInstance().setParameter(
-            AVChatParameters.KEY_SESSION_MULTI_MODE_USER_ROLE,
-            AVChatUserRole.NORMAL
-        ) //角色模式
-        AVChatManager.getInstance().setParameter(
-            AVChatParameters.KEY_AUDIO_REPORT_SPEAKER,
-            true
-        )                          //声音强度汇报
+        AVChatManager.getInstance().setParameter(AVChatParameters.KEY_SESSION_MULTI_MODE_USER_ROLE, AVChatUserRole.NORMAL) //角色模式
+        AVChatManager.getInstance().setParameter(AVChatParameters.KEY_AUDIO_REPORT_SPEAKER, true)                          //声音强度汇报
         joinRoom(roomName) {
             //加入房间
             onSuccess { data ->
@@ -1542,6 +1538,7 @@ class NetworkChatActivity : BaseActivity() {
                         hangUp()
                         setChatting(false)
                         activeCallingNotifier(false)
+                        TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
 
                         mCompositeDisposable.clear()
                         TeamSoundPlayer.instance().stop()
@@ -1554,6 +1551,7 @@ class NetworkChatActivity : BaseActivity() {
             hangUp()
             setChatting(false)
             activeCallingNotifier(false)
+            TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
 
             mCompositeDisposable.clear()
             TeamSoundPlayer.instance().stop()
@@ -1705,9 +1703,17 @@ class NetworkChatActivity : BaseActivity() {
     /* ble设备回调 */
     override fun onRecive(data_char: BluetoothGattCharacteristic) {
         if (!isLocalMute
-            && chatMode != TeamState.CHAT_NONE
+            && chatMode != TeamState.CHAT_NONE&&chat_ptt.isVisble()
         ) {
-
+            val receiverData = CheckUtils.byte2hex(data_char.value).toString()
+            val data = (receiverData.substring(8, 10).toInt(16)).toString()
+            if ("1" in data) {
+                //按下
+                onPTTDown()
+            } else if ("0" in data) {
+                //抬起
+                onPTTUp()
+            }
         }
     }
 
@@ -1722,4 +1728,8 @@ class NetworkChatActivity : BaseActivity() {
             })
         }
     }
+
+
+
+
 }

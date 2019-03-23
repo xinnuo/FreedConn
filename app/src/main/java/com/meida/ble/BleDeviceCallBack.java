@@ -4,6 +4,6 @@ import android.bluetooth.BluetoothDevice;
 
 public interface BleDeviceCallBack {
 
-    void callbleBack(BluetoothDevice device);
+    void callbleBack(BluetoothDevice device, int xinhao);
 
 }

@@ -41,6 +41,7 @@ import android.net.NetworkInfo
 import android.net.NetworkRequest
 import android.os.Build
 import com.lzy.okgo.utils.OkLogger
+import com.meida.ble.BleConnectUtil
 import com.meida.chatkit.TeamSoundPlayer
 import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.PermissionListener
@@ -51,7 +52,7 @@ class MainActivity : BaseActivity() {
 
     private var mDisposable: Disposable? = null
     private val mDisposableNet by lazy { CompositeDisposable() }
-
+    private lateinit var bleConnectUtil: BleConnectUtil
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -71,12 +72,16 @@ class MainActivity : BaseActivity() {
             teamAVChatName = ""
             isTeamAVEnable = false
         }
+
+        main_check2.isChecked = bleConnectUtil.isConnected==true
     }
 
     override fun init_title() {
         checkBluetoothState()
         setDeviceEnable(true)
         setMultiEnable(true)
+
+        bleConnectUtil = BleConnectUtil.getInstance(baseContext)
 
         AndPermission.with(this@MainActivity)
             .permission(
@@ -369,5 +374,7 @@ class MainActivity : BaseActivity() {
             }
         }
     }
+
+
 
 }

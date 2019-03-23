@@ -17,6 +17,7 @@ import net.idik.lib.slimadapter.SlimAdapter
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.jetbrains.anko.sdk25.listeners.onClick
 import org.jetbrains.anko.toast
 import kotlin.math.roundToInt
 
@@ -24,6 +25,7 @@ class DeviceRemoteActivity : BaseActivity() {
 
     private lateinit var bleConnectUtil: BleConnectUtil
     private val listDevice = ArrayList<BluetoothDevice>()
+    private val listSS = ArrayList<Int>()
 
     /**
      * 跟ble通信的标志位,检测数据是否在指定时间内返回
@@ -53,6 +55,7 @@ class DeviceRemoteActivity : BaseActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_device_remote)
@@ -60,15 +63,25 @@ class DeviceRemoteActivity : BaseActivity() {
 
         EventBus.getDefault().register(this@DeviceRemoteActivity)
 
-        if (Const.BleAddress != "") {
+        if (bleConnectUtil.isConnected) {
             remote_result.visible()
             remote_power.visible()
             remote_list.gone()
-            bleConnectUtil.connectBle2(Const.BleAddress)
+            remote_search.gone()
             showLoadingDialog("获取数据中...")
-            remote_name.text = Const.BleName
+            remote_name.text = Const.BleName + "(点击切换)"
+            sendDataByBle("FF01050700")
         } else {
-            searchBleDevice()
+            remote_search.text = "点击搜索"
+            remote_search.onClick {
+                remote_search.text = "搜索中..."
+                searchBleDevice()
+            }
+        }
+
+        remote_name.onClick {
+            bleConnectUtil.disConnect()
+            finish()
         }
     }
 
@@ -88,26 +101,26 @@ class DeviceRemoteActivity : BaseActivity() {
 
         remote_list.load_Linear(baseContext)
         mAdapter = SlimAdapter.create()
-            .register<BluetoothDevice>(R.layout.item_device_list) { data, injector ->
+                .register<BluetoothDevice>(R.layout.item_device_list) { data, injector ->
 
-                injector.text(R.id.item_device_name, data.name)
-                    .gone(R.id.item_device_check)
-                    .clicked(R.id.item_device) {
-                        bleConnectUtil.stopScan()
-                        mPosition = listDevice.indexOf(data)
-                        showLoadingDialog("正在连接...")
-
-                        bleConnectUtil.connectBle(data)
-                    }
-            }
-            .attachTo(remote_list)
+                    injector.text(R.id.item_device_name, data.name + "（" + listSS[listDevice.indexOf(data)] + "）")
+                            .gone(R.id.item_device_check)
+                            .clicked(R.id.item_device) {
+                                bleConnectUtil.stopScan()
+                                mPosition = listDevice.indexOf(data)
+                                showLoadingDialog("正在连接...")
+                                bleConnectUtil.connectBle(data)
+                            }
+                }
+                .attachTo(remote_list)
     }
 
     private fun searchBleDevice() {
-        bleConnectUtil.bluetoothIsAble { device ->
+        bleConnectUtil.bluetoothIsAble { device, ss ->
             if (listDevice.none { it.address == device.address }) {
-                if(device.address.startsWith(Const.MACBLE_HEADER_1)) {
+                if (device.name == "Freedconn") {
                     listDevice.add(device)
+                    listSS.add(ss)
                     mAdapter.updateData(listDevice)
                 }
             }
@@ -157,7 +170,7 @@ class DeviceRemoteActivity : BaseActivity() {
                         shortOrder[0] = currentSendAllOrder.substring(finalI, finalI + 40)
                     } else {
                         shortOrder[0] =
-                            currentSendAllOrder.substring(finalI, currentSendAllOrder.length)
+                                currentSendAllOrder.substring(finalI, currentSendAllOrder.length)
                     }
 
                     sData = CheckUtils.hex2byte(shortOrder[0])
@@ -177,6 +190,7 @@ class DeviceRemoteActivity : BaseActivity() {
         EventBus.getDefault().unregister(this@DeviceRemoteActivity)
     }
 
+    @SuppressLint("SetTextI18n")
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onMessageEvent(event: EventMsg) {
         when (event.msg) {
@@ -190,7 +204,7 @@ class DeviceRemoteActivity : BaseActivity() {
                     remote_list.gone()
 
                     try {
-                        remote_name.text = listDevice[mPosition].name
+                        remote_name.text = listDevice[mPosition].name + "(点击切换" + ")"
                         Const.BleAddress = listDevice[mPosition].address
                         Const.BleName = listDevice[mPosition].name
                     } catch (e: Exception) {

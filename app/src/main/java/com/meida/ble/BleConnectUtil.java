@@ -107,7 +107,7 @@ public class BleConnectUtil {
         @Override
         public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
             if (device.getName() == null) return;
-            mBleCallBack.callbleBack(device);
+            mBleCallBack.callbleBack(device, rssi);
         }
     };
 

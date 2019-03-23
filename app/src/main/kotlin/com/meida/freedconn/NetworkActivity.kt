@@ -5,12 +5,12 @@ import com.lzg.extend.StringDialogCallback
 import com.lzy.okgo.OkGo
 import com.lzy.okgo.model.Response
 import com.meida.base.*
+import com.meida.ble.BleConnectUtil
 import com.meida.fragment.ContactFragment
 import com.meida.fragment.OnFragmentListener
 import com.meida.fragment.TalkFragment
 import com.meida.model.RefreshMessageEvent
 import com.meida.share.BaseHttp
-import com.meida.share.Const
 import com.meida.utils.ActivityStack
 import com.meida.utils.BluetoothHelper
 import com.meida.utils.BluetoothHelper.isBluetoothConnected
@@ -25,6 +25,8 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
 
     private var selectedPosition = 0
     private lateinit var mContact: ContactFragment
+
+    private lateinit var bleConnectUtil: BleConnectUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,25 +44,32 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
 
     override fun init_title() {
         mContact = ContactFragment()
+        bleConnectUtil = BleConnectUtil.getInstance(baseContext)
 
         if (isBluetoothConnected()) {
             BluetoothHelper.getAdapter()!!.getProfileProxy(this,
-                BluetoothHelper.getConnectedProfile()
+                    BluetoothHelper.getConnectedProfile()
             ) {
                 onServiceConnected { profile, proxy ->
                     val mDevices = proxy.connectedDevices
                     if (!mDevices.isNullOrEmpty()) {
                         mDevices.forEach {
                             val deviceMac = it.address
-                            if (deviceMac.startsWith(Const.MACBLE_HEADER_1)) {
-                                network_disconnect.invisible()
-                            } else network_disconnect.visible()
+//                            if (deviceMac.startsWith(Const.MACBLE_HEADER_1)) {
+//                                network_disconnect.invisible()
+//                            } else network_disconnect.visible()
                         }
                     }
 
                     BluetoothHelper.getAdapter()!!.closeProfileProxy(profile, proxy)
                 }
             }
+        }
+
+        if (bleConnectUtil.isConnected) {
+            network_disconnect.invisible()
+        } else {
+            network_disconnect.visible()
         }
 
         supportFragmentManager.addOnBackStackChangedListener {
@@ -79,8 +88,8 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
         }
 
         supportFragmentManager.beginTransaction()
-            .add(R.id.network_container, mContact)
-            .commit()
+                .add(R.id.network_container, mContact)
+                .commit()
 
         network_contact.onClick {
             if (selectedPosition == 1) onBackPressed()
@@ -89,33 +98,33 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
         network_talk.onClick {
             if (selectedPosition == 0) {
                 supportFragmentManager.beginTransaction()
-                    .setCustomAnimations(
-                        R.anim.push_left_in,
-                        R.anim.push_left_out,
-                        R.anim.push_right_in,
-                        R.anim.push_right_out
-                    )
-                    .add(R.id.network_container, TalkFragment())
-                    .hide(mContact)
-                    .addToBackStack(null)
-                    .commit()
+                        .setCustomAnimations(
+                                R.anim.push_left_in,
+                                R.anim.push_left_out,
+                                R.anim.push_right_in,
+                                R.anim.push_right_out
+                        )
+                        .add(R.id.network_container, TalkFragment())
+                        .hide(mContact)
+                        .addToBackStack(null)
+                        .commit()
             }
         }
     }
 
     override fun getData() {
         OkGo.post<String>(BaseHttp.system_set)
-            .tag(this@NetworkActivity)
-            .headers("token", getString("token"))
-            .execute(object : StringDialogCallback(baseContext, false) {
+                .tag(this@NetworkActivity)
+                .headers("token", getString("token"))
+                .execute(object : StringDialogCallback(baseContext, false) {
 
-                override fun onSuccessResponse(response: Response<String>, msg: String, msgCode: String) {
+                    override fun onSuccessResponse(response: Response<String>, msg: String, msgCode: String) {
 
-                    val obj = JSONObject(response.body()).optJSONObject("object")
-                    putString("residueTime", obj.optString("residueTime"))
-                }
+                        val obj = JSONObject(response.body()).optJSONObject("object")
+                        putString("residueTime", obj.optString("residueTime"))
+                    }
 
-            })
+                })
     }
 
     override fun onViewClick(name: String) = onBackPressed()
@@ -137,8 +146,8 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
     @Subscribe
     fun onMessageEvent(event: RefreshMessageEvent) {
         when (event.type) {
-            "遥控器连接" -> network_disconnect.invisible()
-            "遥控器断开" -> network_disconnect.visible()
+//            "遥控器连接" -> network_disconnect.invisible()
+//            "遥控器断开" -> network_disconnect.visible()
         }
     }
 
