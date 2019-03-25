@@ -74,7 +74,7 @@ class DeviceRemoteActivity : BaseActivity() {
             remote_search.gone()
             remote_load.gone()
             showLoadingDialog("获取数据中...")
-            remote_name.text = Const.BleName + "(点击切换)"
+            remote_name.text = Const.BleName
             sendDataByBle("FF01050700")
         } else {
             remote_search.text = "点击搜索"
@@ -91,29 +91,48 @@ class DeviceRemoteActivity : BaseActivity() {
                     bleConnectUtil.stopScan()
                     remote_search.text = "点击搜索"
                     remote_load.gone()
-                    if (!bleConnectUtil.isConnected) {
-                        toast("搜索完毕")
-                    }
                 }, 10 * 1000)
             }
         }
 
         remote_name.onClick {
             DialogHelper.showHintDialog(
-                    this,
-                    "提示",
-                    "是否断开链接当前BLE设备",
-                    "取消",
-                    "确定",
-                    false
+                this,
+                "提示",
+                "是否断开链接当前BLE设备",
+                "取消",
+                "确定",
+                false
             ) { hint ->
                 if (hint == "yes") {
+                    remote_search.text="点击搜索"
+                    remote_load.visible()
+
                     remote_search.visible()
                     remote_result.gone()
                     remote_power.gone()
                     remote_list.visible()
 
                     bleConnectUtil.disConnect()
+
+
+                    remote_search.onClick {
+                        remote_search.text = "搜索中..."
+                        remote_load.visible()
+
+                        listDevice.clear()
+                        listSS.clear()
+                        mAdapter.updateData(listDevice)
+                        searchBleDevice()
+
+                        handler.postDelayed({
+                            bleConnectUtil.stopScan()
+                            remote_search.text = "点击搜索"
+                            remote_load.gone()
+                        }, 10 * 1000)
+                    }
+
+
                 }
             }
         }
@@ -135,19 +154,19 @@ class DeviceRemoteActivity : BaseActivity() {
 
         remote_list.load_Linear(baseContext)
         mAdapter = SlimAdapter.create()
-                .register<BluetoothDevice>(R.layout.item_device_list) { data, injector ->
+            .register<BluetoothDevice>(R.layout.item_device_list) { data, injector ->
 
-                    injector.text(R.id.item_device_name, data.name)
-                            .text(R.id.item_device_power, listSS[listDevice.indexOf(data)])
-                            .gone(R.id.item_device_check)
-                            .clicked(R.id.item_device) {
-                                bleConnectUtil.stopScan()
-                                mPosition = listDevice.indexOf(data)
-                                showLoadingDialog("正在连接...")
-                                bleConnectUtil.connectBle(data)
-                            }
-                }
-                .attachTo(remote_list)
+                injector.text(R.id.item_device_name, data.name)
+                    .text(R.id.item_device_power, listSS[listDevice.indexOf(data)].toString())
+                    .gone(R.id.item_device_check)
+                    .clicked(R.id.item_device) {
+                        bleConnectUtil.stopScan()
+                        mPosition = listDevice.indexOf(data)
+                        showLoadingDialog("正在连接...")
+                        bleConnectUtil.connectBle(data)
+                    }
+            }
+            .attachTo(remote_list)
     }
 
     private fun searchBleDevice() {
@@ -207,7 +226,7 @@ class DeviceRemoteActivity : BaseActivity() {
                         shortOrder[0] = currentSendAllOrder.substring(finalI, finalI + 40)
                     } else {
                         shortOrder[0] =
-                                currentSendAllOrder.substring(finalI, currentSendAllOrder.length)
+                            currentSendAllOrder.substring(finalI, currentSendAllOrder.length)
                     }
 
                     sData = CheckUtils.hex2byte(shortOrder[0])
@@ -247,7 +266,7 @@ class DeviceRemoteActivity : BaseActivity() {
                     bleConnectUtil.stopScan()
 
                     try {
-                        remote_name.text = listDevice[mPosition].name + "(点击切换" + ")"
+                        remote_name.text = listDevice[mPosition].name
                         Const.BleAddress = listDevice[mPosition].address
                         Const.BleName = listDevice[mPosition].name
                         listDevice.clear()

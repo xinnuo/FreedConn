@@ -284,7 +284,7 @@ class NetworkChatActivity : BaseActivity() {
                                 if (isTalkModeOn) {
                                     chatMode = TeamState.CHAT_TALK
                                     chat_ptt.setImageResource(R.mipmap.icon35)
-                                    if (accountsOnline.size > 1) chat_ptt.visible()
+                                    if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
                                     if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
                                     if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
                                     checkFreedconn()
@@ -345,7 +345,7 @@ class NetworkChatActivity : BaseActivity() {
                                 if (isGroupModeOn) {
                                     chatMode = TeamState.CHAT_GROUP
                                     chat_ptt.setImageResource(R.mipmap.icon35)
-                                    if (accountsOnline.size > 1) chat_ptt.visible()
+                                    if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
                                     if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
                                     if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
                                     checkFreedconn()
@@ -422,7 +422,7 @@ class NetworkChatActivity : BaseActivity() {
                                 if (isFirst && accountsOnline.size > 1) View.VISIBLE
                                 else View.INVISIBLE
                         } else {
-                            if (accountsOnline.size > 1) chat_ptt.visible()
+                            if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
                         }
                     } else {
                         chat_mic.setImageResource(R.mipmap.icon28)
@@ -596,6 +596,11 @@ class NetworkChatActivity : BaseActivity() {
                     val imgs = list.map { BaseHttp.baseImg + it.userHead }
                     chat_nine.setImagesData(imgs)
 
+                    list.forEach { inner ->
+                        inner.isOnline =
+                            accountsOnline.any { it == inner.mobile } && inner.talkbackStatus == "0"
+                    }
+
                     listShow.clear()
                     listShow.addAll(list.filter { it.master == "0" })
                     listShow.addAll(list.filter { it.priority == "0" })
@@ -616,13 +621,8 @@ class NetworkChatActivity : BaseActivity() {
                         listShow.add(CommonData().apply { imgFlag = "0" })
                     listShow.add(CommonData().apply { imgFlag = "1" })
 
-                    listShow.forEach { inner ->
-                        inner.isOnline =
-                            accountsOnline.any { it == inner.mobile } && inner.talkbackStatus == "0"
-                    }
-
                     chat_number.text =
-                        getString(R.string.network_chat_num) + "${listShow.filter { it.isOnline }.size}人"
+                        getString(R.string.network_chat_num) + "${list.filter { it.isOnline }.size}人"
                     mAdapter.updateData(listShow)
 
                     if (event != null) event()
@@ -786,7 +786,7 @@ class NetworkChatActivity : BaseActivity() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    if (accountsOnline.size > 1) {
+                    if (list.filter { it.isOnline }.size > 1) {
                         OkGo.post<String>(BaseHttp.update_residueTime)
                             .tag(this@NetworkChatActivity)
                             .headers("token", getString("token"))
@@ -1677,7 +1677,7 @@ class NetworkChatActivity : BaseActivity() {
 
                     if (priority == "1" && priorityInner == "0") {
                         when (chatMode) {
-                            TeamState.CHAT_GROUP -> if (accountsOnline.size > 1) chat_ptt.visible()
+                            TeamState.CHAT_GROUP -> if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
                             TeamState.CHAT_NONE -> {
                                 setAdminEnable(true)
                                 setMuteAll(false)
