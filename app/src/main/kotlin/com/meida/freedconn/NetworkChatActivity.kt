@@ -724,7 +724,7 @@ class NetworkChatActivity : BaseActivity() {
                             chat_voice.setImageResource(R.mipmap.icon29)
                             chat_ptt.invisible()
 
-                            chat_hint.text = " "
+                            chat_hint.text = "管理员未开启对讲模式"
                             chat_talk.setBackgroundResource(R.mipmap.btn07)
                             @Suppress("DEPRECATION")
                             chat_talk.setTextColor(resources.getColor(R.color.light))
@@ -1181,7 +1181,7 @@ class NetworkChatActivity : BaseActivity() {
                     TeamState.CHAT_NONE -> {
                         setTalkMode(false)  //关闭对讲模式
                         setGroupMode(false) //关闭群聊模式
-                        chat_hint.text = " "
+                        chat_hint.text = "管理员未开启对讲模式"
                     }
                 }
 
@@ -1192,7 +1192,7 @@ class NetworkChatActivity : BaseActivity() {
                 chat_hint.text = when (chatMode) {
                     TeamState.CHAT_TALK -> getString(R.string.network_chat_hint1)
                     TeamState.CHAT_GROUP -> getString(R.string.network_chat_hint2)
-                    else -> " "
+                    else -> "管理员未开启对讲模式"
                 }
 
                 AVChatManager.getInstance().muteLocalAudio(true)
@@ -1249,7 +1249,7 @@ class NetworkChatActivity : BaseActivity() {
                 chat_voice.setImageResource(R.mipmap.icon29)
                 chat_ptt.invisible()
 
-                chat_hint.text = " "
+                chat_hint.text = "管理员未开启对讲模式"
                 chat_talk.setBackgroundResource(R.mipmap.btn07)
                 chat_talk.setTextColor(resources.getColor(R.color.light))
 
@@ -1649,7 +1649,7 @@ class NetworkChatActivity : BaseActivity() {
                                 setTalkMode(false)  //关闭对讲模式
                                 setGroupMode(false) //关闭群聊模式
                                 setVoiceLine(false) //关闭波浪线
-                                chat_hint.text = " "
+                                chat_hint.text = "管理员未开启对讲模式"
                                 chat_ptt.setImageResource(R.mipmap.icon34)
                                 chat_mic.setImageResource(R.mipmap.icon28)
                                 chat_voice.setImageResource(R.mipmap.icon29)
