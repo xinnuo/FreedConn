@@ -28,6 +28,15 @@
             android:lineSpacingExtra="@dimen/dimen_size_3"
             android:maxLines="2" />
 
+        <TextView
+            android:id="@+id/item_device_power"
+            style="@style/Font15_white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_size_15"
+            android:layout_marginEnd="@dimen/dimen_size_35"
+            android:maxLines="1" />
+
         <CheckBox
             android:id="@+id/item_device_check"
             android:layout_width="@dimen/dimen_size_30"

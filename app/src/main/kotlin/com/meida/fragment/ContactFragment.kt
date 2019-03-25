@@ -49,8 +49,8 @@ class ContactFragment : BaseFragment() {
     private var keyWord = ""
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_contact, container, false)
     }
@@ -97,47 +97,47 @@ class ContactFragment : BaseFragment() {
                             val chatName = TeamAVChatProfile.sharedInstance().teamAVChatName
                             when {
                                 chatId == list[it].clusterId -> AVChatKit.outgoingTeamCall(
-                                    activity,
-                                    list[it].clusterId
+                                        activity,
+                                        list[it].clusterId
                                 )
                                 TeamAVChatProfile.sharedInstance().isTeamAVEnable -> DialogHelper.showHintDialog(
-                                    activity,
-                                    "加入群聊",
-                                    "${chatName}群正在对讲中，是否结束该的对讲",
-                                    "取消",
-                                    "确定",
-                                    false
+                                        activity,
+                                        "加入群聊",
+                                        "${chatName}群正在对讲中，是否结束该的对讲",
+                                        "取消",
+                                        "确定",
+                                        false
                                 ) { hint ->
                                     if (hint == "yes") {
                                         ActivityStack.screenManager.popActivities(
-                                            NetworkChatActivity::class.java
+                                                NetworkChatActivity::class.java
                                         )
 
                                         Completable.timer(500, TimeUnit.MILLISECONDS)
-                                            .subscribeOn(Schedulers.io())
-                                            .subscribe {
-                                                if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
-                                                    AVChatKit.outgoingTeamCall(
-                                                        activity,
-                                                        list[it].clusterId
-                                                    )
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe {
+                                                    if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                                                        AVChatKit.outgoingTeamCall(
+                                                                activity,
+                                                                list[it].clusterId
+                                                        )
+                                                    }
                                                 }
-                                            }
                                     }
                                 }
                                 else -> {
                                     ActivityStack.screenManager.popActivities(NetworkChatActivity::class.java)
 
                                     Completable.timer(500, TimeUnit.MILLISECONDS)
-                                        .subscribeOn(Schedulers.io())
-                                        .subscribe {
-                                            if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
-                                                AVChatKit.outgoingTeamCall(
-                                                    activity,
-                                                    list[it].clusterId
-                                                )
+                                            .subscribeOn(Schedulers.io())
+                                            .subscribe {
+                                                if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                                                    AVChatKit.outgoingTeamCall(
+                                                            activity,
+                                                            list[it].clusterId
+                                                    )
+                                                }
                                             }
-                                        }
                                 }
                             }
                         } else
@@ -149,31 +149,30 @@ class ContactFragment : BaseFragment() {
             setOnItemDeleteClickListener { index ->
                 if (list[index].clusterId.isEmpty()) {
                     OkGo.post<String>(BaseHttp.del_friend)
-                        .tag(this@ContactFragment)
-                        .headers("token", getString("token"))
-                        .params("friendId", list[index].friendId)
-                        .execute(object : StringDialogCallback(activity) {
+                            .tag(this@ContactFragment)
+                            .headers("token", getString("token"))
+                            .params("friendId", list[index].friendId)
+                            .execute(object : StringDialogCallback(activity) {
 
-                            override fun onSuccessResponse(
-                                response: Response<String>,
-                                msg: String,
-                                msgCode: String
-                            ) {
-                                toast(msg)
-                                TeamAVChatEx.onDelFriendSuccess(activity!!, list[index].mobile)
-                                list.removeAt(index)
-                                this@apply.updateData(list)
-                            }
+                                override fun onSuccessResponse(
+                                        response: Response<String>,
+                                        msg: String,
+                                        msgCode: String
+                                ) {
+                                    toast(msg)
+                                    TeamAVChatEx.onDelFriendSuccess(activity!!, list[index].mobile)
+                                    list.removeAt(index)
+                                    this@apply.updateData(list)
+                                }
 
-                        })
+                            })
                 } else {
-                    if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                    if (TeamAVChatProfile.sharedInstance().isTeamAVChatting
+                            && TeamAVChatProfile.sharedInstance().teamAVChatId == list[index].clusterId
+                    ) {
                         if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
-                            val chatId = TeamAVChatProfile.sharedInstance().teamAVChatId
-                            if (chatId == list[index].clusterId) {
-                                toast("正在网络对讲，无法操作")
-                                return@setOnItemDeleteClickListener
-                            }
+                            toast("正在网络对讲，无法操作")
+                            return@setOnItemDeleteClickListener
                         } else {
                             ActivityStack.screenManager.popActivities(NetworkChatActivity::class.java)
 
@@ -191,18 +190,18 @@ class ContactFragment : BaseFragment() {
                                         val item = datas.first { it.master == "0" }
                                         if (getString("token") == item.accountInfoId) {
                                             DialogHelper.showHintDialog(
-                                                activity,
-                                                "退出群聊",
-                                                "确定要退出并转让群主吗？",
-                                                "取消",
-                                                "确定",
-                                                false
+                                                    activity,
+                                                    "退出群聊",
+                                                    "确定要退出并转让群主吗？",
+                                                    "取消",
+                                                    "确定",
+                                                    false
                                             ) {
                                                 if (it == "yes") {
                                                     startActivity<NetworkHandleActivity>(
-                                                        "type" to "4",
-                                                        "position" to index.toString(),
-                                                        "list" to datas
+                                                            "type" to "4",
+                                                            "position" to index.toString(),
+                                                            "list" to datas
                                                     )
                                                 }
                                             }
@@ -229,18 +228,18 @@ class ContactFragment : BaseFragment() {
                                     val item = datas.first { it.master == "0" }
                                     if (getString("token") == item.accountInfoId) {
                                         DialogHelper.showHintDialog(
-                                            activity,
-                                            "退出群聊",
-                                            "确定要退出并转让群主吗？",
-                                            "取消",
-                                            "确定",
-                                            false
+                                                activity,
+                                                "退出群聊",
+                                                "确定要退出并转让群主吗？",
+                                                "取消",
+                                                "确定",
+                                                false
                                         ) {
                                             if (it == "yes") {
                                                 startActivity<NetworkHandleActivity>(
-                                                    "type" to "4",
-                                                    "position" to index.toString(),
-                                                    "list" to datas
+                                                        "type" to "4",
+                                                        "position" to index.toString(),
+                                                        "list" to datas
                                                 )
                                             }
                                         }
@@ -257,110 +256,110 @@ class ContactFragment : BaseFragment() {
         }
         //查找适配器
         mAdapter = SlimAdapter.create()
-            .register<CommonData>(R.layout.item_contact_check_list) { data, injector ->
+                .register<CommonData>(R.layout.item_contact_check_list) { data, injector ->
 
-                val index = list.indexOf(data)
+                    val index = list.indexOf(data)
 
-                injector.text(
-                    R.id.item_check_name,
-                    if (data.clusterId.isEmpty()) data.userName else data.clusterName
-                )
-                    .text(
-                        R.id.item_check_add,
-                        getString(if (data.clusterId.isEmpty()) R.string.network_check_add else R.string.network_check_join)
+                    injector.text(
+                            R.id.item_check_name,
+                            if (data.clusterId.isEmpty()) data.userName else data.clusterName
                     )
-                    .visibility(
-                        R.id.item_check_add,
-                        if (data.accountInfoId == getString("token")
-                            || data.whetherCluster == "1"
-                            || data.friend == "1"
-                        ) View.GONE else View.VISIBLE
-                    )
+                            .text(
+                                    R.id.item_check_add,
+                                    getString(if (data.clusterId.isEmpty()) R.string.network_check_add else R.string.network_check_join)
+                            )
+                            .visibility(
+                                    R.id.item_check_add,
+                                    if (data.accountInfoId == getString("token")
+                                            || data.whetherCluster == "1"
+                                            || data.friend == "1"
+                                    ) View.GONE else View.VISIBLE
+                            )
 
-                    .with<LQRNineGridImageView<String>>(R.id.item_check_nine) { view ->
-                        view.setAdapter {
-                            onDisplayImage { _, imageView, url ->
-                                imageView.setImageURL(BaseHttp.baseImg + url)
-                            }
-                        }
-                        if (data.clusterId.isEmpty()) view.setImagesData(listOf(data.userHead))
-                        else {
-                            val items = ArrayList<CommonData>()
-                            val imgs = ArrayList<String>()
-                            items.addItems(data.clusterMembers)
-                            items.mapTo(imgs) { it.userHead }
-                            view.setImagesData(imgs)
-                        }
-                    }
-
-                    .with<ExpandableLayout>(R.id.item_check_expand) {
-                        if (data.isExpanded) it.expand()
-                        else it.collapse()
-                    }
-
-                    .with<EditText>(R.id.item_check_code) {
-
-                        if (it.tag != null && it.tag is TextWatcher) {
-                            it.removeTextChangedListener(it.tag as TextWatcher)
-                        }
-
-                        it.setText(data.commandLocal)
-                        it.setSelection(it.text.length)
-
-                        val textWatcher = object : _TextWatcher() {
-                            override fun afterTextChanged(s: Editable) {
-                                data.commandLocal = s.toString()
-                            }
-                        }
-
-                        it.addTextChangedListener(textWatcher)
-                        it.tag = textWatcher
-                    }
-
-                    .clicked(R.id.item_check_add) {
-                        if (data.clusterId.isEmpty()) getAppendData(data.accountInfoId, data.mobile)
-                        else {
-                            data.isExpanded = !data.isExpanded
-                            data.commandLocal = ""
-                            mAdapter.notifyItemChanged(index)
-                        }
-                    }
-
-                    .clicked(R.id.item_check_join) { _ ->
-                        if (data.command.isNotEmpty() && data.command != data.commandLocal) {
-                            toast(getString(R.string.network_chat_error_code))
-                            return@clicked
-                        }
-
-                        OkGo.post<String>(BaseHttp.jion_cluster)
-                            .tag(this@ContactFragment)
-                            .headers("token", getString("token"))
-                            .params("clusterId", data.clusterId)
-                            .params("command", data.commandLocal)
-                            .execute(object : StringDialogCallback(activity) {
-
-                                override fun onSuccessResponse(
-                                    response: Response<String>,
-                                    msg: String,
-                                    msgCode: String
-                                ) {
-                                    toast(msg)
-
+                            .with<LQRNineGridImageView<String>>(R.id.item_check_nine) { view ->
+                                view.setAdapter {
+                                    onDisplayImage { _, imageView, url ->
+                                        imageView.setImageURL(BaseHttp.baseImg + url)
+                                    }
+                                }
+                                if (data.clusterId.isEmpty()) view.setImagesData(listOf(data.userHead))
+                                else {
                                     val items = ArrayList<CommonData>()
-                                    val accounts = ArrayList<String>()
+                                    val imgs = ArrayList<String>()
                                     items.addItems(data.clusterMembers)
-                                    items.mapTo(accounts) { it.mobile }
-                                    TeamAVChatEx.onJoinRoomSuccess(
-                                        activity!!,
-                                        data.clusterId,
-                                        accounts
-                                    )
-                                    contact_close.performClick()
+                                    items.mapTo(imgs) { it.userHead }
+                                    view.setImagesData(imgs)
+                                }
+                            }
+
+                            .with<ExpandableLayout>(R.id.item_check_expand) {
+                                if (data.isExpanded) it.expand()
+                                else it.collapse()
+                            }
+
+                            .with<EditText>(R.id.item_check_code) {
+
+                                if (it.tag != null && it.tag is TextWatcher) {
+                                    it.removeTextChangedListener(it.tag as TextWatcher)
                                 }
 
-                            })
-                    }
-            }
+                                it.setText(data.commandLocal)
+                                it.setSelection(it.text.length)
+
+                                val textWatcher = object : _TextWatcher() {
+                                    override fun afterTextChanged(s: Editable) {
+                                        data.commandLocal = s.toString()
+                                    }
+                                }
+
+                                it.addTextChangedListener(textWatcher)
+                                it.tag = textWatcher
+                            }
+
+                            .clicked(R.id.item_check_add) {
+                                if (data.clusterId.isEmpty()) getAppendData(data.accountInfoId, data.mobile)
+                                else {
+                                    data.isExpanded = !data.isExpanded
+                                    data.commandLocal = ""
+                                    mAdapter.notifyItemChanged(index)
+                                }
+                            }
+
+                            .clicked(R.id.item_check_join) { _ ->
+                                if (data.command.isNotEmpty() && data.command != data.commandLocal) {
+                                    toast(getString(R.string.network_chat_error_code))
+                                    return@clicked
+                                }
+
+                                OkGo.post<String>(BaseHttp.jion_cluster)
+                                        .tag(this@ContactFragment)
+                                        .headers("token", getString("token"))
+                                        .params("clusterId", data.clusterId)
+                                        .params("command", data.commandLocal)
+                                        .execute(object : StringDialogCallback(activity) {
+
+                                            override fun onSuccessResponse(
+                                                    response: Response<String>,
+                                                    msg: String,
+                                                    msgCode: String
+                                            ) {
+                                                toast(msg)
+
+                                                val items = ArrayList<CommonData>()
+                                                val accounts = ArrayList<String>()
+                                                items.addItems(data.clusterMembers)
+                                                items.mapTo(accounts) { it.mobile }
+                                                TeamAVChatEx.onJoinRoomSuccess(
+                                                        activity!!,
+                                                        data.clusterId,
+                                                        accounts
+                                                )
+                                                contact_close.performClick()
+                                            }
+
+                                        })
+                            }
+                }
 
         contact_edit.addTextChangedListener(this@ContactFragment)
         contact_edit.setOnEditorActionListener { _, actionId, _ ->
@@ -383,147 +382,147 @@ class ContactFragment : BaseFragment() {
 
     override fun getData() {
         OkGo.post<BaseResponse<CommonModel>>(BaseHttp.phoneBook_list)
-            .tag(this@ContactFragment)
-            .headers("token", getString("token"))
-            .execute(object : JacksonDialogCallback<BaseResponse<CommonModel>>(activity) {
+                .tag(this@ContactFragment)
+                .headers("token", getString("token"))
+                .execute(object : JacksonDialogCallback<BaseResponse<CommonModel>>(activity) {
 
-                override fun onSuccess(response: Response<BaseResponse<CommonModel>>) {
+                    override fun onSuccess(response: Response<BaseResponse<CommonModel>>) {
 
-                    list.apply {
-                        clear()
-                        add(msgData)
-                        addItems(response.body().`object`.clusters)
-                        addItems(response.body().`object`.friends)
-                    }
-
-                    if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
-                        val teamId = TeamAVChatProfile.sharedInstance().teamAVChatId
-                        val index = list.indexOfFirst { it.clusterId == teamId }
-                        if (index > 0) {
-                            val item = list[index]
-                            item.isTalking = true
-                            list.removeAt(index)
-                            list.add(1, item)
+                        list.apply {
+                            clear()
+                            add(msgData)
+                            addItems(response.body().`object`.clusters)
+                            addItems(response.body().`object`.friends)
                         }
+
+                        if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                            val teamId = TeamAVChatProfile.sharedInstance().teamAVChatId
+                            val index = list.indexOfFirst { it.clusterId == teamId }
+                            if (index > 0) {
+                                val item = list[index]
+                                item.isTalking = true
+                                list.removeAt(index)
+                                list.add(1, item)
+                            }
+                        }
+
+                        mListAdapter.updateData(list)
+                        recycle_list.adapter = mListAdapter
+                        getMessageCount()
                     }
 
-                    mListAdapter.updateData(list)
-                    recycle_list.adapter = mListAdapter
-                    getMessageCount()
-                }
+                    override fun onFinish() {
+                        super.onFinish()
+                        swipe_refresh.isRefreshing = false
+                    }
 
-                override fun onFinish() {
-                    super.onFinish()
-                    swipe_refresh.isRefreshing = false
-                }
-
-            })
+                })
     }
 
     private fun getSearchData() {
         OkGo.post<BaseResponse<CommonModel>>(BaseHttp.cluster_list)
-            .tag(this@ContactFragment)
-            .isMultipart(true)
-            .headers("token", getString("token"))
-            .params("parama", keyWord)
-            .execute(object : JacksonDialogCallback<BaseResponse<CommonModel>>(activity) {
+                .tag(this@ContactFragment)
+                .isMultipart(true)
+                .headers("token", getString("token"))
+                .params("parama", keyWord)
+                .execute(object : JacksonDialogCallback<BaseResponse<CommonModel>>(activity) {
 
-                override fun onSuccess(response: Response<BaseResponse<CommonModel>>) {
+                    override fun onSuccess(response: Response<BaseResponse<CommonModel>>) {
 
-                    list.apply {
-                        clear()
-                        addItems(response.body().`object`.clusters)
-                        addItems(response.body().`object`.friends)
+                        list.apply {
+                            clear()
+                            addItems(response.body().`object`.clusters)
+                            addItems(response.body().`object`.friends)
+                        }
+
+                        mAdapter.attachTo(recycle_list)
+                        mAdapter.updateData(list)
                     }
 
-                    mAdapter.attachTo(recycle_list)
-                    mAdapter.updateData(list)
-                }
+                    override fun onFinish() {
+                        super.onFinish()
+                        swipe_refresh.isRefreshing = false
 
-                override fun onFinish() {
-                    super.onFinish()
-                    swipe_refresh.isRefreshing = false
+                        empty_view.apply { if (list.isEmpty()) visible() else gone() }
+                    }
 
-                    empty_view.apply { if (list.isEmpty()) visible() else gone() }
-                }
-
-            })
+                })
     }
 
     private fun getQuitData(index: Int, userId: String = "") {
         OkGo.post<String>(BaseHttp.quit_cluster)
-            .tag(this@ContactFragment)
-            .headers("token", getString("token"))
-            .params("clusterId", list[index].clusterId)
-            .params("accountInfoId", userId)
-            .execute(object : StringDialogCallback(activity) {
+                .tag(this@ContactFragment)
+                .headers("token", getString("token"))
+                .params("clusterId", list[index].clusterId)
+                .params("accountInfoId", userId)
+                .execute(object : StringDialogCallback(activity) {
 
-                override fun onSuccessResponse(
-                    response: Response<String>,
-                    msg: String,
-                    msgCode: String
-                ) {
-                    toast(msg)
-                    val items = ArrayList<CommonData>()
-                    val accounts = ArrayList<String>()
-                    val inner = list.removeAt(index)
-                    items.addItems(inner.clusterMembers)
-                    items.filter { it.accountInfoId != getString("token") }
-                        .mapTo(accounts) { it.mobile }
-                    TeamAVChatEx.onQuitRoomSuccess(
-                        activity!!,
-                        inner.clusterId,
-                        accounts
-                    )
+                    override fun onSuccessResponse(
+                            response: Response<String>,
+                            msg: String,
+                            msgCode: String
+                    ) {
+                        toast(msg)
+                        val items = ArrayList<CommonData>()
+                        val accounts = ArrayList<String>()
+                        val inner = list.removeAt(index)
+                        items.addItems(inner.clusterMembers)
+                        items.filter { it.accountInfoId != getString("token") }
+                                .mapTo(accounts) { it.mobile }
+                        TeamAVChatEx.onQuitRoomSuccess(
+                                activity!!,
+                                inner.clusterId,
+                                accounts
+                        )
 
-                    mListAdapter.updateData(list)
-                }
+                        mListAdapter.updateData(list)
+                    }
 
-            })
+                })
     }
 
     private fun getMessageCount() {
         OkGo.post<BaseResponse<ArrayList<CommonData>>>(BaseHttp.friend_request_list)
-            .tag(this@ContactFragment)
-            .headers("token", getString("token"))
-            .execute(object :
-                JacksonDialogCallback<BaseResponse<ArrayList<CommonData>>>(activity) {
+                .tag(this@ContactFragment)
+                .headers("token", getString("token"))
+                .execute(object :
+                        JacksonDialogCallback<BaseResponse<ArrayList<CommonData>>>(activity) {
 
-                override fun onSuccess(response: Response<BaseResponse<ArrayList<CommonData>>>) {
+                    override fun onSuccess(response: Response<BaseResponse<ArrayList<CommonData>>>) {
 
-                    val items = ArrayList<CommonData>()
-                    items.apply {
-                        clear()
-                        addItems(response.body().`object`)
+                        val items = ArrayList<CommonData>()
+                        items.apply {
+                            clear()
+                            addItems(response.body().`object`)
+                        }
+
+                        msgData.requtsetCount = items.filter { it.status == "0" }.size.toString()
+                        if (recycle_list.adapter is ContactAdapter) {
+                            mListAdapter.notifyItemChanged(0)
+                        }
                     }
 
-                    msgData.requtsetCount = items.filter { it.status == "0" }.size.toString()
-                    if (recycle_list.adapter is ContactAdapter) {
-                        mListAdapter.notifyItemChanged(0)
-                    }
-                }
-
-            })
+                })
     }
 
     private fun getAppendData(accountId: String, account: String) {
         OkGo.post<String>(BaseHttp.add_friend_request)
-            .tag(this@ContactFragment)
-            .headers("token", getString("token"))
-            .params("friendId", accountId)
-            .execute(object : StringDialogCallback(activity) {
+                .tag(this@ContactFragment)
+                .headers("token", getString("token"))
+                .params("friendId", accountId)
+                .execute(object : StringDialogCallback(activity) {
 
-                override fun onSuccessResponse(
-                    response: Response<String>,
-                    msg: String,
-                    msgCode: String
-                ) {
-                    toast(msg)
-                    TeamAVChatEx.onAddFriendSuccess(activity!!, account)
-                    contact_close.performClick()
-                }
+                    override fun onSuccessResponse(
+                            response: Response<String>,
+                            msg: String,
+                            msgCode: String
+                    ) {
+                        toast(msg)
+                        TeamAVChatEx.onAddFriendSuccess(activity!!, account)
+                        contact_close.performClick()
+                    }
 
-            })
+                })
     }
 
     private fun updateListData() {

@@ -50,6 +50,7 @@ class GuideActivity : AppCompatActivity() {
         ActivityStack.screenManager.pushActivity(this@GuideActivity)
 
         window.decorView.postDelayed({ handler.sendEmptyMessage(0) }, 2000)
+        handler.sendEmptyMessage(0)
 
         AndPermission.with(this@GuideActivity)
             .permission(
@@ -67,12 +68,12 @@ class GuideActivity : AppCompatActivity() {
             )
             .callback(object : PermissionListener {
                 override fun onSucceed(requestCode: Int, grantPermissions: MutableList<String>) {
-                    handler.sendEmptyMessage(0)
+                    // handler.sendEmptyMessage(0)
                 }
 
                 override fun onFailed(requestCode: Int, deniedPermissions: MutableList<String>) {
                     toast(getString(R.string.permission_denied))
-                    onBackPressed()
+                    // onBackPressed()
                 }
             }).start()
     }

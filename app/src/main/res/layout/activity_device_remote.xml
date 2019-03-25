@@ -19,6 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center"
             android:text="搜索中......" />
 
         <LinearLayout
@@ -41,6 +42,14 @@
                 android:layout_height="wrap_content" />
 
         </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/remote_load"
+            android:layout_width="@dimen/dimen_size_20"
+            android:layout_height="@dimen/dimen_size_20"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/dimen_size_50"
+            android:visibility="gone" />
 
     </FrameLayout>
 

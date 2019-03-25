@@ -58,6 +58,7 @@ import org.jetbrains.anko.collections.forEachWithIndex
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.sdk25.listeners.onTouch
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 import java.util.concurrent.TimeUnit
 
 class NetworkChatActivity : BaseActivity() {
@@ -1212,8 +1213,8 @@ class NetworkChatActivity : BaseActivity() {
                 forceVoiceToBluetooth()
                 updateOnlineData()
 
-                sendAdminCommand()
-                checkAdminCommand()
+                // sendAdminCommand()
+                // checkAdminCommand()
             }
             onFailed {
                 showToast(getString(R.string.network_chat_error_join))
@@ -1272,6 +1273,8 @@ class NetworkChatActivity : BaseActivity() {
                     setLocalMicMute(false)
                     setLocalAudioMute(false)
                     setVoiceLine(false)
+                } else {
+                    toast("管理员未开启对讲模式")
                 }
             }
             TeamState.NOTIFY_CUSTOM_TALK -> {
@@ -1743,8 +1746,5 @@ class NetworkChatActivity : BaseActivity() {
             })
         }
     }
-
-
-
 
 }

@@ -7,10 +7,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import com.meida.base.*
-import com.meida.ble.*
+import com.meida.ble.BleConnectUtil
 import com.meida.ble.BleConnectUtil.getInstance
 import com.meida.ble.BleConnectUtil.mBluetoothGattCharacteristic
+import com.meida.ble.CheckUtils
+import com.meida.ble.Constants
+import com.meida.ble.EventMsg
 import com.meida.share.Const
+import com.meida.utils.DialogHelper
 import com.meida.utils.toNotDouble
 import kotlinx.android.synthetic.main.activity_device_remote.*
 import net.idik.lib.slimadapter.SlimAdapter
@@ -68,6 +72,7 @@ class DeviceRemoteActivity : BaseActivity() {
             remote_power.visible()
             remote_list.gone()
             remote_search.gone()
+            remote_load.gone()
             showLoadingDialog("获取数据中...")
             remote_name.text = Const.BleName + "(点击切换)"
             sendDataByBle("FF01050700")
@@ -75,13 +80,42 @@ class DeviceRemoteActivity : BaseActivity() {
             remote_search.text = "点击搜索"
             remote_search.onClick {
                 remote_search.text = "搜索中..."
+                remote_load.visible()
+
+                listDevice.clear()
+                listSS.clear()
+                mAdapter.updateData(listDevice)
                 searchBleDevice()
+
+                handler.postDelayed({
+                    bleConnectUtil.stopScan()
+                    remote_search.text = "点击搜索"
+                    remote_load.gone()
+                    if (!bleConnectUtil.isConnected) {
+                        toast("搜索完毕")
+                    }
+                }, 10 * 1000)
             }
         }
 
         remote_name.onClick {
-            bleConnectUtil.disConnect()
-            finish()
+            DialogHelper.showHintDialog(
+                    this,
+                    "提示",
+                    "是否断开链接当前BLE设备",
+                    "取消",
+                    "确定",
+                    false
+            ) { hint ->
+                if (hint == "yes") {
+                    remote_search.visible()
+                    remote_result.gone()
+                    remote_power.gone()
+                    remote_list.visible()
+
+                    bleConnectUtil.disConnect()
+                }
+            }
         }
     }
 
@@ -103,7 +137,8 @@ class DeviceRemoteActivity : BaseActivity() {
         mAdapter = SlimAdapter.create()
                 .register<BluetoothDevice>(R.layout.item_device_list) { data, injector ->
 
-                    injector.text(R.id.item_device_name, data.name + "（" + listSS[listDevice.indexOf(data)] + "）")
+                    injector.text(R.id.item_device_name, data.name)
+                            .text(R.id.item_device_power, listSS[listDevice.indexOf(data)])
                             .gone(R.id.item_device_check)
                             .clicked(R.id.item_device) {
                                 bleConnectUtil.stopScan()
@@ -132,6 +167,8 @@ class DeviceRemoteActivity : BaseActivity() {
      */
     private val checkConnetRunnable: Runnable = object : Runnable {
         override fun run() {
+
+
             if (!bleFlag) {
                 //没有在指定时间收到回复
                 if (regainBleDataCount > 2) {
@@ -199,14 +236,24 @@ class DeviceRemoteActivity : BaseActivity() {
 
                 if (bleConnectUtil.isConnected) {
                     remote_search.gone()
+                    remote_load.gone()
+
                     remote_result.visible()
                     remote_power.visible()
                     remote_list.gone()
+                    remote_search.text = "点击搜索"
+                    remote_load.gone()
+
+                    bleConnectUtil.stopScan()
 
                     try {
                         remote_name.text = listDevice[mPosition].name + "(点击切换" + ")"
                         Const.BleAddress = listDevice[mPosition].address
                         Const.BleName = listDevice[mPosition].name
+                        listDevice.clear()
+                        listSS.clear()
+
+                        mAdapter.updateData(listDevice)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
