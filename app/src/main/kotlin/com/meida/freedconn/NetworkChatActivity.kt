@@ -674,7 +674,7 @@ class NetworkChatActivity : BaseActivity() {
     /* 管理员在线指令 */
     private fun sendAdminCommand() {
         mCompositeDisposable.add(
-            Observable.interval(10, 10, TimeUnit.SECONDS)
+            Observable.interval(5, 5, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
@@ -690,12 +690,12 @@ class NetworkChatActivity : BaseActivity() {
     /* 成员在线指令判断 */
     private fun checkAdminCommand() {
         mCompositeDisposable.add(
-            Observable.interval(10, 10, TimeUnit.SECONDS)
+            Observable.interval(5, 5, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    if ((modeMaster.isNotEmpty() && modeMaster != getString("accid"))
-                        || (modeMaster.isEmpty() && chatMode != TeamState.CHAT_NONE)
+                    if (/*(modeMaster.isNotEmpty() && modeMaster != getString("accid"))
+                        || */(modeMaster.isEmpty() && chatMode != TeamState.CHAT_NONE)
                     ) {
                         mMemberCount++
 
@@ -915,7 +915,7 @@ class NetworkChatActivity : BaseActivity() {
                         }
                     }
 
-                    am.mode = AudioManager.MODE_NORMAL
+                    // am.mode = AudioManager.MODE_NORMAL
                 }
         )
     }
@@ -1213,8 +1213,8 @@ class NetworkChatActivity : BaseActivity() {
                 forceVoiceToBluetooth()
                 updateOnlineData()
 
-                // sendAdminCommand()
-                // checkAdminCommand()
+                sendAdminCommand()
+                checkAdminCommand()
             }
             onFailed {
                 showToast(getString(R.string.network_chat_error_join))
@@ -1390,6 +1390,7 @@ class NetworkChatActivity : BaseActivity() {
 
                 OkLogger.e("admin$mMemberCount")
             }
+            TeamState.NOTIFY_CUSTOM_ADMIN -> modeMaster = event.account
         }
     }
 
@@ -1421,6 +1422,14 @@ class NetworkChatActivity : BaseActivity() {
                 AVChatManager.getInstance().sendControlCommand(
                     chatId,
                     TeamState.NOTIFY_GRAB_HOLDING,
+                    null
+                )
+            }
+
+            if (modeMaster == getString("accid")) {
+                AVChatManager.getInstance().sendControlCommand(
+                    chatId,
+                    TeamState.NOTIFY_CUSTOM_ADMIN,
                     null
                 )
             }
