@@ -133,7 +133,10 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
         if (!supportFragmentManager.popBackStackImmediate()) {
             val isActive = ActivityStack.screenManager.isContainsActivity(NetworkChatActivity::class.java)
             if (isActive) {
-                ActivityStack.screenManager.popAllActivityExceptOne(MainActivity::class.java)
+                ActivityStack.screenManager.popAllActivityExcept(
+                    MainActivity::class.java,
+                    NetworkChatActivity::class.java
+                )
             } else super.onBackPressed()
         }
     }

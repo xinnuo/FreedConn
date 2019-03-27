@@ -26,6 +26,7 @@ import net.idik.lib.slimadapter.SlimAdapter
 import org.greenrobot.eventbus.EventBus
 import org.jetbrains.anko.include
 import org.jetbrains.anko.sdk25.listeners.onClick
+import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import java.util.concurrent.TimeUnit
 
@@ -292,6 +293,7 @@ class NetworkHandleActivity : BaseActivity() {
     override fun finish() {
         super.finish()
         mDisposable.clear()
+        if (type in "123") startActivity<NetworkChatActivity>()
     }
 
 }

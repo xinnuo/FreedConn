@@ -95,7 +95,11 @@ class NetworkChatActivity : BaseActivity() {
         setContentView(R.layout.activity_network_chat)
         init_title(getString(R.string.network_chat))
 
-        ActivityStack.screenManager.popActivities(NetworkActivity::class.java)
+        ActivityStack.screenManager.popActivities(
+            NetworkActivity::class.java,
+            NetworkHandleActivity::class.java,
+            NetworkNameActivity::class.java
+        )
         EventBus.getDefault().register(this@NetworkChatActivity)
 
         getInfoData {
@@ -104,9 +108,6 @@ class NetworkChatActivity : BaseActivity() {
     }
 
     override fun init_title() {
-
-        bleConnectUtil = BleConnectUtil.getInstance(baseContext)
-        bleConnectUtil.setCallback(this)
         super.init_title()
         chat_admin.gone()
         chat_level.gone()
@@ -114,10 +115,19 @@ class NetworkChatActivity : BaseActivity() {
         chat_curve.gone()
         chat_line.visible()
 
+        bleConnectUtil = BleConnectUtil.getInstance(baseContext)
+        bleConnectUtil.setCallback(this)
+
         roomName = intent.getStringExtra(KEY_ROOM) ?: ""
         initNotification()
         initListeners()
-        TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
+
+        TeamAVChatProfile.sharedInstance().apply {
+            isTeamAVChatting = false
+            teamAVChatId = ""
+            teamAVChatName = ""
+            isTeamAVEnable = false
+        }
 
         chat_nine.setAdapter {
             onDisplayImage { _, imageView, url ->

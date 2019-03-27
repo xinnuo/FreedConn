@@ -13,6 +13,7 @@ import com.meida.utils.ActivityStack
 import com.meida.utils.trimString
 import kotlinx.android.synthetic.main.activity_network_name.*
 import org.greenrobot.eventbus.EventBus
+import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 
 class NetworkNameActivity : BaseActivity() {
@@ -56,4 +57,10 @@ class NetworkNameActivity : BaseActivity() {
                 })
         }
     }
+
+    override fun finish() {
+        super.finish()
+        startActivity<NetworkChatActivity>()
+    }
+
 }

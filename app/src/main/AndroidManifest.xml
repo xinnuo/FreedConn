@@ -76,7 +76,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".NetworkChatActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait" />
         <activity
             android:name=".NetworkMessageActivity"

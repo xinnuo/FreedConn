@@ -40,6 +40,7 @@ import android.os.Build
 import com.lzy.okgo.utils.OkLogger
 import com.meida.ble.BleConnectUtil
 import com.meida.chatkit.TeamSoundPlayer
+import com.meida.utils.ActivityStack
 import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.PermissionListener
 import io.reactivex.disposables.CompositeDisposable
@@ -62,14 +63,6 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-
-        TeamAVChatProfile.sharedInstance().apply {
-            isTeamAVChatting = false
-            teamAVChatId = ""
-            teamAVChatName = ""
-            isTeamAVEnable = false
-        }
-
         main_check2.isChecked = bleConnectUtil.isConnected==true
     }
 
@@ -285,7 +278,10 @@ class MainActivity : BaseActivity() {
         if (System.currentTimeMillis() - exitTime > 2000) {
             toast(getString(R.string.quit))
             exitTime = System.currentTimeMillis()
-        } else super.onBackPressed()
+        } else {
+            ActivityStack.screenManager.popAllActivityExceptOne(MainActivity::class.java)
+            super.onBackPressed()
+        }
     }
 
     /** 注销广播 **/
