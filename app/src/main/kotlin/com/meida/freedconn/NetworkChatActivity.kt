@@ -419,7 +419,7 @@ class NetworkChatActivity : BaseActivity() {
                             val isFirst = accid == roomMaster || priority == "0"
 
                             chat_ptt.visibility =
-                                if (isFirst && accountsOnline.size > 1) View.VISIBLE
+                                if (isFirst && list.filter { it.isOnline }.size > 1) View.VISIBLE
                                 else View.INVISIBLE
                         } else {
                             if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
@@ -624,6 +624,24 @@ class NetworkChatActivity : BaseActivity() {
                     chat_number.text =
                         getString(R.string.network_chat_num) + "${list.filter { it.isOnline }.size}人"
                     mAdapter.updateData(listShow)
+
+                    if (chatMode != TeamState.CHAT_NONE) {
+                        if (chatMode == TeamState.CHAT_GROUP) {
+                            val accid = getString("accid")
+                            val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
+                            val isFirst = accid == roomMaster || priority == "0"
+
+                            chat_ptt.visibility =
+                                if (isFirst
+                                    && list.filter { it.isOnline }.size > 1
+                                    && list.filter { it.isOnline }.any { it.mobile == accid }) View.VISIBLE
+                                else View.INVISIBLE
+                        } else {
+                            if (list.filter { it.isOnline }.size > 1
+                                && list.filter { it.isOnline }.any { it.mobile == getString("accid") }
+                            ) chat_ptt.visible() else chat_ptt.invisible()
+                        }
+                    }
 
                     if (event != null) event()
                 }
@@ -851,6 +869,7 @@ class NetworkChatActivity : BaseActivity() {
                                                     am.isBluetoothScoOn = false
                                                     am.isSpeakerphoneOn = true
                                                     am.stopBluetoothSco()
+                                                    AVChatManager.getInstance().setSpeaker(true)
                                                 }
                                             }
                                         }
@@ -893,6 +912,7 @@ class NetworkChatActivity : BaseActivity() {
                                                     am.isBluetoothScoOn = false
                                                     am.isSpeakerphoneOn = true
                                                     am.stopBluetoothSco()
+                                                    AVChatManager.getInstance().setSpeaker(true)
                                                 }
                                             }
                                         }
@@ -951,7 +971,9 @@ class NetworkChatActivity : BaseActivity() {
             accid == roomMaster -> sendSuccessCommand()
             priority == "0" -> {
                 mDisposables.add(
-                    Completable.timer(500, TimeUnit.MILLISECONDS)
+                    Completable.timer(
+                        RandomLength.createRandomNumber(100, 1000).toLong(),
+                        TimeUnit.MILLISECONDS)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe {
@@ -962,7 +984,9 @@ class NetworkChatActivity : BaseActivity() {
             }
             else -> {
                 mDisposables.add(
-                    Completable.timer(1000, TimeUnit.MILLISECONDS)
+                    Completable.timer(
+                        RandomLength.createRandomNumber(1000, 2000).toLong(),
+                        TimeUnit.MILLISECONDS)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe {

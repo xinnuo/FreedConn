@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.*
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -35,10 +36,6 @@ import org.greenrobot.eventbus.EventBus
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import java.util.concurrent.TimeUnit
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkInfo
-import android.net.NetworkRequest
 import android.os.Build
 import com.lzy.okgo.utils.OkLogger
 import com.meida.ble.BleConnectUtil
@@ -244,6 +241,22 @@ class MainActivity : BaseActivity() {
                         OkLogger.i("网络丢失")
                         updateNetWork()
                     }
+
+                    override fun onCapabilitiesChanged(
+                        network: Network?,
+                        networkCapabilities: NetworkCapabilities?
+                    ) {
+                        OkLogger.i("网络功能更改")
+                        mDisposableNet.clear()
+                    }
+
+                    override fun onLinkPropertiesChanged(
+                        network: Network?,
+                        linkProperties: LinkProperties?
+                    ) {
+                        OkLogger.i("网络连接属性修改")
+                        mDisposableNet.clear()
+                    }
                 }
             )
         } else {
@@ -256,7 +269,7 @@ class MainActivity : BaseActivity() {
         if (mDisposableNet.size() > 0) mDisposableNet.clear()
 
         mDisposableNet.add(
-            Observable.interval(60, 60, TimeUnit.SECONDS)
+            Observable.interval(10, 10, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
