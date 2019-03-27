@@ -14,7 +14,6 @@ import android.provider.Settings
 import android.view.View
 import com.meida.base.BaseActivity
 import com.meida.base.getString
-import com.meida.chatkit.TeamAVChatProfile
 import com.meida.chatkit.getService
 import com.meida.chatkit.observeOnlineStatus
 import com.meida.model.RefreshMessageEvent
