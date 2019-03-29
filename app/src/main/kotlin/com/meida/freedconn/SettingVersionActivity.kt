@@ -6,7 +6,9 @@ import com.lzy.okgo.OkGo
 import com.lzy.okgo.callback.StringCallback
 import com.lzy.okgo.model.Response
 import com.meida.base.BaseActivity
+import com.meida.base.cancelLoadingDialog
 import com.meida.base.oneClick
+import com.meida.base.showLoadingDialog
 import com.meida.utils.Tools
 import kotlinx.android.synthetic.main.activity_setting_version.*
 import org.jetbrains.anko.toast
@@ -19,6 +21,7 @@ class SettingVersionActivity : BaseActivity() {
         setContentView(R.layout.activity_setting_version)
         init_title(getString(R.string.setting_version_title))
 
+        showLoadingDialog()
         getData()
     }
 
@@ -46,6 +49,11 @@ class SettingVersionActivity : BaseActivity() {
                     val buildVersion = obj.optString("buildVersion")
                     version_now.text = "v$buildVersion"
                     version_new.text = "v$buildVersion"
+                }
+
+                override fun onFinish() {
+                    super.onFinish()
+                    cancelLoadingDialog()
                 }
 
             })

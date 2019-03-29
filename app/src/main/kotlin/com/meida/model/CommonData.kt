@@ -50,6 +50,7 @@ data class CommonData(
     var commandLocal: String = "",
     var master: String = "",
     var priority: String = "",
+    var openUser: String = "",
     var imgFlag: String = "",
     var mobile: String = "",
     var talkbackStatus: String = "",

@@ -50,7 +50,7 @@ android {
         debug {
             //显示Log打印输出
             buildConfigField "boolean", "LOG_DEBUG", "true"
-            buildConfigField "String", "API_HOST", "\"http://122.114.236.100:8088\""
+            buildConfigField "String", "API_HOST", "\"http://39.109.113.177:8080\""
             minifyEnabled false   //混淆编译
             zipAlignEnabled false //Zip代码压缩优化
         }
