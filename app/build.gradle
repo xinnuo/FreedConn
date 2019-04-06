@@ -57,7 +57,7 @@ android {
         release {
             //不显示Log打印输出
             buildConfigField "boolean", "LOG_DEBUG", "false"
-            buildConfigField "String", "API_HOST", "\"http://122.114.236.100:8088\""
+            buildConfigField "String", "API_HOST", "\"http://39.109.113.177:8080\""
             minifyEnabled false  //混淆编译
             zipAlignEnabled true //Zip代码压缩优化
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

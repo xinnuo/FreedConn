@@ -89,6 +89,8 @@ class NetworkChatActivity : BaseActivity() {
     private var holdingMaster: String = ""      //当前抢麦人
     private val mDisposables by lazy { CompositeDisposable() } //抢麦订阅池
 
+    private var currentMusic: Int? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dismissKeyguard()
@@ -196,6 +198,9 @@ class NetworkChatActivity : BaseActivity() {
         if (BleConnectUtil.getInstance(baseContext).isConnected) {
             BleConnectUtil.getInstance(baseContext).setCallback(this)
         }
+
+        val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        currentMusic = am.getStreamVolume(AudioManager.STREAM_MUSIC)
     }
 
     override fun onResume() {
@@ -277,7 +282,8 @@ class NetworkChatActivity : BaseActivity() {
                 .doFinally { cancelLoadingDialog() }
                 .subscribe {
                     if (modeMaster.isNotEmpty()
-                        && modeMaster != getString("accid")) return@subscribe
+                        && modeMaster != getString("accid")
+                    ) return@subscribe
 
                     getStatusData(if (isTalkModeOn) 0 else 1) { code ->
 
@@ -292,6 +298,8 @@ class NetworkChatActivity : BaseActivity() {
                                 modeMaster = if (isTalkModeOn) getString("accid") else ""
 
                                 if (isTalkModeOn) {
+                                    setLocalMicMute(false)
+                                    setLocalAudioMute(false)
                                     chatMode = TeamState.CHAT_TALK
                                     chat_ptt.setImageResource(R.mipmap.icon35)
                                     if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
@@ -302,9 +310,9 @@ class NetworkChatActivity : BaseActivity() {
                                     TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
                                 } else {
                                     chatMode = TeamState.CHAT_NONE
+                                    setLocalMicMute(true)
+                                    setLocalAudioMute(true)
                                     chat_ptt.setImageResource(R.mipmap.icon34)
-                                    chat_mic.setImageResource(R.mipmap.icon28)
-                                    chat_voice.setImageResource(R.mipmap.icon29)
                                     chat_ptt.invisible()
 
                                     TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
@@ -338,7 +346,8 @@ class NetworkChatActivity : BaseActivity() {
                 .doFinally { cancelLoadingDialog() }
                 .subscribe {
                     if (modeMaster.isNotEmpty()
-                        && modeMaster != getString("accid")) return@subscribe
+                        && modeMaster != getString("accid")
+                    ) return@subscribe
 
                     getStatusData(if (isGroupModeOn) 0 else 2) { code ->
 
@@ -353,6 +362,8 @@ class NetworkChatActivity : BaseActivity() {
                                 modeMaster = if (isGroupModeOn) getString("accid") else ""
 
                                 if (isGroupModeOn) {
+                                    setLocalMicMute(false)
+                                    setLocalAudioMute(false)
                                     chatMode = TeamState.CHAT_GROUP
                                     chat_ptt.setImageResource(R.mipmap.icon35)
                                     if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
@@ -363,10 +374,10 @@ class NetworkChatActivity : BaseActivity() {
                                     TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
                                     AVChatManager.getInstance().muteLocalAudio(isLocalMute)
                                 } else {
+                                    setLocalMicMute(true)
+                                    setLocalAudioMute(true)
                                     chatMode = TeamState.CHAT_NONE
                                     chat_ptt.setImageResource(R.mipmap.icon34)
-                                    chat_mic.setImageResource(R.mipmap.icon28)
-                                    chat_voice.setImageResource(R.mipmap.icon29)
                                     chat_ptt.invisible()
 
                                     TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
@@ -420,24 +431,18 @@ class NetworkChatActivity : BaseActivity() {
                     setVoiceLine(isGroupModeOn)
                     TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
                     checkFreedconn()
-                    if (chatMode != TeamState.CHAT_NONE) {
-                        chat_ptt.setImageResource(R.mipmap.icon35)
 
-                        if (chatMode == TeamState.CHAT_GROUP) {
-                            val accid = getString("accid")
-                            val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
-                            val isFirst = accid == roomMaster || priority == "0"
+                    chat_ptt.setImageResource(R.mipmap.icon35)
+                    if (chatMode == TeamState.CHAT_GROUP) {
+                        val accid = getString("accid")
+                        val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
+                        val isFirst = accid == roomMaster || priority == "0"
 
-                            chat_ptt.visibility =
-                                if (isFirst && list.filter { it.isOnline }.size > 1) View.VISIBLE
-                                else View.INVISIBLE
-                        } else {
-                            if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
-                        }
+                        chat_ptt.visibility =
+                            if (isFirst && list.filter { it.isOnline }.size > 1) View.VISIBLE
+                            else View.INVISIBLE
                     } else {
-                        chat_mic.setImageResource(R.mipmap.icon28)
-                        chat_voice.setImageResource(R.mipmap.icon29)
-                        chat_ptt.setImageResource(R.mipmap.icon34)
+                        if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
                     }
                 } else {
                     setMuteAll(true)
@@ -649,7 +654,8 @@ class NetworkChatActivity : BaseActivity() {
                             chat_ptt.visibility =
                                 if (isFirst
                                     && list.filter { it.isOnline }.size > 1
-                                    && list.filter { it.isOnline }.any { it.mobile == accid }) View.VISIBLE
+                                    && list.filter { it.isOnline }.any { it.mobile == accid }
+                                ) View.VISIBLE
                                 else View.INVISIBLE
                         } else {
                             if (list.filter { it.isOnline }.size > 1
@@ -707,7 +713,7 @@ class NetworkChatActivity : BaseActivity() {
     /* 管理员在线指令 */
     private fun sendAdminCommand() {
         mCompositeDisposable.add(
-            Observable.interval(5, 5, TimeUnit.SECONDS)
+            Observable.interval(30, 30, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
@@ -723,20 +729,29 @@ class NetworkChatActivity : BaseActivity() {
     /* 成员在线指令判断 */
     private fun checkAdminCommand() {
         mCompositeDisposable.add(
-            Observable.interval(5, 5, TimeUnit.SECONDS)
+            Observable.interval(30, 30, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    if (/*(modeMaster.isNotEmpty() && modeMaster != getString("accid"))
-                        || */(modeMaster.isEmpty() && chatMode != TeamState.CHAT_NONE)
+                    if ((modeMaster.isNotEmpty() && modeMaster != getString("accid"))
+                    /*|| (modeMaster.isEmpty() && chatMode != TeamState.CHAT_NONE)*/
                     ) {
                         mMemberCount++
 
                         OkLogger.e("memeber$mMemberCount")
 
-                        if (mMemberCount > mAdminCount + 2) {
+                        if (mMemberCount > mAdminCount + 5
+                            && list.filter { it.isOnline }.size < 3
+                        ) {
                             mAdminCount = 0L
                             mMemberCount = 0L
+
+                            modeMaster = ""
+                            chatMode = TeamState.CHAT_NONE
+                            setTalkMode(false)  //关闭对讲模式
+                            setGroupMode(false) //关闭群聊模式
+                            setVoiceLine(false) //关闭波浪线
+                            chat_hint.text = "管理员未开启对讲模式"
 
                             //关闭抢麦
                             isMicHolding = false
@@ -746,42 +761,22 @@ class NetworkChatActivity : BaseActivity() {
                                 TeamSoundPlayer.instance().play()
                             }
 
-                            modeMaster = ""
-                            chatMode = TeamState.CHAT_NONE
-                            setTalkMode(false)  //关闭对讲模式
-                            setGroupMode(false) //关闭群聊模式
-                            setVoiceLine(false) //关闭波浪线
-
+                            //隐藏ptt按钮
                             chat_ptt.setImageResource(R.mipmap.icon34)
-                            chat_mic.setImageResource(R.mipmap.icon28)
-                            chat_voice.setImageResource(R.mipmap.icon29)
                             chat_ptt.invisible()
-
-                            chat_hint.text = "管理员未开启对讲模式"
-                            chat_talk.setBackgroundResource(R.mipmap.btn07)
-                            @Suppress("DEPRECATION")
-                            chat_talk.setTextColor(resources.getColor(R.color.light))
-
                             AVChatManager.getInstance().muteLocalAudio(true)
-
-                            /* 普通用户关闭对讲 */
-                            setMuteAll(true)
-                            setLocalMicMute(true)
-                            setLocalAudioMute(true)
-                            setVoiceLine(false)
-                            getAllStatusData("1")
 
                             /* 群主、优先者开启管理员模式 */
                             val accid = getString("accid")
                             val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
                             val isFirst = accid == roomMaster || priority == "0"
-                            if (isFirst) {
-                                setAdminEnable(true)
-                                setMuteAll(false)
-                                setLocalMicMute(false)
-                                setLocalAudioMute(false)
-                                setVoiceLine(false)
-                            }
+
+                            setAdminEnable(isFirst) //群主、优先者开启管理员模式
+                            setMuteAll(!isFirst)    //群主、优先者对讲使能
+                            setLocalMicMute(true)   //关闭麦克风
+                            setLocalAudioMute(true) //关闭声音
+                            TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
+                            getAllStatusData("1")
 
                             if (accountsOnline.filterNot { it == modeMaster }.isNotEmpty()) {
                                 val inner = accountsOnline.filterNot { it == modeMaster }.first()
@@ -866,33 +861,17 @@ class NetworkChatActivity : BaseActivity() {
                                 TeamSoundPlayer.instance().play()
                             }
 
+                            //隐藏ptt按钮
                             chat_ptt.setImageResource(R.mipmap.icon34)
-                            chat_mic.setImageResource(R.mipmap.icon28)
-                            chat_voice.setImageResource(R.mipmap.icon29)
                             chat_ptt.invisible()
-
-                            chat_talk.setBackgroundResource(R.mipmap.btn07)
-                            @Suppress("DEPRECATION")
-                            chat_talk.setTextColor(resources.getColor(R.color.light))
-
                             AVChatManager.getInstance().muteLocalAudio(true)
 
-                            /* 普通用户关闭对讲 */
-                            setMuteAll(true)
-                            setLocalMicMute(true)
-                            setLocalAudioMute(true)
-                            setVoiceLine(false)
+                            setAdminEnable(isFirst) //群主、优先者开启管理员模式
+                            setMuteAll(!isFirst)    //群主、优先者对讲使能
+                            setLocalMicMute(true)   //关闭麦克风
+                            setLocalAudioMute(true) //关闭声音
                             TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
                             getAllStatusData("1")
-
-                            /* 群主、优先者开启管理员模式 */
-                            if (isFirst) {
-                                setAdminEnable(true)
-                                setMuteAll(false)
-                                setLocalMicMute(false)
-                                setLocalAudioMute(false)
-                                setVoiceLine(false)
-                            }
                         }
                     }
                 }
@@ -1000,7 +979,12 @@ class NetworkChatActivity : BaseActivity() {
                         }
                     }
 
-                    // am.mode = AudioManager.MODE_NORMAL
+                    //降低音乐声音
+                    if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
+                        am.setStreamVolume(AudioManager.STREAM_MUSIC, 3, 0)
+                    } else {
+                        am.setStreamVolume(AudioManager.STREAM_MUSIC, currentMusic ?: 5, 0)
+                    }
                 }
         )
     }
@@ -1016,7 +1000,8 @@ class NetworkChatActivity : BaseActivity() {
                             val deviceMac = it.address
                             if (Const.MAC_HEADER_1 !in deviceMac
                                 && Const.MAC_HEADER_2 !in deviceMac
-                                && Const.MAC_HEADER_3 !in deviceMac) {
+                                && Const.MAC_HEADER_3 !in deviceMac
+                            ) {
                                 longToast("请使用 Freedconn 产品")
                             }
                         }
@@ -1038,7 +1023,8 @@ class NetworkChatActivity : BaseActivity() {
                 mDisposables.add(
                     Completable.timer(
                         RandomLength.createRandomNumber(100, 1000).toLong(),
-                        TimeUnit.MILLISECONDS)
+                        TimeUnit.MILLISECONDS
+                    )
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe {
@@ -1051,7 +1037,8 @@ class NetworkChatActivity : BaseActivity() {
                 mDisposables.add(
                     Completable.timer(
                         RandomLength.createRandomNumber(1000, 2000).toLong(),
-                        TimeUnit.MILLISECONDS)
+                        TimeUnit.MILLISECONDS
+                    )
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe {
@@ -1274,27 +1261,25 @@ class NetworkChatActivity : BaseActivity() {
                     }
                 }
 
-                setVoiceLine(false) //关闭波浪线
+                setMuteAll(true)        //对讲禁用
+                setLocalMicMute(true)   //关闭麦克风
+                setLocalAudioMute(true) //关闭声音
+                setVoiceLine(false)     //关闭波浪线
                 chat_ptt.setImageResource(R.mipmap.icon34)
-                chat_mic.setImageResource(R.mipmap.icon28)
-                chat_voice.setImageResource(R.mipmap.icon29)
                 chat_ptt.invisible()
                 AVChatManager.getInstance().muteLocalAudio(true)
 
                 //非管理员不开启对讲
                 if (chat_user.isVisble()) {
-                    setMuteAll(true)
-                    setLocalMicMute(true)
-                    setLocalAudioMute(true)
-                    setVoiceLine(false)
-                    chat_ptt.setImageResource(R.mipmap.icon34)
-                    getAllStatusData("1") //对讲模式关闭
+                    //对讲模式关闭更新
+                    getAllStatusData("1")
                 } else {
-                    if (modeMaster.isNotEmpty()) {
+                    if (modeMaster.isNotEmpty()) { //当前为开启者
                         when (chatMode) {
                             TeamState.CHAT_TALK -> {
-                                setTalkMode(true)
-                                setVoiceLine(false)
+                                setMuteAll(false)        //对讲禁用
+                                setLocalMicMute(false)   //关闭麦克风
+                                setLocalAudioMute(false) //关闭声音
                                 chat_ptt.setImageResource(R.mipmap.icon35)
                                 if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
                                 if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
@@ -1306,8 +1291,10 @@ class NetworkChatActivity : BaseActivity() {
                                 getAllStatusData("0") //对讲模式状态
                             }
                             TeamState.CHAT_GROUP -> {
-                                setGroupMode(true)
-                                setVoiceLine(true)
+                                setMuteAll(false)        //对讲禁用
+                                setLocalMicMute(false)   //关闭麦克风
+                                setLocalAudioMute(false) //关闭声音
+                                setVoiceLine(true)       //开启波浪线
                                 chat_ptt.setImageResource(R.mipmap.icon35)
                                 if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
                                 if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
@@ -1319,7 +1306,7 @@ class NetworkChatActivity : BaseActivity() {
                                 getAllStatusData("0") //对讲模式状态
                             }
                         }
-                    } else {
+                    } else { //当前为管理员，且没有开启模式
                         getAllStatusData("1") //对讲模式关闭
                         chat_ptt.invisible()
                     }
@@ -1328,6 +1315,9 @@ class NetworkChatActivity : BaseActivity() {
                 updateTiming()
                 forceVoiceToBluetooth()
                 updateOnlineData()
+
+                sendAdminCommand()
+                checkAdminCommand()
             }
             onFailed {
                 showToast(getString(R.string.network_chat_error_join))
@@ -1356,39 +1346,25 @@ class NetworkChatActivity : BaseActivity() {
                 setTalkMode(false)  //关闭对讲模式
                 setGroupMode(false) //关闭群聊模式
                 setVoiceLine(false) //关闭波浪线
-
-                chat_ptt.setImageResource(R.mipmap.icon34)
-                chat_mic.setImageResource(R.mipmap.icon28)
-                chat_voice.setImageResource(R.mipmap.icon29)
-                chat_ptt.invisible()
-
                 chat_hint.text = "管理员未开启对讲模式"
-                chat_talk.setBackgroundResource(R.mipmap.btn07)
-                chat_talk.setTextColor(resources.getColor(R.color.light))
 
+                //隐藏ptt按钮
+                chat_ptt.setImageResource(R.mipmap.icon34)
+                chat_ptt.invisible()
                 AVChatManager.getInstance().muteLocalAudio(true)
-
-                /* 普通用户关闭对讲 */
-                setMuteAll(true)
-                setLocalMicMute(true)
-                setLocalAudioMute(true)
-                setVoiceLine(false)
-                TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
-                getAllStatusData("1")
 
                 /* 群主、优先者开启管理员模式 */
                 val accid = getString("accid")
                 val priority = list.firstOrNull { it.mobile == accid }?.priority ?: ""
                 val isFirst = accid == roomMaster || priority == "0"
-                if (isFirst) {
-                    setAdminEnable(true)
-                    setMuteAll(false)
-                    setLocalMicMute(false)
-                    setLocalAudioMute(false)
-                    setVoiceLine(false)
-                } else {
-                    toast("管理员未开启对讲模式")
-                }
+
+                setAdminEnable(isFirst) //群主、优先者开启管理员模式
+                setMuteAll(!isFirst)    //群主、优先者对讲使能
+                setLocalMicMute(true)   //关闭麦克风
+                setLocalAudioMute(true) //关闭声音
+                TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
+                getAllStatusData("1")
+                if (!isFirst) toast("管理员未开启对讲模式")
             }
             TeamState.NOTIFY_CUSTOM_TALK -> {
                 modeMaster = event.account
@@ -1507,6 +1483,7 @@ class NetworkChatActivity : BaseActivity() {
         }
     }
 
+    private val mDisposableNet by lazy { CompositeDisposable() } //断网订阅池
     /* 音视频状态观察者 */
     private val mStateObserver = object : _AVChatStateObserver() {
 
@@ -1523,12 +1500,14 @@ class NetworkChatActivity : BaseActivity() {
 
                     chat_ptt.visibility =
                         if (isFirst && !isLocalAllMute
-                            && list.filter { it.isOnline }.size > 1) View.VISIBLE
+                            && list.filter { it.isOnline }.size > 1
+                        ) View.VISIBLE
                         else View.INVISIBLE
                 } else {
                     chat_ptt.visibility =
                         if (!isLocalAllMute
-                            && list.filter { it.isOnline }.size > 1) View.VISIBLE
+                            && list.filter { it.isOnline }.size > 1
+                        ) View.VISIBLE
                         else View.INVISIBLE
                 }
             }
@@ -1564,11 +1543,11 @@ class NetworkChatActivity : BaseActivity() {
                     val isFirst = accid == roomMaster || priority == "0"
 
                     chat_ptt.visibility =
-                        if (isFirst && !isLocalAllMute && accountsOnline.size > 1) View.VISIBLE
+                        if (isFirst && !isLocalAllMute && list.filter { it.isOnline }.size > 1) View.VISIBLE
                         else View.INVISIBLE
                 } else {
                     chat_ptt.visibility =
-                        if (!isLocalAllMute && accountsOnline.size > 1) View.VISIBLE
+                        if (!isLocalAllMute && list.filter { it.isOnline }.size > 1) View.VISIBLE
                         else View.INVISIBLE
                 }
             }
@@ -1587,20 +1566,36 @@ class NetworkChatActivity : BaseActivity() {
                 20 -> {
                     showToast(getString(R.string.network_wifi))
                     cancelLoadingDialog()
+                    mDisposableNet.clear()
                 }
                 30, 40, 50 -> {
                     showToast(getString(R.string.network_wap))
                     cancelLoadingDialog()
+                    mDisposableNet.clear()
                 }
                 70 -> {
                     showToast(getString(R.string.network_none))
                     showLoadingDialog(getString(R.string.connecting))
+                    mDisposableNet.add(
+                        Completable.timer(180, TimeUnit.SECONDS)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe {
+                                if (list.filter { it.isOnline }.size < 3)
+                                    onBackPressed()
+                            }
+                    )
                 }
                 90 -> {
                     showToast(getString(R.string.network_vpn))
                     cancelLoadingDialog()
+                    mDisposableNet.clear()
                 }
             }
+
+            //断网重连时，判断本人是否在房间
+            val accidMine = getString("accid")
+            if (accountsOnline.none { it == accidMine }) accountsOnline.add(accidMine)
         }
 
         override fun onReportSpeaker(speakers: MutableMap<String, Int>, mixedEnergy: Int) {
@@ -1636,15 +1631,6 @@ class NetworkChatActivity : BaseActivity() {
     }
 
     override fun onBackPressed() {
-        /*if (getString("accid") == modeMaster) {
-            getStatusData(0) {
-                sendControlCommand(
-                    chatId,
-                    TeamState.NOTIFY_CUSTOM_NONE
-                ) { super.onBackPressed() }
-            }
-        } else super.onBackPressed()*/
-
         startActivity(
             Intent(baseContext, NetworkActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
@@ -1655,6 +1641,7 @@ class NetworkChatActivity : BaseActivity() {
     override fun finish() {
         if (modeMaster.isNotEmpty()
             && getString("accid") == modeMaster
+            && mDisposableNet.size() == 0
         ) {
             getStatusData(0) {
                 sendControlCommand(
@@ -1773,33 +1760,17 @@ class NetworkChatActivity : BaseActivity() {
                             TeamSoundPlayer.instance().play()
                         }
 
+                        //隐藏ptt按钮
                         chat_ptt.setImageResource(R.mipmap.icon34)
-                        chat_mic.setImageResource(R.mipmap.icon28)
-                        chat_voice.setImageResource(R.mipmap.icon29)
                         chat_ptt.invisible()
-
-                        chat_talk.setBackgroundResource(R.mipmap.btn07)
-                        @Suppress("DEPRECATION")
-                        chat_talk.setTextColor(resources.getColor(R.color.light))
-
                         AVChatManager.getInstance().muteLocalAudio(true)
 
-                        /* 普通用户关闭对讲 */
-                        setMuteAll(true)
-                        setLocalMicMute(true)
-                        setLocalAudioMute(true)
-                        setVoiceLine(false)
+                        setAdminEnable(isFirst) //群主、优先者开启管理员模式
+                        setMuteAll(!isFirst)    //群主、优先者对讲使能
+                        setLocalMicMute(true)   //关闭麦克风
+                        setLocalAudioMute(true) //关闭声音
                         TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
                         getAllStatusData("1")
-
-                        /* 群主、优先者开启管理员模式 */
-                        if (isFirst) {
-                            setAdminEnable(true)
-                            setMuteAll(false)
-                            setLocalMicMute(false)
-                            setLocalAudioMute(false)
-                            setVoiceLine(false)
-                        }
                     }
                 }
             }
@@ -1831,7 +1802,7 @@ class NetworkChatActivity : BaseActivity() {
     /* ble设备回调 */
     override fun onRecive(data_char: BluetoothGattCharacteristic) {
         if (!isLocalMute
-            && chatMode != TeamState.CHAT_NONE&&chat_ptt.isVisble()
+            && chatMode != TeamState.CHAT_NONE && chat_ptt.isVisble()
         ) {
             val receiverData = CheckUtils.byte2hex(data_char.value).toString()
             val data = (receiverData.substring(8, 10).toInt(16)).toString()

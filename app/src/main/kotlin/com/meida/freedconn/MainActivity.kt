@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit
 import android.os.Build
 import com.lzy.okgo.utils.OkLogger
 import com.meida.ble.BleConnectUtil
+import com.meida.chatkit.TeamAVChatProfile
 import com.meida.chatkit.TeamSoundPlayer
 import com.meida.utils.ActivityStack
 import com.yanzhenjie.permission.AndPermission
@@ -260,14 +261,16 @@ class MainActivity : BaseActivity() {
     private fun updateNetWork() {
         if (mDisposableNet.size() > 0) mDisposableNet.clear()
 
-        mDisposableNet.add(
-            Observable.interval(10, 10, TimeUnit.SECONDS)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    TeamSoundPlayer.instance().play(R.raw.half_second_low_tones)
-                }
-        )
+        if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
+            mDisposableNet.add(
+                Observable.interval(10, 10, TimeUnit.SECONDS)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        TeamSoundPlayer.instance().play(R.raw.half_second_low_tones)
+                    }
+            )
+        }
     }
 
     /** 退出 **/
