@@ -14,8 +14,8 @@ android {
         applicationId "com.meida.freedconn"
         minSdkVersion versions.minSdkVersion
         targetSdkVersion versions.targetSdkVersion
-        versionCode 111
-        versionName "1.1.1"
+        versionCode 112
+        versionName "1.1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
