@@ -263,7 +263,7 @@ class MainActivity : BaseActivity() {
 
         if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
             mDisposableNet.add(
-                Observable.interval(10, 10, TimeUnit.SECONDS)
+                Observable.interval(60, 60, TimeUnit.SECONDS)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
