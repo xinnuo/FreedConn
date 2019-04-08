@@ -1581,8 +1581,7 @@ class NetworkChatActivity : BaseActivity() {
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe {
-                                if (list.filter { it.isOnline }.size < 3)
-                                    onBackPressed()
+                                if (list.filter { it.isOnline }.size < 3) finish()
                             }
                     )
                 }
