@@ -5,9 +5,9 @@ object Const {
     const val MAC_HEADER_1 = "D0:D9:4F"
     const val MAC_HEADER_2 = "00:1D:DF"
     const val MAC_HEADER_3 = "0C:02:5B"
+    // const val MAC_HEADER_3 = "80:8A:A8"
 
     var BleAddress = ""
     var BleName = ""
     const val MACBLE_HEADER_1 = "88:3F:4A"
-
 }

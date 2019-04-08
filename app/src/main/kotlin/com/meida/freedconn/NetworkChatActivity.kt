@@ -59,6 +59,7 @@ import org.jetbrains.anko.longToast
 import org.jetbrains.anko.sdk25.listeners.onTouch
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
+import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 class NetworkChatActivity : BaseActivity() {
@@ -90,6 +91,8 @@ class NetworkChatActivity : BaseActivity() {
     private val mDisposables by lazy { CompositeDisposable() } //抢麦订阅池
 
     private var currentMusic: Int? = null
+    private val resVoice = listOf(R.mipmap.icon29, R.mipmap.icon31)
+    private val resBluetooth = listOf(R.mipmap.lanya02, R.mipmap.lanya01)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,6 +106,16 @@ class NetworkChatActivity : BaseActivity() {
             NetworkNameActivity::class.java
         )
         EventBus.getDefault().register(this@NetworkChatActivity)
+
+        checkBlueToothStatus {
+            if (it) {
+                chat_voice.tag = "blueTooth"
+                chat_voice.setImageResource(if (isLocalAudioMute) resBluetooth[1] else resBluetooth[0])
+            } else {
+                chat_voice.tag = "voice"
+                chat_voice.setImageResource(if (isLocalAudioMute) resVoice[1] else resVoice[0])
+            }
+        }
 
         getInfoData {
             if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) startRtc()
@@ -212,6 +225,10 @@ class NetworkChatActivity : BaseActivity() {
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
         )
+        bleConnectUtil = BleConnectUtil.getInstance(baseContext)
+        bleConnectUtil.setCallback(this)
+
+        floatView.hide()
     }
 
     override fun onStop() {
@@ -303,8 +320,6 @@ class NetworkChatActivity : BaseActivity() {
                                     chatMode = TeamState.CHAT_TALK
                                     chat_ptt.setImageResource(R.mipmap.icon35)
                                     if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
-                                    if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
-                                    if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
                                     checkFreedconn()
 
                                     TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
@@ -367,8 +382,6 @@ class NetworkChatActivity : BaseActivity() {
                                     chatMode = TeamState.CHAT_GROUP
                                     chat_ptt.setImageResource(R.mipmap.icon35)
                                     if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
-                                    if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
-                                    if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
                                     checkFreedconn()
 
                                     TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
@@ -826,6 +839,13 @@ class NetworkChatActivity : BaseActivity() {
                                     msgCode: String
                                 ) {
                                     OkLogger.i(msg)
+                                    val obj = JSONObject(response.body()).optString("object")
+                                    if (obj == "0") {
+                                        getAllStatusData("1") {
+                                            toast("通话时长不足，请充值")
+                                            finish()
+                                        }
+                                    }
                                 }
 
                             })
@@ -1001,12 +1021,9 @@ class NetworkChatActivity : BaseActivity() {
                             if (Const.MAC_HEADER_1 !in deviceMac
                                 && Const.MAC_HEADER_2 !in deviceMac
                                 && Const.MAC_HEADER_3 !in deviceMac
-                            ) {
-                                longToast("请使用 Freedconn 产品")
-                            }
+                            ) { longToast("请使用 Freedconn 产品") }
                         }
                     }
-
                     getAdapter()!!.closeProfileProxy(profile, proxy)
                 }
             }
@@ -1192,10 +1209,36 @@ class NetworkChatActivity : BaseActivity() {
 
     /* 设置是否禁用本地语音播报 */
     private fun setLocalAudioMute(isEnable: Boolean) {
-        chat_voice.setImageResource(if (isEnable) R.mipmap.icon29 else R.mipmap.icon31)
+        val tag = chat_voice.tag?.toString() ?: ""
+        when (tag) {
+            "blueTooth" -> chat_voice.setImageResource(if (isEnable) resBluetooth[0] else resBluetooth[1])
+            else -> chat_voice.setImageResource(if (isEnable) resVoice[0] else resVoice[1])
+        }
 
         isLocalAudioMute = isEnable
         AVChatManager.getInstance().muteAllRemoteAudio(isEnable)
+    }
+
+    /* 设置是否显示蓝牙图标 */
+    private fun checkBlueToothStatus(event: ((Boolean) -> Unit)) {
+        if (BluetoothHelper.isBluetoothConnected()) {
+            getAdapter()!!.getProfileProxy(baseContext, getConnectedProfile()) {
+                onServiceConnected { profile, proxy ->
+                    val mDevices = proxy.connectedDevices
+                    if (!mDevices.isNullOrEmpty()) {
+                        mDevices.forEach {
+                            val deviceMac = it.address
+                            if (Const.MAC_HEADER_1 in deviceMac
+                                || Const.MAC_HEADER_2 in deviceMac
+                                || Const.MAC_HEADER_3 in deviceMac
+                            ) event(true)
+                            else event(false)
+                        }
+                    }
+                    getAdapter()!!.closeProfileProxy(profile, proxy)
+                }
+            }
+        }
     }
 
     /* 设置通话状态和信息 */
@@ -1282,8 +1325,6 @@ class NetworkChatActivity : BaseActivity() {
                                 setLocalAudioMute(false) //关闭声音
                                 chat_ptt.setImageResource(R.mipmap.icon35)
                                 if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
-                                if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
-                                if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
                                 checkFreedconn()
 
                                 TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
@@ -1297,8 +1338,6 @@ class NetworkChatActivity : BaseActivity() {
                                 setVoiceLine(true)       //开启波浪线
                                 chat_ptt.setImageResource(R.mipmap.icon35)
                                 if (list.filter { it.isOnline }.size > 1) chat_ptt.visible()
-                                if (!isLocalMute) chat_mic.setImageResource(R.mipmap.icon30)
-                                if (!isLocalAudioMute) chat_voice.setImageResource(R.mipmap.icon31)
                                 checkFreedconn()
 
                                 TeamAVChatProfile.sharedInstance().isTeamAVEnable = true
@@ -1773,8 +1812,18 @@ class NetworkChatActivity : BaseActivity() {
                     }
                 }
             }
-            "蓝牙连接" -> AVChatManager.getInstance().setSpeaker(false)
-            "蓝牙断开" -> AVChatManager.getInstance().setSpeaker(true)
+            "蓝牙连接" -> {
+                AVChatManager.getInstance().setSpeaker(false)
+
+                chat_voice.tag = "blueTooth"
+                chat_voice.setImageResource(if (isLocalAudioMute) resBluetooth[1] else resBluetooth[0])
+            }
+            "蓝牙断开" -> {
+                AVChatManager.getInstance().setSpeaker(true)
+
+                chat_voice.tag = "voice"
+                chat_voice.setImageResource(if (isLocalAudioMute) resVoice[1] else resVoice[0])
+            }
             "电话接听" -> {
                 AVChatManager.getInstance().muteAllRemoteAudio(true)
                 AVChatManager.getInstance().muteLocalAudio(true)

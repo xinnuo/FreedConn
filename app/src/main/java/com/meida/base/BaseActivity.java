@@ -3,10 +3,13 @@ package com.meida.base;
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -30,9 +33,11 @@ import android.widget.TextView;
 
 import com.lzy.okgo.OkGo;
 import com.meida.ble.BleConnectionCallBack;
+import com.meida.chatkit.TeamAVChatProfile;
 import com.meida.freedconn.R;
 import com.meida.utils.ActivityStack;
 import com.meida.utils.StatusUtil;
+import com.meida.view.FloatView;
 
 import net.idik.lib.slimadapter.SlimAdapter;
 import net.idik.lib.slimadapter.SlimAdapterEx;
@@ -72,6 +77,8 @@ public class BaseActivity extends AppCompatActivity implements
     public boolean isLoadingMore;
     public int mPosition;
 
+    public static FloatView floatView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +90,24 @@ public class BaseActivity extends AppCompatActivity implements
 
         StatusUtil.setUseStatusBarColor(this, Color.TRANSPARENT, StatusUtil.USE_DEFAULT_COLOR);
         StatusUtil.setSystemStatus(this, true, false);
+
+        if (floatView == null) floatView = new FloatView(this);
+
+        if (Build.VERSION.SDK_INT >= 23
+                && !Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+            );
+            startActivityForResult(intent, 10);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (TeamAVChatProfile.sharedInstance().isTeamAVEnable()) floatView.show();
+        else floatView.hide();
     }
 
     public void setSuperContentView(int layoutId) {

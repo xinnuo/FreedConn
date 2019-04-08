@@ -45,7 +45,6 @@ import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.PermissionListener
 import io.reactivex.disposables.CompositeDisposable
 
-
 class MainActivity : BaseActivity() {
 
     private var mDisposable: Disposable? = null
@@ -63,7 +62,7 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        main_check2.isChecked = bleConnectUtil.isConnected==true
+        main_check2.isChecked = bleConnectUtil.isConnected == true
     }
 
     override fun init_title() {
@@ -281,6 +280,7 @@ class MainActivity : BaseActivity() {
             toast(getString(R.string.quit))
             exitTime = System.currentTimeMillis()
         } else {
+            floatView.hide()
             ActivityStack.screenManager.popAllActivityExceptOne(MainActivity::class.java)
             super.onBackPressed()
         }
@@ -379,13 +379,13 @@ class MainActivity : BaseActivity() {
                             EventBus.getDefault().post(RefreshMessageEvent("遥控器断开"))
                             EventBus.getDefault().post(RefreshMessageEvent("蓝牙断开"))
                         }
-                        BluetoothAdapter.STATE_ON -> { }
+                        BluetoothAdapter.STATE_ON -> {
+                        }
                     }
                 }
             }
         }
     }
-
 
 
 }
