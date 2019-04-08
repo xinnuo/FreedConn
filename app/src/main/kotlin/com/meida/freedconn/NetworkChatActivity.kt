@@ -110,10 +110,10 @@ class NetworkChatActivity : BaseActivity() {
         checkBlueToothStatus {
             if (it) {
                 chat_voice.tag = "blueTooth"
-                chat_voice.setImageResource(if (isLocalAudioMute) resBluetooth[1] else resBluetooth[0])
+                chat_voice.setImageResource(if (isLocalAudioMute) resBluetooth[0] else resBluetooth[1])
             } else {
                 chat_voice.tag = "voice"
-                chat_voice.setImageResource(if (isLocalAudioMute) resVoice[1] else resVoice[0])
+                chat_voice.setImageResource(if (isLocalAudioMute) resVoice[0] else resVoice[1])
             }
         }
 
@@ -1816,13 +1816,13 @@ class NetworkChatActivity : BaseActivity() {
                 AVChatManager.getInstance().setSpeaker(false)
 
                 chat_voice.tag = "blueTooth"
-                chat_voice.setImageResource(if (isLocalAudioMute) resBluetooth[1] else resBluetooth[0])
+                chat_voice.setImageResource(if (isLocalAudioMute) resBluetooth[0] else resBluetooth[1])
             }
             "蓝牙断开" -> {
                 AVChatManager.getInstance().setSpeaker(true)
 
                 chat_voice.tag = "voice"
-                chat_voice.setImageResource(if (isLocalAudioMute) resVoice[1] else resVoice[0])
+                chat_voice.setImageResource(if (isLocalAudioMute) resVoice[0] else resVoice[1])
             }
             "电话接听" -> {
                 AVChatManager.getInstance().muteAllRemoteAudio(true)
