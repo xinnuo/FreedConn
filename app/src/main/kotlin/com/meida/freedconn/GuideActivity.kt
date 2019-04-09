@@ -65,7 +65,6 @@ class GuideActivity : AppCompatActivity() {
                 Manifest.permission.MODIFY_AUDIO_SETTINGS,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
-
             )
             .callback(object : PermissionListener {
                 override fun onSucceed(requestCode: Int, grantPermissions: MutableList<String>) {
