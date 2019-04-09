@@ -379,13 +379,10 @@ class MainActivity : BaseActivity() {
                             EventBus.getDefault().post(RefreshMessageEvent("遥控器断开"))
                             EventBus.getDefault().post(RefreshMessageEvent("蓝牙断开"))
                         }
-                        BluetoothAdapter.STATE_ON -> {
-                        }
+                        BluetoothAdapter.STATE_ON -> { }
                     }
                 }
             }
         }
     }
-
-
 }

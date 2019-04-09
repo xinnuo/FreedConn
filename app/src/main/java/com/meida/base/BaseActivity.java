@@ -34,6 +34,7 @@ import android.widget.TextView;
 import com.lzy.okgo.OkGo;
 import com.meida.ble.BleConnectionCallBack;
 import com.meida.chatkit.TeamAVChatProfile;
+import com.meida.freedconn.NetworkChatActivity;
 import com.meida.freedconn.R;
 import com.meida.utils.ActivityStack;
 import com.meida.utils.StatusUtil;
@@ -97,10 +98,21 @@ public class BaseActivity extends AppCompatActivity implements
                 && !Settings.canDrawOverlays(this)) {
             Intent intent = new Intent(
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName")
+                    Uri.parse("package:com.meida.freedconn")
             );
             startActivityForResult(intent, 10);
         }
+
+        floatView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(baseContext, NetworkChatActivity.class);
+                intent.putExtra("roomName", TeamAVChatProfile.sharedInstance().getTeamAVChatId());
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

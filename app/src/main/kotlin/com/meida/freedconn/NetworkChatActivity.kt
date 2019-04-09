@@ -310,6 +310,7 @@ class NetworkChatActivity : BaseActivity() {
                         ) {
 
                             onSuccess {
+
                                 setTalkMode(!isTalkModeOn)
                                 setVoiceLine(false)
                                 modeMaster = if (isTalkModeOn) getString("accid") else ""
@@ -372,6 +373,7 @@ class NetworkChatActivity : BaseActivity() {
                         ) {
 
                             onSuccess {
+
                                 setGroupMode(!isGroupModeOn)
                                 setVoiceLine(isGroupModeOn)
                                 modeMaster = if (isGroupModeOn) getString("accid") else ""
@@ -1000,11 +1002,11 @@ class NetworkChatActivity : BaseActivity() {
                     }
 
                     //降低音乐声音
-                    if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
+                    /*if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
                         am.setStreamVolume(AudioManager.STREAM_MUSIC, 3, 0)
                     } else {
                         am.setStreamVolume(AudioManager.STREAM_MUSIC, currentMusic ?: 5, 0)
-                    }
+                    }*/
                 }
         )
     }
