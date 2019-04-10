@@ -94,15 +94,6 @@ public class BaseActivity extends AppCompatActivity implements
 
         if (floatView == null) floatView = new FloatView(this);
 
-        if (Build.VERSION.SDK_INT >= 23
-                && !Settings.canDrawOverlays(this)) {
-            Intent intent = new Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:com.meida.freedconn")
-            );
-            startActivityForResult(intent, 10);
-        }
-
         floatView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

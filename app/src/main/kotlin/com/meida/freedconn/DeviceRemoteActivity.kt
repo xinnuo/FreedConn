@@ -277,7 +277,7 @@ class DeviceRemoteActivity : BaseActivity() {
                         e.printStackTrace()
                     }
 
-                    handler.postDelayed({ sendDataByBle("FF01050700") }, 1000)
+                    handler.postDelayed({ sendDataByBle("FF01050700") }, 200)
                 } else toast("遥控设备连接失败")
             }
         }

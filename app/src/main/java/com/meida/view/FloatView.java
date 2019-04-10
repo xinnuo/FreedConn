@@ -56,10 +56,15 @@ public class FloatView extends ImageView {
         screenWidth = dm.widthPixels;
         screenHeight = dm.heightPixels;
         this.setImageResource(imgId);
-        if (Build.VERSION.SDK_INT >= 25) {
-            windowManagerParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        } else {
-            windowManagerParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+
+        if(Build.VERSION.SDK_INT==25){
+            windowManagerParams.type = WindowManager.LayoutParams.TYPE_PHONE;
+        }else {
+            if (Build.VERSION.SDK_INT > 25) {
+                windowManagerParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+            } else {
+                windowManagerParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+            }
         }
         windowManagerParams.format = PixelFormat.RGBA_8888; // 背景透明
         windowManagerParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL

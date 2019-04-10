@@ -335,6 +335,8 @@ class MainActivity : BaseActivity() {
                         main_check3.isChecked = true
                         setDeviceEnable(true)
                         setMultiEnable(true)
+
+                        EventBus.getDefault().post(RefreshMessageEvent("蓝牙连接"))
                     } else if (deviceMac.startsWith(Const.MACBLE_HEADER_1)) {
                         main_check2.isChecked = true
                         EventBus.getDefault().post(RefreshMessageEvent("遥控器连接"))
@@ -345,8 +347,6 @@ class MainActivity : BaseActivity() {
                         setDeviceEnable(true)
                         setMultiEnable(true)
                     }
-
-                    EventBus.getDefault().post(RefreshMessageEvent("蓝牙连接"))
                 }
                 BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                     val device =

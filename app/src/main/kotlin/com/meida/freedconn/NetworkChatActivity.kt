@@ -244,6 +244,7 @@ class NetworkChatActivity : BaseActivity() {
             }
         }
 
+        if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) floatView.show()
         //显示通知栏
         activeCallingNotifier(true)
     }
@@ -1002,11 +1003,14 @@ class NetworkChatActivity : BaseActivity() {
                     }
 
                     //降低音乐声音
-                    /*if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
-                        am.setStreamVolume(AudioManager.STREAM_MUSIC, 3, 0)
+                    if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
+                        // am.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0)
+                        am.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+                            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
                     } else {
-                        am.setStreamVolume(AudioManager.STREAM_MUSIC, currentMusic ?: 5, 0)
-                    }*/
+                        // am.setStreamVolume(AudioManager.STREAM_MUSIC, currentMusic ?: 5, 0)
+                        am.abandonAudioFocus(null)
+                    }
                 }
         )
     }
@@ -1359,6 +1363,32 @@ class NetworkChatActivity : BaseActivity() {
 
                 sendAdminCommand()
                 checkAdminCommand()
+
+                if (modeMaster == getString("accid")
+                    && list.none { it.talkbackStatus == "0" }) {
+                    getStatusData(0) {
+                        modeMaster = ""
+                        chatMode = TeamState.CHAT_NONE
+                        setTalkMode(false)  //关闭对讲模式
+                        setGroupMode(false) //关闭群聊模式
+                        setVoiceLine(false) //关闭波浪线
+                        chat_hint.text = "管理员未开启对讲模式"
+
+                        //隐藏ptt按钮
+                        chat_ptt.setImageResource(R.mipmap.icon34)
+                        chat_ptt.invisible()
+                        AVChatManager.getInstance().muteLocalAudio(true)
+
+                        setAdminEnable(true)    //群主、优先者开启管理员模式
+                        setMuteAll(false)       //群主、优先者对讲使能
+                        setLocalMicMute(true)   //关闭麦克风
+                        setLocalAudioMute(true) //关闭声音
+                        TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
+                        getAllStatusData("1")
+
+                        sendControlCommand(chatId, TeamState.NOTIFY_CUSTOM_NONE) { }
+                    }
+                }
             }
             onFailed {
                 showToast(getString(R.string.network_chat_error_join))
