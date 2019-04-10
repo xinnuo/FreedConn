@@ -1365,7 +1365,7 @@ class NetworkChatActivity : BaseActivity() {
                 checkAdminCommand()
 
                 if (modeMaster == getString("accid")
-                    && list.none { it.talkbackStatus == "0" }) {
+                    && list.filter { it.mobile != modeMaster }.none { it.talkbackStatus == "0" }) {
                     getStatusData(0) {
                         modeMaster = ""
                         chatMode = TeamState.CHAT_NONE
