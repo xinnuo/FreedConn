@@ -1,6 +1,10 @@
 package com.meida.fragment
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -84,64 +88,75 @@ class ContactFragment : BaseFragment() {
             setOnItemClickListener {
                 if (it == 0) startActivity<NetworkMessageActivity>()
                 else {
-                    val timeRemain = getString("residueTime").toNotInt()
-                    if (timeRemain < 1) {
-                        toast(getString(R.string.network_chat_no_time))
-                        return@setOnItemClickListener
-                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                        && !Settings.canDrawOverlays(context)) {
 
-                    if (list[it].clusterId.isNotEmpty()) {
+                        startActivity(Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:com.meida.freedconn")
+                        ))
+                    } else {
+                        val timeRemain = getString("residueTime").toNotInt()
+                        if (timeRemain < 1) {
+                            toast(getString(R.string.network_chat_no_time))
+                            return@setOnItemClickListener
+                        }
 
-                        if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
-                            val chatId = TeamAVChatProfile.sharedInstance().teamAVChatId
-                            val chatName = TeamAVChatProfile.sharedInstance().teamAVChatName
-                            when {
-                                chatId == list[it].clusterId -> AVChatKit.outgoingTeamCall(
+                        if (list[it].clusterId.isNotEmpty()) {
+
+                            if (TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
+                                val chatId = TeamAVChatProfile.sharedInstance().teamAVChatId
+                                val chatName = TeamAVChatProfile.sharedInstance().teamAVChatName
+                                when {
+                                    chatId == list[it].clusterId -> AVChatKit.outgoingTeamCall(
                                         activity,
                                         list[it].clusterId
-                                )
-                                TeamAVChatProfile.sharedInstance().isTeamAVEnable -> DialogHelper.showHintDialog(
+                                    )
+                                    TeamAVChatProfile.sharedInstance().isTeamAVEnable -> DialogHelper.showHintDialog(
                                         activity,
                                         "加入群聊",
                                         "${chatName}群正在对讲中，是否结束该的对讲",
                                         "取消",
                                         "确定",
                                         false
-                                ) { hint ->
-                                    if (hint == "yes") {
-                                        ActivityStack.screenManager.popActivities(
+                                    ) { hint ->
+                                        if (hint == "yes") {
+                                            ActivityStack.screenManager.popActivities(
                                                 NetworkChatActivity::class.java
-                                        )
+                                            )
 
-                                        Completable.timer(500, TimeUnit.MILLISECONDS)
+                                            Completable.timer(500, TimeUnit.MILLISECONDS)
                                                 .subscribeOn(Schedulers.io())
                                                 .subscribe {
                                                     if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
                                                         AVChatKit.outgoingTeamCall(
-                                                                activity,
-                                                                list[it].clusterId
+                                                            activity,
+                                                            list[it].clusterId
                                                         )
                                                     }
                                                 }
+                                        }
                                     }
-                                }
-                                else -> {
-                                    ActivityStack.screenManager.popActivities(NetworkChatActivity::class.java)
+                                    else -> {
+                                        ActivityStack.screenManager.popActivities(
+                                            NetworkChatActivity::class.java
+                                        )
 
-                                    Completable.timer(500, TimeUnit.MILLISECONDS)
+                                        Completable.timer(500, TimeUnit.MILLISECONDS)
                                             .subscribeOn(Schedulers.io())
                                             .subscribe {
                                                 if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) {
                                                     AVChatKit.outgoingTeamCall(
-                                                            activity,
-                                                            list[it].clusterId
+                                                        activity,
+                                                        list[it].clusterId
                                                     )
                                                 }
                                             }
+                                    }
                                 }
-                            }
-                        } else
-                            AVChatKit.outgoingTeamCall(activity, list[it].clusterId)
+                            } else
+                                AVChatKit.outgoingTeamCall(activity, list[it].clusterId)
+                        }
                     }
                 }
             }
@@ -413,7 +428,7 @@ class ContactFragment : BaseFragment() {
 
                     override fun onFinish() {
                         super.onFinish()
-                        swipe_refresh.isRefreshing = false
+                        swipe_refresh?.isRefreshing = false
                     }
 
                 })

@@ -117,8 +117,11 @@ class NetworkChatActivity : BaseActivity() {
             }
         }
 
-        getInfoData {
-            if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) startRtc()
+        if (!isNetworkConnected()) finish()
+        else {
+            getInfoData {
+                if (!TeamAVChatProfile.sharedInstance().isTeamAVChatting) startRtc()
+            }
         }
     }
 
@@ -807,6 +810,8 @@ class NetworkChatActivity : BaseActivity() {
                                                 msg: String,
                                                 msgCode: String
                                             ) {
+                                                modeMaster = ""
+                                                chatMode = TeamState.CHAT_NONE
                                             }
 
                                         })
@@ -1709,38 +1714,43 @@ class NetworkChatActivity : BaseActivity() {
 
     /* 退出 */
     override fun finish() {
-        if (modeMaster.isNotEmpty()
-            && getString("accid") == modeMaster
-            && mDisposableNet.size() == 0
-        ) {
-            getStatusData(0) {
-                sendControlCommand(
-                    chatId,
-                    TeamState.NOTIFY_CUSTOM_NONE
-                ) {
-                    onSuccess {
-                        hangUp()
-                        setChatting(false)
-                        activeCallingNotifier(false)
-                        TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
+        if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) floatView.hide()
 
-                        mCompositeDisposable.clear()
-                        TeamSoundPlayer.instance().stop()
-                        EventBus.getDefault().unregister(this@NetworkChatActivity)
-                        super.finish()
+        if (chatId < 0) super.finish()
+        else {
+            if (modeMaster.isNotEmpty()
+                && getString("accid") == modeMaster
+                && mDisposableNet.size() == 0
+            ) {
+                getStatusData(0) {
+                    sendControlCommand(
+                        chatId,
+                        TeamState.NOTIFY_CUSTOM_NONE
+                    ) {
+                        onSuccess {
+                            hangUp()
+                            setChatting(false)
+                            activeCallingNotifier(false)
+                            TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
+
+                            mCompositeDisposable.clear()
+                            TeamSoundPlayer.instance().stop()
+                            EventBus.getDefault().unregister(this@NetworkChatActivity)
+                            super.finish()
+                        }
                     }
                 }
-            }
-        } else {
-            hangUp()
-            setChatting(false)
-            activeCallingNotifier(false)
-            TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
+            } else {
+                hangUp()
+                setChatting(false)
+                activeCallingNotifier(false)
+                TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
 
-            mCompositeDisposable.clear()
-            TeamSoundPlayer.instance().stop()
-            EventBus.getDefault().unregister(this@NetworkChatActivity)
-            super.finish()
+                mCompositeDisposable.clear()
+                TeamSoundPlayer.instance().stop()
+                EventBus.getDefault().unregister(this@NetworkChatActivity)
+                super.finish()
+            }
         }
     }
 

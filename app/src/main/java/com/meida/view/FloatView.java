@@ -57,9 +57,9 @@ public class FloatView extends ImageView {
         screenHeight = dm.heightPixels;
         this.setImageResource(imgId);
 
-        if(Build.VERSION.SDK_INT==25){
+        if (Build.VERSION.SDK_INT == 25) {
             windowManagerParams.type = WindowManager.LayoutParams.TYPE_PHONE;
-        }else {
+        } else {
             if (Build.VERSION.SDK_INT > 25) {
                 windowManagerParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
             } else {
@@ -131,17 +131,8 @@ public class FloatView extends ImageView {
     // 显示该窗体
     public void show() {
         if (!isShow) {
-            if (Build.VERSION.SDK_INT >= 23
-                    && !Settings.canDrawOverlays(getContext())) {
-                Intent intent = new Intent(
-                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:com.meida.freedconn")
-                );
-                getContext().startActivity(intent);
-            } else {
-                windowManager.addView(this, windowManagerParams);
-                isShow = true;
-            }
+            windowManager.addView(this, windowManagerParams);
+            isShow = true;
         }
     }
 
