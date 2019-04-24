@@ -1718,6 +1718,15 @@ class NetworkChatActivity : BaseActivity() {
 
         if (chatId < 0) super.finish()
         else {
+            hangUp()
+            setChatting(false)
+            activeCallingNotifier(false)
+            TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
+
+            mCompositeDisposable.clear()
+            TeamSoundPlayer.instance().stop()
+            EventBus.getDefault().unregister(this@NetworkChatActivity)
+
             if (modeMaster.isNotEmpty()
                 && getString("accid") == modeMaster
                 && mDisposableNet.size() == 0
@@ -1727,30 +1736,10 @@ class NetworkChatActivity : BaseActivity() {
                         chatId,
                         TeamState.NOTIFY_CUSTOM_NONE
                     ) {
-                        onSuccess {
-                            hangUp()
-                            setChatting(false)
-                            activeCallingNotifier(false)
-                            TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
-
-                            mCompositeDisposable.clear()
-                            TeamSoundPlayer.instance().stop()
-                            EventBus.getDefault().unregister(this@NetworkChatActivity)
-                            super.finish()
-                        }
+                        onSuccess { super.finish() }
                     }
                 }
-            } else {
-                hangUp()
-                setChatting(false)
-                activeCallingNotifier(false)
-                TeamAVChatProfile.sharedInstance().isTeamAVEnable = false
-
-                mCompositeDisposable.clear()
-                TeamSoundPlayer.instance().stop()
-                EventBus.getDefault().unregister(this@NetworkChatActivity)
-                super.finish()
-            }
+            } else super.finish()
         }
     }
 
