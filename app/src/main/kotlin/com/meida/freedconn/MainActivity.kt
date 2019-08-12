@@ -9,25 +9,33 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.*
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import com.lzy.okgo.utils.OkLogger
 import com.meida.base.BaseActivity
 import com.meida.base.getString
+import com.meida.ble.BleConnectUtil
+import com.meida.chatkit.TeamAVChatProfile
+import com.meida.chatkit.TeamSoundPlayer
 import com.meida.chatkit.getService
 import com.meida.chatkit.observeOnlineStatus
 import com.meida.model.RefreshMessageEvent
 import com.meida.share.Const
+import com.meida.utils.ActivityStack
 import com.meida.utils.BluetoothHelper.getAdapter
-import com.meida.utils.BluetoothHelper.getConnectedProfile
 import com.meida.utils.BluetoothHelper.isBluetoothConnected
 import com.meida.utils.BluetoothHelper.isBluetoothEnable
 import com.meida.utils.DialogHelper
 import com.meida.utils.getProfileProxy
 import com.netease.nim.avchatkit.AVChatKit
 import com.netease.nimlib.sdk.auth.AuthServiceObserver
+import com.yanzhenjie.permission.AndPermission
+import com.yanzhenjie.permission.PermissionListener
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
@@ -35,15 +43,6 @@ import org.greenrobot.eventbus.EventBus
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import java.util.concurrent.TimeUnit
-import android.os.Build
-import com.lzy.okgo.utils.OkLogger
-import com.meida.ble.BleConnectUtil
-import com.meida.chatkit.TeamAVChatProfile
-import com.meida.chatkit.TeamSoundPlayer
-import com.meida.utils.ActivityStack
-import com.yanzhenjie.permission.AndPermission
-import com.yanzhenjie.permission.PermissionListener
-import io.reactivex.disposables.CompositeDisposable
 
 class MainActivity : BaseActivity() {
 
@@ -104,7 +103,7 @@ class MainActivity : BaseActivity() {
         }
 
         if (isBluetoothConnected()) {
-            getAdapter()!!.getProfileProxy(this, getConnectedProfile()) {
+            getProfileProxy {
                 onServiceConnected { profile, proxy ->
                     val mDevices = proxy.connectedDevices
                     if (!mDevices.isNullOrEmpty()) {
@@ -379,7 +378,8 @@ class MainActivity : BaseActivity() {
                             EventBus.getDefault().post(RefreshMessageEvent("遥控器断开"))
                             EventBus.getDefault().post(RefreshMessageEvent("蓝牙断开"))
                         }
-                        BluetoothAdapter.STATE_ON -> { }
+                        BluetoothAdapter.STATE_ON -> {
+                        }
                     }
                 }
             }

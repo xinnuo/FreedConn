@@ -32,7 +32,6 @@ import com.meida.share.BaseHttp
 import com.meida.share.Const
 import com.meida.utils.*
 import com.meida.utils.BluetoothHelper.getAdapter
-import com.meida.utils.BluetoothHelper.getConnectedProfile
 import com.netease.nimlib.sdk.Observer
 import com.netease.nimlib.sdk.avchat.AVChatManager
 import com.netease.nimlib.sdk.avchat.constant.AVChatUserRole
@@ -924,7 +923,7 @@ class NetworkChatActivity : BaseActivity() {
                                 it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO
                                         || it.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP
                             } -> {
-                                getAdapter()!!.getProfileProxy(baseContext, getConnectedProfile()) {
+                                getProfileProxy {
                                     onServiceConnected { profile, proxy ->
                                         val mDevices = proxy.connectedDevices
                                         if (!mDevices.isNullOrEmpty()) {
@@ -967,7 +966,7 @@ class NetworkChatActivity : BaseActivity() {
                     } else {
                         when {
                             isBlue -> {
-                                getAdapter()!!.getProfileProxy(baseContext, getConnectedProfile()) {
+                                getProfileProxy {
                                     onServiceConnected { profile, proxy ->
                                         val mDevices = proxy.connectedDevices
                                         if (!mDevices.isNullOrEmpty()) {
@@ -1010,8 +1009,10 @@ class NetworkChatActivity : BaseActivity() {
                     //降低音乐声音
                     if (TeamAVChatProfile.sharedInstance().isTeamAVEnable) {
                         // am.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0)
-                        am.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
-                            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                        am.requestAudioFocus(
+                            null, AudioManager.STREAM_MUSIC,
+                            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+                        )
                     } else {
                         // am.setStreamVolume(AudioManager.STREAM_MUSIC, currentMusic ?: 5, 0)
                         am.abandonAudioFocus(null)
@@ -1023,7 +1024,7 @@ class NetworkChatActivity : BaseActivity() {
     /* 是否使用FreedConn产品 */
     private fun checkFreedconn() {
         if (BluetoothHelper.isBluetoothConnected()) {
-            getAdapter()!!.getProfileProxy(baseContext, getConnectedProfile()) {
+            getProfileProxy {
                 onServiceConnected { profile, proxy ->
                     val mDevices = proxy.connectedDevices
                     if (!mDevices.isNullOrEmpty()) {
@@ -1032,7 +1033,9 @@ class NetworkChatActivity : BaseActivity() {
                             if (Const.MAC_HEADER_1 !in deviceMac
                                 && Const.MAC_HEADER_2 !in deviceMac
                                 && Const.MAC_HEADER_3 !in deviceMac
-                            ) { longToast("请使用 Freedconn 产品") }
+                            ) {
+                                longToast("请使用 Freedconn 产品")
+                            }
                         }
                     }
                     getAdapter()!!.closeProfileProxy(profile, proxy)
@@ -1233,7 +1236,7 @@ class NetworkChatActivity : BaseActivity() {
     /* 设置是否显示蓝牙图标 */
     private fun checkBlueToothStatus(event: ((Boolean) -> Unit)) {
         if (BluetoothHelper.isBluetoothConnected()) {
-            getAdapter()!!.getProfileProxy(baseContext, getConnectedProfile()) {
+            getProfileProxy {
                 onServiceConnected { profile, proxy ->
                     val mDevices = proxy.connectedDevices
                     if (!mDevices.isNullOrEmpty()) {
@@ -1279,8 +1282,10 @@ class NetworkChatActivity : BaseActivity() {
         AVChatManager.getInstance().observeControlNotification(mControlEventObserver, false) //注销网络通话控制消息
         AVChatManager.getInstance().observeControlNotification(mControlEventObserver, true)  //注册网络通话控制消息
 
-        AVChatManager.getInstance().setParameter(AVChatParameters.KEY_SESSION_MULTI_MODE_USER_ROLE, AVChatUserRole.NORMAL) //角色模式
-        AVChatManager.getInstance().setParameter(AVChatParameters.KEY_AUDIO_REPORT_SPEAKER, true)                          //声音强度汇报
+        AVChatManager.getInstance()
+            .setParameter(AVChatParameters.KEY_SESSION_MULTI_MODE_USER_ROLE, AVChatUserRole.NORMAL) //角色模式
+        AVChatManager.getInstance()
+            .setParameter(AVChatParameters.KEY_AUDIO_REPORT_SPEAKER, true)                          //声音强度汇报
         joinRoom(roomName) {
             //加入房间
             onSuccess { data ->
@@ -1370,7 +1375,8 @@ class NetworkChatActivity : BaseActivity() {
                 checkAdminCommand()
 
                 if (modeMaster == getString("accid")
-                    && list.filter { it.mobile != modeMaster }.none { it.talkbackStatus == "0" }) {
+                    && list.filter { it.mobile != modeMaster }.none { it.talkbackStatus == "0" }
+                ) {
                     getStatusData(0) {
                         modeMaster = ""
                         chatMode = TeamState.CHAT_NONE

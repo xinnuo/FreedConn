@@ -27,12 +27,16 @@
  */
 package com.meida.utils
 
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothProfile
 import android.content.Context
 
-fun BluetoothAdapter.getProfileProxy(context: Context, profile: Int, init: _ServiceListener.() -> Unit) {
-    getProfileProxy(context, _ServiceListener().apply(init), profile)
+fun Context.getProfileProxy(init: _ServiceListener.() -> Unit) {
+    BluetoothHelper.getAdapter()!!
+        .getProfileProxy(
+            this,
+            _ServiceListener().apply(init),
+            BluetoothHelper.getConnectedProfile()
+        )
 }
 
 class _ServiceListener : BluetoothProfile.ServiceListener {

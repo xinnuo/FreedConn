@@ -47,9 +47,7 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
         bleConnectUtil = BleConnectUtil.getInstance(baseContext)
 
         if (isBluetoothConnected()) {
-            BluetoothHelper.getAdapter()!!.getProfileProxy(this,
-                    BluetoothHelper.getConnectedProfile()
-            ) {
+            getProfileProxy {
                 onServiceConnected { profile, proxy ->
                     val mDevices = proxy.connectedDevices
                     if (!mDevices.isNullOrEmpty()) {
@@ -88,8 +86,8 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
         }
 
         supportFragmentManager.beginTransaction()
-                .add(R.id.network_container, mContact)
-                .commit()
+            .add(R.id.network_container, mContact)
+            .commit()
 
         network_contact.onClick {
             if (selectedPosition == 1) onBackPressed()
@@ -98,33 +96,33 @@ class NetworkActivity : BaseActivity(), OnFragmentListener {
         network_talk.onClick {
             if (selectedPosition == 0) {
                 supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(
-                                R.anim.push_left_in,
-                                R.anim.push_left_out,
-                                R.anim.push_right_in,
-                                R.anim.push_right_out
-                        )
-                        .add(R.id.network_container, TalkFragment())
-                        .hide(mContact)
-                        .addToBackStack(null)
-                        .commit()
+                    .setCustomAnimations(
+                        R.anim.push_left_in,
+                        R.anim.push_left_out,
+                        R.anim.push_right_in,
+                        R.anim.push_right_out
+                    )
+                    .add(R.id.network_container, TalkFragment())
+                    .hide(mContact)
+                    .addToBackStack(null)
+                    .commit()
             }
         }
     }
 
     override fun getData() {
         OkGo.post<String>(BaseHttp.system_set)
-                .tag(this@NetworkActivity)
-                .headers("token", getString("token"))
-                .execute(object : StringDialogCallback(baseContext, false) {
+            .tag(this@NetworkActivity)
+            .headers("token", getString("token"))
+            .execute(object : StringDialogCallback(baseContext, false) {
 
-                    override fun onSuccessResponse(response: Response<String>, msg: String, msgCode: String) {
+                override fun onSuccessResponse(response: Response<String>, msg: String, msgCode: String) {
 
-                        val obj = JSONObject(response.body()).optJSONObject("object")
-                        putString("residueTime", obj.optString("residueTime"))
-                    }
+                    val obj = JSONObject(response.body()).optJSONObject("object")
+                    putString("residueTime", obj.optString("residueTime"))
+                }
 
-                })
+            })
     }
 
     override fun onViewClick(name: String) = onBackPressed()
