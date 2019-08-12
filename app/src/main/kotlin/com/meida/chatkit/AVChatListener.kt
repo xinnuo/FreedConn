@@ -293,6 +293,116 @@ class _ICallUtil : ICallUtil {
 
 open class _AVChatStateObserver : AVChatStateObserver {
 
+    private var _onAudioDeviceChanged: ((Int, MutableSet<Int>, Boolean) -> Unit)? = null
+
+    override fun onAudioDeviceChanged(device: Int, set: MutableSet<Int>, shouldSelect: Boolean) {
+        _onAudioDeviceChanged?.invoke(device, set, shouldSelect)
+    }
+
+    fun onSubscribeAudioResult(listener: (Int, MutableSet<Int>, Boolean) -> Unit) {
+        _onAudioDeviceChanged = listener
+    }
+
+    private var _onUnsubscribeAudioResult: ((Int) -> Unit)? = null
+
+    override fun onUnsubscribeAudioResult(result: Int) {
+        _onUnsubscribeAudioResult?.invoke(result)
+    }
+
+    fun onUnsubscribeAudioResult(listener: (Int) -> Unit) {
+        _onUnsubscribeAudioResult = listener
+    }
+
+    private var _onUnpublishVideoResult: ((Int) -> Unit)? = null
+
+    override fun onUnpublishVideoResult(result: Int) {
+        _onUnpublishVideoResult?.invoke(result)
+    }
+
+    fun onUnpublishVideoResult(listener: (Int) -> Unit) {
+        _onUnpublishVideoResult = listener
+    }
+
+    private var _onAudioEffectPlayEvent: ((Int, Int) -> Unit)? = null
+
+    override fun onAudioEffectPlayEvent(effectId: Int, event: Int) {
+        _onAudioEffectPlayEvent?.invoke(effectId, event)
+    }
+
+    fun onAudioEffectPlayEvent(listener: (Int, Int) -> Unit) {
+        _onAudioEffectPlayEvent = listener
+    }
+
+    private var _onRemoteUnpublishVideo: ((String) -> Unit)? = null
+
+    override fun onRemoteUnpublishVideo(account: String) {
+        _onRemoteUnpublishVideo?.invoke(account)
+    }
+
+    fun onRemoteUnpublishVideo(listener: (String) -> Unit) {
+        _onRemoteUnpublishVideo = listener
+    }
+
+    private var _onSubscribeVideoResult: ((String, Int) -> Unit)? = null
+
+    override fun onSubscribeVideoResult(account: String, result: Int) {
+        _onSubscribeVideoResult?.invoke(account, result)
+    }
+
+    fun onSubscribeVideoResult(listener: (String, Int) -> Unit) {
+        _onSubscribeVideoResult = listener
+    }
+
+    private var _onRemotePublishVideo: ((String) -> Unit)? = null
+
+    override fun onRemotePublishVideo(account: String) {
+        _onRemotePublishVideo?.invoke(account)
+    }
+
+    fun onRemotePublishVideo(listener: (String) -> Unit) {
+        _onRemotePublishVideo = listener
+    }
+
+    private var _onUnsubscribeVideoResult: ((String, Int) -> Unit)? = null
+
+    override fun onUnsubscribeVideoResult(account: String, result: Int) {
+        _onUnsubscribeVideoResult?.invoke(account, result)
+    }
+
+    fun onUnsubscribeVideoResult(listener: (String, Int) -> Unit) {
+        _onUnsubscribeVideoResult = listener
+    }
+
+    private var _onSubscribeAudioResult: ((Int) -> Unit)? = null
+
+    override fun onSubscribeAudioResult(result: Int) {
+        _onSubscribeAudioResult?.invoke(result)
+    }
+
+    fun onSubscribeAudioResult(listener: (Int) -> Unit) {
+        _onSubscribeAudioResult = listener
+    }
+
+    private var _onAudioEffectPreload: ((Int, Int) -> Unit)? = null
+
+    override fun onAudioEffectPreload(effectId: Int, result: Int) {
+        _onAudioEffectPreload?.invoke(effectId, result)
+    }
+
+    fun onAudioEffectPreload(listener: (Int, Int) -> Unit) {
+        _onAudioEffectPreload = listener
+    }
+
+    private var _onPublishVideoResult: ((Int) -> Unit)? = null
+
+    override fun onPublishVideoResult(result: Int) {
+        _onPublishVideoResult?.invoke(result)
+    }
+
+    fun onPublishVideoResult(listener: (Int) -> Unit) {
+        _onPublishVideoResult = listener
+    }
+
     private var _onAudioMixingEvent: ((Int) -> Unit)? = null
 
     override fun onAudioMixingEvent(event: Int) {
@@ -356,16 +466,6 @@ open class _AVChatStateObserver : AVChatStateObserver {
 
     fun onReportSpeaker(listener: (MutableMap<String, Int>, Int) -> Unit) {
         _onReportSpeaker = listener
-    }
-
-    private var _onAudioDeviceChanged: ((Int) -> Unit)? = null
-
-    override fun onAudioDeviceChanged(device: Int) {
-        _onAudioDeviceChanged?.invoke(device)
-    }
-
-    fun onAudioDeviceChanged(listener: (Int) -> Unit) {
-        _onAudioDeviceChanged = listener
     }
 
     private var _onSessionStats: ((AVChatSessionStats) -> Unit)? = null

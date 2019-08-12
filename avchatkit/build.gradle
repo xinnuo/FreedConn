@@ -5,7 +5,7 @@ android {
     defaultConfig {
         minSdkVersion versions.minSdkVersion
         targetSdkVersion versions.targetSdkVersion
-        versionName "5.9.0"
+        versionName "6.7.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
