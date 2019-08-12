@@ -42,23 +42,22 @@ fun Context.getProfileProxy(init: _ServiceListener.() -> Unit) {
 class _ServiceListener : BluetoothProfile.ServiceListener {
 
     private var _onServiceDisconnected: ((Int) -> Unit)? = null
-
-    override fun onServiceDisconnected(profile: Int) {
-        _onServiceDisconnected?.invoke(profile)
-    }
+    private var _onServiceConnected: ((Int, BluetoothProfile) -> Unit)? = null
 
     fun onServiceDisconnected(listener: (Int) -> Unit) {
         _onServiceDisconnected = listener
     }
 
-    private var _onServiceConnected: ((Int, BluetoothProfile) -> Unit)? = null
+    fun onServiceConnected(listener: (Int, BluetoothProfile) -> Unit) {
+        _onServiceConnected = listener
+    }
+
+    override fun onServiceDisconnected(profile: Int) {
+        _onServiceDisconnected?.invoke(profile)
+    }
 
     override fun onServiceConnected(profile: Int, proxy: BluetoothProfile) {
         _onServiceConnected?.invoke(profile, proxy)
-    }
-
-    fun onServiceConnected(listener: (Int, BluetoothProfile) -> Unit) {
-        _onServiceConnected = listener
     }
 
 }

@@ -197,21 +197,22 @@ fun observeAVChatState(register: Boolean = true, init: _AVChatStateObserver.() -
 class _IUserInfoProvider : IUserInfoProvider() {
 
     private var _getUserInfo: ((String) -> UserInfo)? = null
-    override fun getUserInfo(account: String): UserInfo? {
-        return _getUserInfo?.invoke(account)
-    }
+    private var _getUserDisplayName: ((String) -> String)? = null
 
     fun getUserInfo(listener: (String) -> UserInfo) {
         _getUserInfo = listener
     }
 
-    private var _getUserDisplayName: ((String) -> String)? = null
-    override fun getUserDisplayName(account: String): String? {
-        return _getUserDisplayName?.invoke(account)
-    }
-
     fun getUserDisplayName(listener: (String) -> String) {
         _getUserDisplayName = listener
+    }
+
+    override fun getUserInfo(account: String): UserInfo? {
+        return _getUserInfo?.invoke(account)
+    }
+
+    override fun getUserDisplayName(account: String): String? {
+        return _getUserDisplayName?.invoke(account)
     }
 
 }
@@ -219,21 +220,22 @@ class _IUserInfoProvider : IUserInfoProvider() {
 class _ITeamDataProvider : ITeamDataProvider() {
 
     private var _getDisplayNameWithoutMe: ((String, String) -> String)? = null
-    override fun getDisplayNameWithoutMe(teamId: String, account: String): String? {
-        return _getDisplayNameWithoutMe?.invoke(teamId, account)
-    }
+    private var _getTeamMemberDisplayName: ((String, String) -> String)? = null
 
     fun getDisplayNameWithoutMe(listener: (String, String) -> String) {
         _getDisplayNameWithoutMe = listener
     }
 
-    private var _getTeamMemberDisplayName: ((String, String) -> String)? = null
-    override fun getTeamMemberDisplayName(teamId: String, account: String): String? {
-        return _getTeamMemberDisplayName?.invoke(teamId, account)
-    }
-
     fun getTeamMemberDisplayName(listener: (String, String) -> String) {
         _getTeamMemberDisplayName = listener
+    }
+
+    override fun getDisplayNameWithoutMe(teamId: String, account: String): String? {
+        return _getDisplayNameWithoutMe?.invoke(teamId, account)
+    }
+
+    override fun getTeamMemberDisplayName(teamId: String, account: String): String? {
+        return _getTeamMemberDisplayName?.invoke(teamId, account)
     }
 
 }
@@ -241,6 +243,26 @@ class _ITeamDataProvider : ITeamDataProvider() {
 class _ICallUtil : ICallUtil {
 
     private var _incomingCall: ((Context, AVChatData, String, Int) -> Unit)? = null
+    private var _outgoingCall: ((Context, String, String, Int, Int) -> Unit)? = null
+    private var _outgoingTeamCall: ((Context, String) -> Unit)? = null
+    private var _startSettings: ((Context) -> Unit)? = null
+
+    fun incomingCall(listener: (Context, AVChatData, String, Int) -> Unit) {
+        _incomingCall = listener
+    }
+
+    fun outgoingCall(listener: (Context, String, String, Int, Int) -> Unit) {
+        _outgoingCall = listener
+    }
+
+    fun outgoingTeamCall(listener: (Context, String) -> Unit) {
+        _outgoingTeamCall = listener
+    }
+
+    fun startSettings(listener: (Context) -> Unit) {
+        _startSettings = listener
+    }
+
     override fun incomingCall(
         context: Context,
         config: AVChatData,
@@ -250,11 +272,6 @@ class _ICallUtil : ICallUtil {
         _incomingCall?.invoke(context, config, displayName, source)
     }
 
-    fun incomingCall(listener: (Context, AVChatData, String, Int) -> Unit) {
-        _incomingCall = listener
-    }
-
-    private var _outgoingCall: ((Context, String, String, Int, Int) -> Unit)? = null
     override fun outgoingCall(
         context: Context,
         account: String,
@@ -265,28 +282,12 @@ class _ICallUtil : ICallUtil {
         _outgoingCall?.invoke(context, account, displayName, callType, source)
     }
 
-    fun outgoingCall(listener: (Context, String, String, Int, Int) -> Unit) {
-        _outgoingCall = listener
-    }
-
-    private var _outgoingTeamCall: ((Context, String) -> Unit)? =
-        null
-
     override fun outgoingTeamCall(context: Context, roomName: String) {
         _outgoingTeamCall?.invoke(context, roomName)
     }
 
-    fun outgoingTeamCall(listener: (Context, String) -> Unit) {
-        _outgoingTeamCall = listener
-    }
-
-    private var _startSettings: ((Context) -> Unit)? = null
     override fun startSettings(context: Context) {
         _startSettings?.invoke(context)
-    }
-
-    fun startSettings(listener: (Context) -> Unit) {
-        _startSettings = listener
     }
 
 }

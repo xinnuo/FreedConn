@@ -41,26 +41,25 @@ fun <T : Any> LQRNineGridImageView<T>.setAdapter(init: _LQRNineGridImageViewAdap
 class _LQRNineGridImageViewAdapter<T : Any> : LQRNineGridImageViewAdapter<T>() {
 
     private var _onDisplayImage: ((Context, ImageView, T) -> Unit)? = null
-
-    override fun onDisplayImage(context: Context, imageView: ImageView, t: T) {
-        _onDisplayImage?.invoke(context, imageView, t)
-    }
+    private var _generateImageView: ((ImageView) -> Unit)? = null
 
     fun onDisplayImage(listener: (Context, ImageView, T) -> Unit) {
         _onDisplayImage = listener
     }
 
-    private var _generateImageView: ((ImageView) -> Unit)? = null
+    fun generateImageView(listener: (ImageView) -> Unit) {
+        _generateImageView = listener
+    }
+
+    override fun onDisplayImage(context: Context, imageView: ImageView, t: T) {
+        _onDisplayImage?.invoke(context, imageView, t)
+    }
 
     /**
      * 重写该方法自定义生成ImageView方式，用于九宫格头像中的一个个图片控件，可以设置ScaleType等属性
      */
     override fun generateImageView(context: Context): ImageView {
         return super.generateImageView(context).apply { _generateImageView?.invoke(this) }
-    }
-
-    fun generateImageView(listener: (ImageView) -> Unit) {
-        _generateImageView = listener
     }
 
 }
